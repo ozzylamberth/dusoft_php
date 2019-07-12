@@ -1,0 +1,49 @@
+-- Table: public.userpermisos_pedidos_recibidos
+
+-- DROP TABLE public.userpermisos_pedidos_recibidos;
+
+CREATE TABLE public.userpermisos_pedidos_recibidos (
+  tbl_pedidos_recibidos_id  serial NOT NULL,
+  usuario_id   integer,
+  empresa_id   varchar(2),
+  centro_utilidad   varchar(2),
+  bodega   character varying(2),
+  /* Keys */
+  CONSTRAINT userpermisos_pedidos_recibidos_pkey
+    PRIMARY KEY (tbl_pedidos_recibidos_id),
+  /* Foreign keys */
+  CONSTRAINT userpermisos_pedidos_recibidos_empresa_centro_utilidad_bodega_fkey
+    FOREIGN KEY (empresa_id,centro_utilidad,bodega)
+    REFERENCES public.bodegas(empresa_id,centro_utilidad,bodega)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE, 
+  CONSTRAINT userpermisos_pedidos_recibidos_usuario_id_fkey
+    FOREIGN KEY (usuario_id)
+    REFERENCES public.system_usuarios(usuario_id)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE
+) WITH (
+    OIDS = FALSE
+  );
+
+ALTER TABLE public.userpermisos_pedidos_recibidos
+  OWNER TO "admin";
+
+COMMENT ON TABLE public.userpermisos_pedidos_recibidos
+  IS 'Tabla de permisos para el módulo de administración de estados de pedidos';
+
+COMMENT ON COLUMN public.userpermisos_pedidos_recibidos.tbl_pedidos_recibidos_id
+  IS 'PK tabla';
+
+COMMENT ON COLUMN public.userpermisos_pedidos_recibidos.usuario_id
+  IS 'Usuario Id';
+
+COMMENT ON COLUMN public.userpermisos_pedidos_recibidos.empresa_id
+  IS 'Empresa Id';
+
+COMMENT ON COLUMN public.userpermisos_pedidos_recibidos.centro_utilidad
+  IS 'Centro utilidad Id';
+  
+COMMENT ON COLUMN public.userpermisos_pedidos_recibidos.bodega
+  IS 'Bodega Id';
+  

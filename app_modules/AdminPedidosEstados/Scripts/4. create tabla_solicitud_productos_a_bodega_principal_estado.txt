@@ -1,0 +1,62 @@
+-- Table: public.solicitud_productos_a_bodega_principal_estado
+
+-- DROP TABLE public.solicitud_productos_a_bodega_principal_estado;
+
+CREATE TABLE public.solicitud_productos_a_bodega_principal_estado (
+  solicitud_prod_a_bod_ppal_est_id      serial NOT NULL,
+  solicitud_prod_a_bod_ppal_id          integer NOT NULL,
+  estado                			   character(1) NOT NULL,
+  responsable_id					   integer NULL,
+  fecha             				   timestamp WITHOUT TIME ZONE,
+  usuario_id            			   integer NOT NULL,
+  fecha_registro        			   timestamp WITHOUT TIME ZONE DEFAULT now(),
+  
+  /* Keys */
+  CONSTRAINT solicitud_productos_a_bodega_principal_estado_pkey
+    PRIMARY KEY (solicitud_prod_a_bod_ppal_est_id),
+  /* Foreign keys */
+  CONSTRAINT solicitud_productos_a_bodega_principal_estado_solicitud_prod_a_bod_ppal_id_fkey
+    FOREIGN KEY (solicitud_prod_a_bod_ppal_id)
+    REFERENCES public.solicitud_productos_a_bodega_principal(solicitud_prod_a_bod_ppal_id)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE,
+  CONSTRAINT solicitud_productos_a_bodega_principal_estado_operario_bodega_id_fkey
+    FOREIGN KEY (responsable_id)
+    REFERENCES public.operarios_bodega(operario_id)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE, 
+  CONSTRAINT solicitud_productos_a_bodega_principal_estado_usuario_id_fkey
+    FOREIGN KEY (usuario_id)
+    REFERENCES public.system_usuarios(usuario_id)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE
+) WITH (
+    OIDS = FALSE
+  );
+
+ALTER TABLE public.solicitud_productos_a_bodega_principal_estado
+  OWNER TO "admin";
+
+COMMENT ON TABLE public.solicitud_productos_a_bodega_principal_estado
+  IS 'Tabla que almacena la información de los estados de las solicitudes (pedidos) de las farmacias con sus respectivos responsables';
+  
+COMMENT ON COLUMN public.solicitud_productos_a_bodega_principal_estado.solicitud_prod_a_bod_ppal_est_id
+  IS 'PK tabla, número único de estado de la solicitud';
+
+COMMENT ON COLUMN public.solicitud_productos_a_bodega_principal_estado.solicitud_prod_a_bod_ppal_id
+  IS 'Id de la solicitud a la que pertenece el estado';
+
+COMMENT ON COLUMN public.solicitud_productos_a_bodega_principal_estado.estado
+  IS 'Estado de la solicitud, 0 => Está Registrada, 1 => Está Separada, 2 => Está Auditada, 3 => Está En Despacho, este estado solo es tenido en cuenta si el campo "sw_despacho" es igual a "0"';
+
+COMMENT ON COLUMN public.solicitud_productos_a_bodega_principal_estado.responsable_id
+  IS 'Usuario responsable de la solicitud en el respectivo estado';
+
+COMMENT ON COLUMN public.solicitud_productos_a_bodega_principal_estado.fecha
+  IS 'Fecha en la cual la solicitud es puesta en el respectivo estado';
+
+COMMENT ON COLUMN public.solicitud_productos_a_bodega_principal_estado.usuario_id
+  IS 'Usuario que registra';
+
+COMMENT ON COLUMN public.solicitud_productos_a_bodega_principal_estado.fecha_registro
+  IS 'Fecha de registro';

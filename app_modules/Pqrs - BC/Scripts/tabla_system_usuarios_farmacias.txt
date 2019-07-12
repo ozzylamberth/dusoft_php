@@ -1,0 +1,60 @@
+-- Table: public.system_usuarios_farmacias
+
+-- DROP TABLE public.system_usuarios_farmacias;
+
+CREATE TABLE public.system_usuarios_farmacias (
+  usuario_id      serial NOT NULL,
+  nombre          varchar(60) NOT NULL DEFAULT ''::character varying,
+  activo          char NOT NULL DEFAULT '1'::bpchar,
+  empresa_id      varchar(2),
+  bodega          varchar(2),
+  fecha_registro  timestamp WITHOUT TIME ZONE DEFAULT now(),
+  descripcion     varchar(40),
+  /* Keys */
+  CONSTRAINT system_usuarios_farmacias_pkey
+    PRIMARY KEY (usuario_id),
+  /* Foreign keys */
+  CONSTRAINT system_usuarios_farmacias_empresa_id_fkey
+    FOREIGN KEY (empresa_id)
+    REFERENCES public.empresas(empresa_id)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE, 
+  CONSTRAINT system_usuarios_farmacias_usuario_id_fkey
+    FOREIGN KEY (usuario_id)
+    REFERENCES public.system_usuarios(usuario_id)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE
+) WITH (
+    OIDS = TRUE
+  );
+
+ALTER TABLE public.system_usuarios_farmacias
+  OWNER TO "admin";
+
+COMMENT ON TABLE public.system_usuarios_farmacias
+  IS 'Usuarios asignados a farmacias';
+
+COMMENT ON COLUMN public.system_usuarios_farmacias.usuario_id
+  IS 'UID del Usuario de la farmacia';
+
+COMMENT ON COLUMN public.system_usuarios_farmacias.nombre
+  IS 'Nombre Completo del Usuario';
+
+COMMENT ON COLUMN public.system_usuarios_farmacias.activo
+  IS 'Estado del Usuario 1=Activo 0=Bloqueado';
+
+COMMENT ON COLUMN public.system_usuarios_farmacias.descripcion
+  IS 'Cargo/Ocupacion funcionario';
+
+GRANT SELECT, INSERT, UPDATE, DELETE, REFERENCES, TRIGGER
+ ON public.system_usuarios_farmacias
+TO "admin";
+
+GRANT SELECT, INSERT, UPDATE, DELETE
+ ON public.system_usuarios_farmacias
+TO siis;
+
+GRANT SELECT
+ ON public.system_usuarios_farmacias
+TO siis_consulta;
+

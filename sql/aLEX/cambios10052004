@@ -1,0 +1,148 @@
+ALTER TABLE "os_tipos_solicitudes" ADD COLUMN "sw_mostrar_en_cargos_directos" character(1)
+
+ALTER TABLE "os_tipos_solicitudes" ALTER COLUMN "sw_mostrar_en_cargos_directos" SET DEFAULT 0
+
+CREATE TABLE cargos_directos_frecuencia (
+    cargos_directos_frecuencia_id serial NOT NULL,
+    departamento character varying(6) NOT NULL,
+    estacion_id character varying(4),
+    cargo character varying(10) NOT NULL
+);
+
+ALTER TABLE ONLY cargos_directos_frecuencia
+    ADD CONSTRAINT cargos_directos_frecuencia_pkey PRIMARY KEY (cargos_directos_frecuencia_id);
+
+
+ALTER TABLE ONLY cargos_directos_frecuencia
+    ADD CONSTRAINT "$1" FOREIGN KEY (departamento) REFERENCES departamentos(departamento) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+ALTER TABLE ONLY cargos_directos_frecuencia
+    ADD CONSTRAINT "$2" FOREIGN KEY (estacion_id) REFERENCES estaciones_enfermeria(estacion_id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+ALTER TABLE ONLY cargos_directos_frecuencia
+    ADD CONSTRAINT "$3" FOREIGN KEY (cargo) REFERENCES cups(cargo) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+
+CREATE TABLE hc_cargos_directos (
+    hc_cargo_directo_id serial NOT NULL,
+    evolucion_id integer NOT NULL,
+    cargo_cups character varying(10) NOT NULL,
+    observacion text,
+    sw_usuario character(1) NOT NULL
+);
+
+
+ALTER TABLE ONLY hc_cargos_directos
+    ADD CONSTRAINT hc_cargos_directos_pkey PRIMARY KEY (hc_cargo_directo_id);
+
+ALTER TABLE ONLY hc_cargos_directos
+    ADD CONSTRAINT "$1" FOREIGN KEY (evolucion_id) REFERENCES hc_evoluciones(evolucion_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE ONLY hc_cargos_directos
+    ADD CONSTRAINT "$2" FOREIGN KEY (cargo_cups) REFERENCES cups(cargo) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+
+CREATE TABLE hc_cargos_directos_detalle (
+    hc_cargo_directo_id integer NOT NULL,
+    cargo character varying(10) NOT NULL,
+    tarifario_id character varying(4) NOT NULL,
+    cantidad numeric(9,2) NOT NULL,
+    transaccion integer,
+    autorizacion integer
+);
+
+ALTER TABLE ONLY hc_cargos_directos_detalle
+    ADD CONSTRAINT hc_cargos_directos_detalle_pkey PRIMARY KEY (hc_cargo_directo_id, tarifario_id, cargo);
+
+ALTER TABLE ONLY hc_cargos_directos_detalle
+    ADD CONSTRAINT "$1" FOREIGN KEY (cargo, tarifario_id) REFERENCES tarifarios_detalle(tarifario_id, cargo) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE ONLY hc_cargos_directos_detalle
+    ADD CONSTRAINT "$2" FOREIGN KEY (hc_cargo_directo_id) REFERENCES hc_cargos_directos(hc_cargo_directo_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE ONLY hc_cargos_directos_detalle
+    ADD CONSTRAINT "$3" FOREIGN KEY (transaccion) REFERENCES cuentas_detalle(transaccion) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE ONLY hc_cargos_directos_detalle
+    ADD CONSTRAINT "$4" FOREIGN KEY (autorizacion) REFERENCES autorizaciones(autorizacion) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+
+//modificaciones en las tablas de medicamentos
+ALTER TABLE "hc_medicamentos_recetados_amb" ADD COLUMN "sw_estado" character
+ALTER TABLE "hc_medicamentos_recetados_amb" ALTER COLUMN "sw_estado" SET DEFAULT 1
+
+
+--- submodulos duvan
+-- notas de enfermeria.sql
+
+
+CREATE TABLE hc_notas_enfermeria_descripcion (
+    hc_notas_enfermeria_descripcion_id serial NOT NULL,
+    descripcion text NOT NULL,
+		usuario_id  integer NOT NULL,
+    evolucion_id integer NOT NULL
+);
+
+
+
+ALTER TABLE ONLY hc_notas_enfermeria_descripcion
+ADD CONSTRAINT  hc_notas_enfermeria_descripcion_pkey PRIMARY KEY (hc_notas_enfermeria_descripcion_id);
+
+
+ALTER TABLE ONLY hc_notas_enfermeria_descripcion
+ADD CONSTRAINT "$1" FOREIGN KEY (evolucion_id) REFERENCES hc_evoluciones(evolucion_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE ONLY hc_notas_enfermeria_descripcion
+ADD CONSTRAINT "$2" FOREIGN KEY (usuario_id)REFERENCES system_usuarios(usuario_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--- submodulos duvan
+
+
+ALTER TABLE "qx_reservas_quirofanos_clientes" DROP CONSTRAINT "$1";
+ALTER TABLE "qx_reservas_quirofanos_clientes" ADD FOREIGN KEY ("tipo_id_tercero","tercero_id") REFERENCES "public"."terceros"("tipo_id_tercero","tercero_id")  ON UPDATE CASCADE ON DELETE RESTRICT
+ALTER TABLE "bodegas" ALTER COLUMN "tipo_numeracion" DROP NOT NULL
+
+DROP TABLE userpermisos_centro_autorizacion_criticos;
+
+CREATE TABLE userpermisos_centro_autorizacion_criticos (
+    centro_critico_id integer NOT NULL,
+    usuario_id integer NOT NULL,
+    empresa_id character(2) NOT NULL,
+    plan_id integer NOT NULL,
+    sw_todos_planes character(1) NOT NULL,
+    nivel_autorizador_id character(1) NOT NULL
+);
+
+
+ALTER TABLE ONLY userpermisos_centro_autorizacion_criticos
+    ADD CONSTRAINT userpermisos_centro_autorizacion_criticos_pkey PRIMARY KEY (usuario_id, centro_critico_id);
+
+
+ALTER TABLE ONLY userpermisos_centro_autorizacion_criticos
+    ADD CONSTRAINT "$1" FOREIGN KEY (empresa_id) REFERENCES empresas(empresa_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE ONLY userpermisos_centro_autorizacion_criticos
+    ADD  FOREIGN KEY (plan_id) REFERENCES planes(plan_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+ALTER TABLE ONLY userpermisos_centro_autorizacion_criticos
+    ADD  FOREIGN KEY (usuario_id) REFERENCES system_usuarios(usuario_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+		ALTER TABLE ONLY userpermisos_centro_autorizacion_criticos
+    ADD  FOREIGN KEY (nivel_autorizador_id) REFERENCES autorizaciones_niveles_autorizador(nivel_autorizador_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE ONLY userpermisos_centro_autorizacion_criticos
+    ADD  FOREIGN KEY (centro_critico_id) REFERENCES autorizaciones_centros_criticos(centro_critico_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+
+
+
+

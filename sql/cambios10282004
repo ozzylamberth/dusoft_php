@@ -1,0 +1,71 @@
+--claudia modificaciones para entrega de resultados ok enviado a bogota 3/nov - ok enviado tulua nov/22
+ALTER TABLE "apoyod_entrega_resultados" ADD COLUMN "tipo_id_paciente" character varying(3);
+ALTER TABLE "apoyod_entrega_resultados" ALTER COLUMN "tipo_id_paciente" SET NOT NULL;
+ALTER TABLE "apoyod_entrega_resultados" ADD COLUMN "paciente_id" character varying(32);
+ALTER TABLE "apoyod_entrega_resultados" ALTER COLUMN "paciente_id" SET NOT NULL;
+--fin del envio a bogota.
+
+
+INSERT INTO banco_sangre_motivos_incineraciones VALUES ('01', 'VENCIMIENTO');
+INSERT INTO banco_sangre_motivos_incineraciones VALUES ('02', 'CONTAMINACION');
+INSERT INTO banco_sangre_motivos_incineraciones VALUES ('03', 'ASPECTO FISICO');
+INSERT INTO banco_sangre_motivos_incineraciones VALUES ('04', 'SISTEMA ABIERTO');
+INSERT INTO banco_sangre_motivos_incineraciones VALUES ('05', 'OTROS');
+
+ALTER TABLE "banco_sangre_bolsas_incineradas" ADD COLUMN "observaciones" text;
+ALTER TABLE "banco_sangre_bolsas_incineradas" ADD COLUMN "usuario_id" integer;
+ALTER TABLE "banco_sangre_bolsas_incineradas" ADD COLUMN "fecha_registro" timestamp without time zone;
+ALTER TABLE "banco_sangre_bolsas_incineradas" ALTER COLUMN "usuario_id" SET NOT NULL;
+ALTER TABLE "banco_sangre_bolsas_incineradas" ALTER COLUMN "fecha_registro" SET NOT NULL;
+
+ALTER TABLE "centros_remision" ADD COLUMN "direccion" character varying(60);
+ALTER TABLE "centros_remision" ADD COLUMN "telefono" character varying(30);
+
+
+--claudia datalab OK enviado a bogota 18/nov - 1pm - ok enviado tulua nov/22
+CREATE TABLE userpermisos_os_lista_trabajo_interface_datalab (
+    usuario_id integer NOT NULL,
+    departamento character varying(6) NOT NULL,
+    sw_mostrar_listas character(1) DEFAULT '0'::bpchar
+);
+
+
+ALTER TABLE ONLY userpermisos_os_lista_trabajo_interface_datalab
+    ADD PRIMARY KEY (usuario_id, departamento);
+
+
+ALTER TABLE ONLY userpermisos_os_lista_trabajo_interface_datalab
+    ADD FOREIGN KEY (usuario_id) REFERENCES system_usuarios(usuario_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+ALTER TABLE ONLY userpermisos_os_lista_trabajo_interface_datalab
+    ADD FOREIGN KEY (departamento) REFERENCES departamentos(departamento) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+CREATE TABLE userpermisos_os_lista_trabajo_interface_datalab_detalle (
+    usuario_id integer NOT NULL,
+    departamento character varying NOT NULL,
+    tipo_os_lista_id integer NOT NULL
+);
+
+
+
+ALTER TABLE ONLY userpermisos_os_lista_trabajo_interface_datalab_detalle
+    ADD PRIMARY KEY (usuario_id, departamento, tipo_os_lista_id);
+
+
+
+ALTER TABLE ONLY userpermisos_os_lista_trabajo_interface_datalab_detalle
+    ADD FOREIGN KEY (usuario_id, departamento) REFERENCES userpermisos_os_lista_trabajo_interface_datalab(usuario_id, departamento);
+
+
+
+INSERT INTO system_modulos VALUES ('Os_ListaTrabajoDatalab', 'app', 'Listas de Trabajo para DATALAB', 1.00, '1', '1', '1', '1');
+INSERT INTO "system_menus" ("menu_id", "menu_nombre", "descripcion", "sw_system") VALUES (61, 'LISTA DE TRABAJO PARA DATALAB', 'Lista de trabajo en Interface con DATALAB', 0);
+INSERT INTO "system_menus_items" ("menu_item_id", "menu_id", "titulo", "modulo_tipo", "modulo", "tipo", "metodo", "descripcion", "indice_de_orden") VALUES (92, '61', 'LISTA DE TRABAJO PARA DATALAB', 'app', 'Os_ListaTrabajoDatalab', 'user', 'main', 'Lista de Trabajo para DATALAB', 0);
+INSERT INTO system_usuarios_menus VALUES (61, 2);
+
+
+
+--esta linea no se manda a tulua porque no se va a usar - claudia.
+INSERT INTO "system_modulos_variables" ("modulo", "modulo_tipo", "variable", "valor") VALUES ('Os_ListaTrabajoDatalab', 'app', 'ArchivoPlanoDatalab', 'ruta');

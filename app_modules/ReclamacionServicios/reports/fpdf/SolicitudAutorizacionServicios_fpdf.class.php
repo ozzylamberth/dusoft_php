@@ -1,0 +1,1446 @@
+<?php 
+  /**
+  * $Id: SolicitudAutorizacionServicios_fpdf.class.php,v 1.1 2009/10/21 22:04:39 hugo Exp $ 
+  * @copyright (C) 2005 IPSOFT - SA (www.ipsoft-sa.com)
+  * @package IPSOFT-SIIS
+  * 
+  * @author Hugo Freddy Manrique Arango
+  */
+  class SolicitudAutorizacionServicios_fpdf
+  {
+    var $error = "";
+    /**
+    * Constructor de la clase
+    */
+    function SolicitudAutorizacionServicios_fpdf(){}
+    /**
+    * Funcion para generar el archivo xml
+    *
+    * @param array $parametros Arreglo de oarametros del request
+    *
+    * @return boolean
+    */
+    function GetReporteFPDF($parametros,$nombre,$pathImagen)
+    {
+      $nvd = AutoCarga::factory('Resolucion3047','classes','app','ReclamacionServicios');
+      $mdl = AutoCarga::factory("ReclamacionServiciosSQL", "", "app", "ReclamacionServicios");
+   
+      if(!$rst = $nvd->ObtenerDatosSolicitudAutorizacionServicios($parametros))
+      {
+        $this->error = $nvd->mensajeDeError;
+        return false;
+      }
+      $empresa    = $mdl->ConsultarEmpresa($rst['plan_id']);
+      $paciente   = $mdl->ConsultarPaciente($rst['paciente_id'], $rst['tipo_id_paciente']);
+      $tercero    = $mdl->ConsultarTerceros($rst['plan_id']);
+      $coberturas = $mdl->ConsCoberturaSaludPlan($rst['plan_id']);
+      $usuario = $mdl->ConsultarUsuario($rst['usuario_id']);
+      $datos = $rst;
+      $datos = array_merge($datos, $empresa);
+      $datos = array_merge($datos, $tercero);
+      $datos = array_merge($datos, $paciente);
+      $datos = array_merge($datos, $coberturas);
+      $datos = array_merge($datos, $usuario);
+      
+      if($rst['solicitud_manual'] == '0')
+      {
+        $via_ing_cama = $mdl->ConsultarViaIngresoCama($rst['ingreso']);
+        //$diagnosticos = $mdl->ConsultarDiagnosticos($rst['ingreso'],$rst['profesional_id']);
+        $prof = $mdl->ConsTipoProfesFiltro($rst['ingreso'], $rst['profesional_id']);
+        $datos = array_merge($datos, $via_ing_cama);
+        $datos = array_merge($datos, $prof);
+        
+      }
+      $diagnosticos = $mdl->ConsultarDiagnosticos($rst['ingreso'],$rst['profesional_id']);
+      $datos['diagnosticos'] = $diagnosticos;
+     
+      $this->GenerarAutorizacionServicios($datos,$nombre,$pathImagen,$mdl);
+      return true;
+    }
+    /**
+    *
+    */
+    function GenerarAutorizacionServicios($datos,$Dir,$pathImagen,$mdl)
+    {
+  
+     define('FPDF_FONTPATH', 'font/');
+      $pdf=new PDF('P', 'mm', 'letter');//legal
+      $pdf->AddPage();
+      $pdf->Image($pathImagen.'/escudo-colombia.jpg', 15, 10, 10);
+      $pdf->SetFont('Arial','',7);
+      
+      $html .="<TABLE WIDTH='780'>";
+      $html .= "<TR>";
+      $html .= "<TD WIDTH='780' HEIGHT=26 ALIGN='CENTER'>";
+      $html .= "<b>MINISTERIO DE LA PROTECCION SOCIAL</b>";
+      $html .= "</TD>";
+      $html .= "</TR>";  
+      $html .= "<TR>";
+      $html .= "<TD WIDTH='780' HEIGHT=26 ALIGN='CENTER'>";
+      $html .= "<FONT SIZE='16'><b>SOLICITUD DE AUTORIZACION DE SERVICIOS DE SALUD</b></FONT>";
+      $html .= "</TD>";
+      $html .= "</TR>";
+      $html .= "<TR>";
+      $html .= "<TD WIDTH='300' ALIGN='RIGHT' HEIGHT=26>";
+      $html .= "<b>NUMERO SOLICITUD</b> ";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='80' ALIGN='RIGHT' HEIGHT=26>";
+
+      $numero = str_pad($datos['numero_solicitud'], 4, "-", STR_PAD_LEFT);
+      $html .= "<TABLE BORDER='1'>";
+      for($j=0; $j<4; $j++)
+      {
+        if($numero[$j]!='-')
+        {
+          $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+          $html .= "".$numero[$j]."";
+          $html .= "</TD>";
+        }else{
+          $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+          $html .= "&nbsp;";
+          $html .= "</TD>";
+        }
+      }
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='50' ALIGN='RIGHT' HEIGHT=26>";
+      $html .= "<b>Fecha:</b> ";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='200' ALIGN='RIGHT' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      for($i=0; $i<10; $i++)
+      {
+        $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+        $html .= "".$datos['fecha'][$i]."";
+        $html .= "</TD>";
+      }    
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='50' ALIGN='RIGHT' HEIGHT=26>";
+      $html .= "<b>Hora:</b> ";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='100' ALIGN='RIGHT' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      for($j=0; $j<5; $j++)
+      {
+        $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+        $html .= "".$datos['hora'][$j]."";
+        $html .= "</TD>";
+      }
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "</TR>";
+      $html .= "<TR>";
+      $html .= "<TD WIDTH='200' ALIGN='LEFT' HEIGHT=26>";
+      $html .= "<b>INFORMACION DEL PRESTADOR (solicitante)</b>";
+      $html .= "</TD>";
+      $html .= "</TR>";
+      $html .= "<TR>";
+      $html .= "<TD WIDTH='480' ALIGN='LEFT' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='480' ALIGN='LEFT' HEIGHT=26>";
+      $html .= "Nombre   ".$datos['razon_social']."";
+      $html .= "</TD>";    
+      $html .= "</TABLE>";    
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='20' ALIGN='LEFT' HEIGHT=26>";
+      $html .= "<b>NIT</b>  ";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='20' ALIGN='LEFT' HEIGHT=26>";
+      if($datos['tipo_id_tercero']=='NIT')
+      {
+        $html .= "<TABLE BORDER='1'>";      
+        $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+        $html .= "X";
+        $html .= "</TD>";            
+        $html .= "</TABLE>";
+      }else{
+        $html .= "<TABLE BORDER='1'>";      
+        $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+        $html .= "&nbsp;";
+        $html .= "</TD>";            
+        $html .= "</TABLE>";
+      }
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+      $html .= "&nbsp;";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='240' ALIGN='RIGHT' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      $emp_id = str_pad($datos['id_emp'], 12, "-", STR_PAD_LEFT);
+      for($i=0; $i<12; $i++)
+      {
+        $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+        if($datos['tipo_id_tercero']=='NIT' && $emp_id[$i]!='-')
+        {        
+          $html .= "".$emp_id[$i]."";
+        }else{
+          $html .= "&nbsp;";
+        }
+        $html .= "</TD>";
+      }    
+      $html .= "</TABLE>";
+      $html .= "</TD>";    
+      $html .= "</TR>";
+      $html .= "<TR>";
+      $html .= "<TD WIDTH='480' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='480' HEIGHT=26>";
+      $html .= "&nbsp;";
+      $html .= "</TD>";
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='20' ALIGN='LEFT' HEIGHT=26>";
+      $html .= "<b>CC</b>  ";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='20' ALIGN='LEFT' HEIGHT=26>";
+      if($datos['tipo_id_tercero']=='CC')
+      {
+        $html .= "<TABLE BORDER='1'>";
+        $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+        $html .= "X";
+        $html .= "</TD>";
+        $html .= "</TABLE>";
+      }else{
+        $html .= "<TABLE BORDER='1'>";      
+        $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+        $html .= "&nbsp;";
+        $html .= "</TD>";            
+        $html .= "</TABLE>";
+      }
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+      $html .= "&nbsp;";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='240' ALIGN='RIGHT' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='240' HEIGHT=26>";
+      if($datos['tipo_id_tercero']=='CC')
+      {
+        $html .= "Número      ".$datos['id_emp']."";
+      }else{
+        $html .= "Número                                             DV ".$datos['dv_emp']."";
+      }
+      $html .= "</TD>";    
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "</TR>";
+      $html .= "<TR>";
+      $html .= "<TD WIDTH='60' ALIGN='LEFT' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='60' ALIGN='LEFT' HEIGHT=26>";
+      $html .= "<b>Código</b>";
+      $html .= "</TD>";
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $cod_sgsss = str_pad($datos['codigo_sgsss'], 12, "-", STR_PAD_LEFT);
+      $html .= "<TD WIDTH='240' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      for($j=0; $j<12; $j++)
+      {
+        $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+        if($cod_sgsss[$j]!="-")
+        {        
+          $html .= "".$cod_sgsss[$j]."";        
+        }else{
+          $html .= "&nbsp;";
+        }
+        $html .= "</TD>";
+      }
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "<TD ALIGN='LEFT' WIDTH='480' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='480' HEIGHT=26>";
+      $html .= "Dirección prestador: ".$datos['direccion_emp']."";
+      $html .= "</TD>";
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "</TR>";
+      $html .= "<TR>";
+      $html .= "<TD WIDTH='60' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      $ind_emp = str_pad($datos['indicativo_emp'], 5, "-", STR_PAD_LEFT);
+      $html .= "<TD WIDTH='60' ALIGN='center' HEIGHT=26>";
+      $html .= "<b>Teléfono:</b>";
+      $html .= "</TD>";
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='240' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      for($i=0; $i<5; $i++)
+      {
+        $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+        if($ind_emp[$i]!="-")
+        {
+          $html .= "".$ind_emp[$i]."";
+        }else{
+          $html .= "&nbsp;";   
+        }
+        $html .= "</TD>";
+      }
+      $tel_emp = str_pad($datos['telefonos_emp'], 7, "-", STR_PAD_LEFT);
+      for($j=0; $j<7; $j++)
+      {
+        $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";    
+        if($tel_emp[$j]!="-")
+        {
+          $html .= "".$tel_emp[$j]."";
+        }else{
+          $html .= "&nbsp;";
+        }
+        $html .= "</TD>";
+      }    
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='480' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='480' HEIGHT=26>";
+      $html .= "&nbsp;";
+      $html .= "</TD>";
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "</TR>";
+      $html .= "<TR>";    
+      $html .= "<TD WIDTH='760' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='60' HEIGHT=26>";
+      $html .= "&nbsp;";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='100' ALIGN='CENTER' HEIGHT=26>";
+      $html .= "indicativo";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='140' ALIGN='CENTER' HEIGHT=26>";
+      $html .= "número";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='190' ALIGN='LEFT' HEIGHT=26>";
+      $html .= "Departamento: ".$datos['departamento_emp']."";
+      $html .= "</TD>";
+      $dept_emp = str_pad($datos['tipo_dpto_id_emp'], 2, "-", STR_PAD_LEFT);
+      $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+      if($dept_emp[0]!="-")
+      {      
+        $html .= "".$dept_emp[0]."";      
+      }else{
+        $html .= "&nbsp;";      
+      }
+      $html .= "</TD>";    
+      $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+      if($dept_emp[1]!="-")
+      {      
+        $html .= "".$dept_emp[1]."";      
+      }else{
+        $html .= "&nbsp;";      
+      }
+      $html .= "</TD>";    
+      $html .= "<TD WIDTH='190' ALIGN='LEFT' HEIGHT=26>";
+      $html .= "Municipio: ".$datos['municipio_emp']."";
+      $html .= "</TD>";
+      $mpio_emp = str_pad($datos['tipo_mpio_id_emp'], 3, "-", STR_PAD_LEFT);
+      for($i=0; $i<3; $i++)
+      {
+        $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+        if($mpio_emp[$i]!="-")
+          $html .= "".$mpio_emp[$i]."";
+        else
+          $html .= "&nbsp;";
+        $html .= "</TD>";
+      }
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "</TR>";
+      $html .= "<TR>";
+      $html .= "<TD WIDTH='760' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='490' ALIGN='LEFT' HEIGHT=26>";    
+      $nom_pag = substr($datos['nombre_tercero'], 0, 30);
+      $html .= "ENTIDAD A LA QUE SE LE INFORMA (PAGADOR): ".$nom_pag."";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='50' ALIGN='LEFT' HEIGHT=26>";
+      $html .= "<b>CODIGO:</b>";
+      $html .= "</TD>";
+      $id_pagador = str_pad($datos['codigo_sgsss_p'], 12, "-", STR_PAD_LEFT);
+      for($i=0; $i<12; $i++)
+      {
+        if($id_pagador[$i]!="-")
+        {
+          $html .= "<TD WIDTH='20' ALIGN='LEFT' HEIGHT=26>";
+          $html .= "".$id_pagador[$i]."";
+          $html .= "</TD>";
+        }else{
+          $html .= "<TD WIDTH='20' ALIGN='LEFT' HEIGHT=26>";
+          $html .= "&nbsp;";
+          $html .= "</TD>";
+        }
+      }
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "</TR>";
+      $html .= "<TR>";
+      $html .= "<TD WIDTH='780' ALIGN='CENTER' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='780' ALIGN='CENTER' HEIGHT=26>";
+      $html .= "<b>DATOS DEL PACIENTE</b>";
+      $html .= "</TD>";
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "</TR>";
+      $html .= "<TR>";
+      $html .= "<TD WIDTH='780' ALIGN='CENTER' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      if($datos['primer_apellido_u']!="")
+      {
+        $html .= "<TD WIDTH='195' ALIGN='CENTER' HEIGHT=26>";
+        $html .= "".$datos['primer_apellido_u']."";
+        $html .= "</TD>";  
+      }else{
+        $html .= "<TD WIDTH='195' ALIGN='CENTER' HEIGHT=26>";
+        $html .= "&nbsp;";
+        $html .= "</TD>";
+      }
+      if($datos['segundo_apellido_u']!="")
+      {
+        $html .= "<TD WIDTH='195' ALIGN='CENTER' HEIGHT=26>";
+        $html .= "".$datos['segundo_apellido_u']."";
+        $html .= "</TD>";  
+      }else{
+        $html .= "<TD WIDTH='195' ALIGN='CENTER' HEIGHT=26>";
+        $html .= "no tiene";
+        $html .= "</TD>";
+      }
+      if($datos['primer_nombre_u']!="")
+      {
+        $html .= "<TD WIDTH='195' ALIGN='CENTER' HEIGHT=26>";
+        $html .= "".$datos['primer_nombre_u']."";
+        $html .= "</TD>";  
+      }else{
+        $html .= "<TD WIDTH='195' ALIGN='CENTER' HEIGHT=26>";
+        $html .= "&nbsp;";
+        $html .= "</TD>";
+      }
+      if($datos['segundo_nombre_u']!="")
+      {
+        $html .= "<TD WIDTH='195' ALIGN='CENTER' HEIGHT=26>";
+        $html .= "".$datos['segundo_nombre_u']."";
+        $html .= "</TD>";  
+      }else{
+        $html .= "<TD WIDTH='195' ALIGN='CENTER' HEIGHT=26>";
+        $html .= "no tiene";
+        $html .= "</TD>";
+      }
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "</TR>";
+      $html .= "<TR>";
+      $html .= "<b>";
+      $html .= "<TD WIDTH='195' ALIGN='CENTER' HEIGHT=26>";
+      $html .= "1er Apellido";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='195' ALIGN='CENTER' HEIGHT=26>";
+      $html .= "2do Apellido";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='195' ALIGN='CENTER' HEIGHT=26>";
+      $html .= "1er Nombre";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='195' ALIGN='CENTER' HEIGHT=26>";
+      $html .= "2do Nombre";
+      $html .= "</TD>";
+      $html .= "</b>";
+      $html .= "</TR>";
+      $html .= "<TR>";
+      $html .= "<TD WIDTH='190' ALIGN='LEFT' HEIGHT=26>";
+      $html .= "<b>Tipo Documento de Identificación</b>";
+      $html .= "</TD>";
+      $html .= "</TR>";
+      $html .= "<TR>";
+      $html .= "<TD WIDTH='20' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+      if($datos['tipo_id_paciente']=="RC")
+      {        
+        $html .= "X";      
+      }else{
+        $html .= "&nbsp;";      
+      }
+      $html .= "</TD>";
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='150' ALIGN='LEFT' HEIGHT=26>";
+      $html .= "Registro Civil";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='20' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+      if($datos['tipo_id_paciente']=="PA")
+      {
+        $html .= "X"; 
+      }else{
+        $html .= "&nbsp;";
+      }
+      $html .= "</TD>";
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='180' ALIGN='LEFT' HEIGHT=26>";
+      $html .= "Pasaporte";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='340' ALIGN='LEFT' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      $id_u = str_pad($datos['paciente_id'], 17, "-", STR_PAD_LEFT);
+      for($j=0; $j<18; $j++)
+      {
+        $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+        if($id_u[$j]!="-")
+        {
+          $html .= "".$id_u[$j]."";
+        }else{
+          $html .= "&nbsp;";
+        }
+        $html .= "</TD>";
+      }    
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "</TR>";
+      $html .= "<TR>";
+      $html .= "<TD WIDTH='20' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+      if($datos['tipo_id_paciente']=="TI")
+      {        
+        $html .= "X";      
+      }else{
+        $html .= "&nbsp;";      
+      }
+      $html .= "</TD>";
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='150' ALIGN='LEFT' HEIGHT=26>";
+      $html .= "Tarjeta de identidad";    
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='20' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+      if($datos['tipo_id_paciente']=="AS")
+      {
+        $html .= "X"; 
+      }else{
+        $html .= "&nbsp;";
+      }
+      $html .= "</TD>";
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='180' ALIGN='LEFT' HEIGHT=26>";
+      $html .= "Adulto sin identificación";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='340' ALIGN='CENTER' HEIGHT=26>";
+      $html .= "Numero documento de identificación";
+      $html .= "</TD>";
+      $html .= "</TR>";
+      $html .= "<TR>";
+      $html .= "<TD WIDTH='20' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+      if($datos['tipo_id_paciente']=="CC")
+      {        
+        $html .= "X";      
+      }else{
+        $html .= "&nbsp;";      
+      }
+      $html .= "</TD>";
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='150' ALIGN='LEFT' HEIGHT=26>";
+      $html .= "Cédula de ciudadanía";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='20' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+      if($datos['tipo_id_paciente']=="MS")
+      {
+        $html .= "X"; 
+      }else{
+        $html .= "&nbsp;";
+      }
+      $html .= "</TD>";
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='180' ALIGN='LEFT' HEIGHT=26>";
+      $html .= "Menor sin identificacíon";
+      $html .= "</TD>";
+      $html .= "</TR>";
+      $html .= "<TR>";
+      $html .= "<TD WIDTH='20' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+      if($datos['tipo_id_paciente']=="CE")
+      {        
+        $html .= "X";      
+      }else{
+        $html .= "&nbsp;";      
+      }
+      $html .= "</TD>";
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='150' ALIGN='LEFT' HEIGHT=26>";
+      $html .= "Cédula de extranjería";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='200' ALIGN='CENTER' HEIGHT=26>";
+      $html .= "&nbsp;";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='130' ALIGN='CENTER' HEIGHT=26>";
+      $html .= "<b>Fecha de Nacimiento</b>";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='260' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      for($i=0; $i<10; $i++)
+      {
+        $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+        $html .= "".$datos['fecha_nacimiento_u'][$i]."";
+        $html .= "</TD>";
+      }
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "</TR>";
+      $html .= "<TR>";
+      $html .= "<TD WIDTH='780' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='500' ALIGN='LEFT' HEIGHT=26>";
+      if($datos['residencia_direccion_u']!="")
+        $html .= "Dirección de Residencia Habitual: ".$datos['residencia_direccion_u']."";
+      else
+        $html .= "Dirección de Residencia Habitual: no tiene";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='80' ALIGN='LEFT' HEIGHT=26>";
+      $html .= "<b>Telefono:</b> ";
+      $html .= "</TD>";
+      $len_tel_u = strlen($datos['residencia_telefono_u']);
+      
+      for($i=0; $i<$len_tel_u;$i++)
+      {
+        if(is_numeric($datos['residencia_telefono_u'][$i]))
+          $num_tel_u = $num_tel_u.$datos['residencia_telefono_u'][$i];
+        else
+          break;
+      }
+      $numtelu = str_pad($num_tel_u, 10, "-", STR_PAD_LEFT);
+      for($j=0; $j<10; $j++)
+      {  
+        $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+        if($numtelu[$j]!="-")
+        {        
+          $html .= "".$numtelu[$j]."";
+        }else{
+          $html .= "&nbsp;";        
+        }
+        $html .= "</TD>";
+      }
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "</TR>";
+      $html .= "<TR>";
+      $html .= "<TD WIDTH='780' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='340' ALIGN='LEFT' HEIGHT=26>";
+      $html .= "Departamento: ".$datos['departamento_u']."";
+      $html .= "</TD>";
+      $dept_u = str_pad($datos['tipo_dpto_id_u'], 2, "-", STR_PAD_LEFT);
+      $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+      if($dept_u[0]!="-")
+      {      
+        $html .= "".$dept_u[0]."";      
+      }else{
+        $html .= "&nbsp;";      
+      }
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+      if($dept_u[1]!="-")
+      {      
+        $html .= "".$dept_u[1]."";      
+      }else{
+        $html .= "&nbsp;";      
+      }
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='340' ALIGN='LEFT' HEIGHT=26>";
+      $html .= "Municipio: ".$datos['municipio_u']."";
+      $html .= "</TD>";
+      $mpio_u = str_pad($datos['tipo_mpio_id_u'], 3, "-", STR_PAD_LEFT);
+      for($i=0; $i<3; $i++)
+      {
+        $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+        if($mpio_u[$i]!="-")
+          $html .= "".$mpio_u[$i]."";
+        else
+          $html .= "&nbsp;";
+        $html .= "</TD>";
+      }
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "</TR>";
+      $html .= "<TR>";
+      $html .= "<TD WIDTH='780' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='100' ALIGN='LEFT' HEIGHT=26>";
+      $html .= "Teléfono celular";
+      $html .= "</TD>";
+      $tel_cel = str_pad($datos['celular_telefono'], 10, "-", STR_PAD_LEFT);
+      for($i=0; $i<10; $i++)
+      {
+        $html .= "<TD WIDTH='20' HEIGHT=26>";
+        if($tel_cel[$i]!="-")
+          $html .= "".$tel_cel[$i]."";
+        else
+          $html .= "&nbsp;";
+        $html .= "</TD>";
+      }
+      $html .= "<TD WIDTH='480' HEIGHT=26>";
+      $html .= "Correo electrónico  ".$datos['email']."";
+      $html .= "</TD>";
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "</TR>";
+      $html .= "<TR>";
+      $html .= "<TD WIDTH='780' ALIGN='LEFT' HEIGHT=26>";
+      $html .= "<b>Cobertura en salud</b>";
+      $html .= "</TD>";
+      $html .= "</TR>";
+      $html .= "<TR>";
+      $html .= "<TD WIDTH='20' ALIGN='CENTER'>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='20' ALIGN='CENTER'>";
+      if($datos['regimen_res_3047']=="RCT")
+        $html .= "X";
+      else
+        $html .= "&nbsp;";
+      $html .= "</TD>";    
+      $html .= "</TABLE>";    
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='135' ALIGN='LEFT'>";
+      $html .= "Regimen Contributivo";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='20' ALIGN='CENTER'>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='20' ALIGN='CENTER'>";
+      if($datos['regimen_res_3047']=="RSP")
+        $html .= "X";
+      else
+        $html .= "&nbsp;";
+      $html .= "</TD>";    
+      $html .= "</TABLE>";    
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='205' ALIGN='LEFT'>";
+      $html .= "Regimen Subsidiado - parcial";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='20' ALIGN='CENTER'>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='20' ALIGN='CENTER'>";
+      if($datos['regimen_res_3047']=="PPC")
+        $html .= "X";
+      else
+        $html .= "&nbsp;";
+      $html .= "</TD>";    
+      $html .= "</TABLE>";    
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='205' ALIGN='LEFT'>";
+      $html .= "Poblacion pobre no Asegurada sin SISBEN";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='20' ALIGN='CENTER'>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='20' ALIGN='CENTER'>";
+      if($datos['regimen_res_3047']=="PAS")
+        $html .= "X";
+      else
+        $html .= "&nbsp;";
+      $html .= "</TD>";    
+      $html .= "</TABLE>";    
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='135' ALIGN='LEFT'>";
+      $html .= "Plan adicional de salud";
+      $html .= "</TD>";
+      $html .= "</TR>";
+      $html .= "<TR>";
+      $html .= "<TD WIDTH='20' ALIGN='CENTER'>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='20' ALIGN='CENTER'>";
+      if($datos['regimen_res_3047']=="RST")
+        $html .= "X";
+      else
+        $html .= "&nbsp;";
+      $html .= "</TD>";    
+      $html .= "</TABLE>";    
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='135' ALIGN='LEFT'>";
+      $html .= "Regimen Subsidiado - total";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='20' ALIGN='CENTER'>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='20' ALIGN='CENTER'>";
+      if($datos['regimen_res_3047']=="PPC")
+        $html .= "X";
+      else
+        $html .= "&nbsp;";
+      $html .= "</TD>";    
+      $html .= "</TABLE>";    
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='205' ALIGN='LEFT'>";
+      $html .= "Poblacion pobre no Asegurada con SISBEN";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='20' ALIGN='CENTER'>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='20' ALIGN='CENTER'>";
+      if($datos['regimen_res_3047']=="DES")
+        $html .= "X";
+      else
+        $html .= "&nbsp;";
+      $html .= "</TD>";    
+      $html .= "</TABLE>";    
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='205' ALIGN='LEFT'>";
+      $html .= "Desplazado";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='20' ALIGN='CENTER'>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='20' ALIGN='CENTER'>";
+      if($datos['regimen_res_3047']=="OTR")
+        $html .= "X";
+      else
+        $html .= "&nbsp;";
+      $html .= "</TD>";    
+      $html .= "</TABLE>";    
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='135' ALIGN='LEFT'>";
+      $html .= "Otro";
+      $html .= "</TD>";
+      $html .= "</TR>";
+      $html .= "<TR>";
+      $html .= "<TD WIDTH='780' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='780' ALIGN='CENTER' HEIGHT=26><b>INFORMACION DE LA ATENCION</b>";
+      $html .= "</TD>";
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "</TR>";
+      $html .= "<TR>";
+      $html .= "<TD WIDTH='780' HEIGHT=26>";
+      $html .= "<TABLE>";
+      $html .= "<TR>";
+      $html .= "<TD WIDTH=390 HEIGHT=26><b>Origen de la atención</b></TD>";    
+      $html .= "<TD WIDTH=200 HEIGHT=26><b>Tipo de servicios solicitados</b></TD>";  
+      $html .= "<TD WIDTH=190 HEIGHT=26><b>Prioridad de la atencion</b></TD>";
+      $html .= "</TR>";
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "</TR>";
+      $html .= "<TR>";
+      $html .= "<TD WIDTH='20' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+      $cont=0;
+      if($datos['origen_atencion']=="13")
+      {
+        $html .= "X";
+      }else{
+        $cont++;
+        $html .= "&nbsp;";
+      }
+      $html .= "</TD>";
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='120' ALIGN='LEFT' HEIGHT=26>";
+      $html .= "Enfermedad General";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='20' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+      if($datos['origen_atencion']=="01")
+      {
+        $html .= "X";
+      }else{
+        $html .= "&nbsp;";
+        $cont++;
+      }
+      $html .= "</TD>";
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='110' ALIGN='LEFT' HEIGHT=26>";
+      $html .= "Accidente de trabajo";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='20' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+      if($datos['origen_atencion']=="06")
+      {
+        $html .= "X";
+      }else{
+        $html .= "&nbsp;";
+        $cont++;
+      }
+      $html .= "</TD>";
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='100' ALIGN='LEFT' HEIGHT=26>";
+      $html .= "Evento Catastrófico";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='20' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+      if($datos['tipo_servicio']=="1")
+        $html .= "X";
+      else
+        $html .= "&nbsp;";
+      
+      $html .= "</TD>";
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='180' ALIGN='LEFT' HEIGHT=26>";
+      $html .= "Posterior a la atencion de urgencias";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='20' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+      $html .= "".(($datos['prioridad']=="1")? "X":"&nbsp;")."";
+      $html .= "</TD>";
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='170' ALIGN='LEFT' HEIGHT=26>Prioritaria</TD>";
+      $html .= "</TR>";
+      $html .= "<TR>";
+      $html .= "<TD WIDTH='20' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+      if($datos['origen_atencion']=="14")
+      {
+        $html .= "X";
+      }else{
+        $html .= "&nbsp;";
+        $cont++;
+      }
+      $html .= "</TD>";
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='120' ALIGN='LEFT' HEIGHT=26>";
+      $html .= "Enfermedad Profesional";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='20' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+      if($datos['origen_atencion']=="02")
+      {
+        $html .= "X";
+      }else{
+        $html .= "&nbsp;";
+        $cont++;
+      }
+      $html .= "</TD>";
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='110' ALIGN='LEFT' HEIGHT=26>";
+      $html .= "Accidente de Tránsito";
+      $html .= "</TD>";
+      if($cont==5)
+      {
+        $html .= "<TD WIDTH='20' HEIGHT=26>";
+        $html .= "<TABLE BORDER='1'>";
+        $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+        $html .= "X";
+        $html .= "</TD>";
+        $html .= "</TABLE>";
+        $html .= "</TD>";
+        $html .= "<TD WIDTH='100' ALIGN='LEFT' HEIGHT=26>";
+        $html .= "Otro";
+        $html .= "</TD>";
+      }else{
+        $html .= "<TD WIDTH='120' ALIGN='LEFT' HEIGHT=26>";
+        $html .= "&nbsp;";
+        $html .= "</TD>";
+      }
+      $html .= "<TD WIDTH='20' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+      if($datos['tipo_servicio']=="2")
+        $html .= "X";
+      else
+        $html .= "&nbsp;";
+    
+      $html .= "</TD>";
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='180' ALIGN='LEFT' HEIGHT=26>";
+      $html .= "Servicios electivos";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='20' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+      $html .= "".(($datos['prioridad']=="2")? "X":"&nbsp;")."";
+      $html .= "</TD>";
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='170' ALIGN='LEFT' HEIGHT=26>No prioritaria</TD>";
+      $html .= "</TR>";
+      $html .= "<TR>";
+      $html .= "<TD WIDTH='780' ALIGN='LEFT' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='780' ALIGN='LEFT' HEIGHT=26>";
+      $html .= "<b>Ubicación del Paciente al momento de la solicitud de autorización:</b>";
+      $html .= "</TD>";
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "</TR>";
+      $html .= "<TR>";
+      $html .= "<TD WIDTH='20' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+
+      if($datos['cargos'][0]['descripcion']=="AMBULATORIO")
+        $html .= "X";
+      else
+        $html .= "&nbsp;";
+      $html .= "</TD>";
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='90' ALIGN='LEFT' HEIGHT=26>";
+      $html .= "Consulta Externa";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='20' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+      if($datos['cargos'][0]['descripcion']=="HOSPITALARIO" || $datos['cargos'][0]['descripcion']=="U.C.I." || $datos['cargos'][0]['descripcion']=="CIRUGIA")
+        $html .= "X";
+      else
+        $html .= "&nbsp;";
+      $html .= "</TD>";
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='70' ALIGN='LEFT' HEIGHT=26>";
+      $html .= "Hospitalización";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='60' ALIGN='CENTER' HEIGHT=26>";
+      $html .= "Servicio";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='360' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='360' ALIGN='LEFT' HEIGHT=26>";
+      if($datos['cargos'][0]['descripcion'])
+        $html .= "".$datos['cargos'][0]['descripcion']."";
+      else
+        $html .= "&nbsp;";
+      $html .= "</TD>";
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='40' ALIGN='CENTER' HEIGHT=26>";
+      $html .= "Cama";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='120' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      $no_cama = str_pad($datos['cama'], 6, "-", STR_PAD_LEFT);
+      for($i=0; $i<6; $i++)
+      {
+        $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+        if($no_cama[$i]!="-")
+          $html .= "".$no_cama[$i]."";
+        else
+          $html .= "&nbsp;";
+        $html .= "</TD>";
+      }
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "</TR>";
+      $html .= "<TR>";
+      $html .= "<TD WIDTH='20' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+      if($datos['cargos'][0]['descripcion']=="URGENCIAS")
+        $html .= "X";
+      else
+        $html .= "&nbsp;";
+      $html .= "</TD>";
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='760' ALIGN='LEFT' HEIGHT=26>";
+      $html .= "Urgencias";
+      $html .= "</TD>";
+      $html .= "</TR>";
+      
+      $html .= "<TR>";
+      $html .= "<TD WIDTH='780' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='780' ALIGN='LEFT' HEIGHT=26>";
+      $html .= "Manejo integral según Guia de: ";
+      $html .= "</TD>";
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "</TR>";
+      $html .= "<TR>";
+      $html .= "<TD WIDTH='160' ALIGN='CENTER' HEIGHT=26>";
+      $html .= "Código CUPS";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+      $html .= "&nbsp;";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='60' ALIGN='CENTER' HEIGHT=26>";
+      $html .= "Cantidad";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+      $html .= "&nbsp;";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='520' ALIGN='LEFT' HEIGHT=26>";
+      $html .= "Descripción";
+      $html .= "</TD>";
+      $html .= "</TR>";
+     /* if($datos['solicitud']=="manual")
+      {*/
+      $m = 1;
+        foreach($datos['cargos'] as $indice => $valor)
+        {
+          $html .= "<TR>";
+          $html .= "<TD WIDTH='20' ALIGN='RIGHT' HEIGHT=26>";
+          $html .= "".$m."";
+          $html .= "</TD>";
+          $cargo = str_pad($valor['cargo'], 7, "-", STR_PAD_LEFT);
+          $html .= "<TD WIDTH='20' HEIGHT=26>";
+          $html .= "<TABLE BORDER='1'>";
+          for($j=0; $j<7; $j++)
+          {        
+            $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+            if($cargo[$j]!="-")  
+              $html .= "".$cargo[$j]."";
+            else
+              $html .= "&nbsp;";
+            $html .= "</TD>";        
+          }
+          $html .= "</TABLE>";
+          $html .= "</TD>";
+          $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+          $html .= "&nbsp;";
+          $html .= "</TD>";
+          $cantidad = str_pad($valor['cantidad'], 3, "-", STR_PAD_LEFT);
+          $html .= "<TD WIDTH='20' HEIGHT=26>";
+          $html .= "<TABLE BORDER='1'>";
+          for($k=0; $k<3; $k++)
+          {
+            $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+            if($cantidad[$k]!="-")  
+              $html .= "".$cantidad[$k]."";
+            else
+              $html .= "&nbsp;";
+            $html .= "</TD>";
+          }
+          $html .= "</TABLE>";
+          $html .= "</TD>";
+          $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+          $html .= "&nbsp;";
+          $html .= "</TD>";
+          $html .= "<TD WIDTH='520' ALIGN='LEFT' HEIGHT=26>";
+          for($l=0; $l<80; $l++)
+            $html .= "".$valor['desc_cargo'][$l]."";
+          $html .= "</TD>";
+          $html .= "</TR>";
+          $m++;
+        }
+      /*}else
+      {
+        $num_cargos = count($datos['cargos']);
+        for($i=0; $i<$num_cargos; $i++)
+        {
+          $html .= "<TR>";
+          $html .= "<TD WIDTH='20' ALIGN='RIGHT' HEIGHT=26>";
+          $cons = $i+1;
+          $html .= "".$cons."";
+          $html .= "</TD>";
+          $cargo = str_pad($datos['cargos'][$i], 7, "-", STR_PAD_LEFT);
+          $html .= "<TD WIDTH='20' HEIGHT=26>";
+          $html .= "<TABLE BORDER='1'>";
+          for($j=0; $j<7; $j++)
+          {        
+            $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+            if($cargo[$j]!="-")  
+              $html .= "".$cargo[$j]."";
+            else
+              $html .= "&nbsp;";
+            $html .= "</TD>";        
+          }
+          $html .= "</TABLE>";
+          $html .= "</TD>";
+          $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+          $html .= "&nbsp;";
+          $html .= "</TD>";
+          $cantidad = str_pad($datos[0][$i]['cantidad'], 3, "-", STR_PAD_LEFT);
+          $html .= "<TD WIDTH='20' HEIGHT=26>";
+          $html .= "<TABLE BORDER='1'>";
+          for($k=0; $k<3; $k++)
+          {
+            $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+            if($cantidad[$k]!="-")  
+              $html .= "".$cantidad[$k]."";
+            else
+              $html .= "&nbsp;";
+            $html .= "</TD>";
+          }
+          $html .= "</TABLE>";
+          $html .= "</TD>";
+          $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+          $html .= "&nbsp;";
+          $html .= "</TD>";
+          $html .= "<TD WIDTH='520' ALIGN='LEFT' HEIGHT=26>";
+          for($l=0; $l<80; $l++)
+            $html .= "".$datos[0][$i]['desc_cargo'][$l]."";
+          $html .= "</TD>";
+          $html .= "</TR>";
+        }
+      }
+*/     $html .= "<TR>";
+      $html .= "<TD WIDTH='780' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='780' ALIGN='LEFT' HEIGHT=26>";
+      $html .= "Justificación Clinica: ";
+      
+      
+      $cant_cargo=count($datos['cargos']);
+    
+      for($i=0; $i<$cant_cargo; $i++)
+        {		
+         $solicitud= $datos['cargos'][$i]['hc_os_solicitud_id'];
+         $justXSolic = $mdl->GetJustificacion($solicitud);
+           for($J=0; $J<$cant_cargo; $J++)
+               {
+           
+               $cadena=" ".$justXSolic[$J]['observacion'];
+                $html .=" ".$cadena;
+               }
+          
+        }
+       $html .= "</TD>";
+            
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "</TR>";
+      $html .= "<TR>";
+      $html .= "<TD WIDTH='780' HEIGHT=26>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='130' ALIGN='LEFT' HEIGHT=26>";
+      $html .= "<b>Impresion diagnostica</b>";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='80' ALIGN='CENTER' HEIGHT=26>";
+      $html .= "<b>Codigo CIE10</b>";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='570' ALIGN='CENTER' HEIGHT=26>";
+      $html .= "<b>descripcion</b>";
+      $html .= "</TD>";
+      $html .= "</TABLE>";
+      $html .= "</TD>";
+      $html .= "</TR>";
+     /* if($datos['solicitud_manual']=="1")
+      {
+        $html .= "<TR>";
+        $html .= "<TD WIDTH='780' HEIGHT=26>";
+        $html .= "<TABLE BORDER='1'>";
+        $html .= "<TD WIDTH='130' ALIGN='LEFT' HEIGHT=26>";
+        $html .= "&nbsp;";
+        $html .= "</TD>";
+        $html .= "<TD WIDTH='80' ALIGN='CENTER' HEIGHT=26>";
+        $html .= "&nbsp;";
+        $html .= "</TD>";
+        $html .= "<TD WIDTH='570' ALIGN='CENTER' HEIGHT=26>";
+        $html .= "&nbsp;";
+        $html .= "</TD>";
+        $html .= "</TABLE>";
+        $html .= "</TD>";
+        $html .= "</TR>";
+      }*/
+      if(!empty($datos['diagnosticos']))
+      {
+        $cant_d = count($datos['diagnosticos']);
+        $j = 0;
+        foreach($datos['diagnosticos'] as $k => $dat)
+        //$j=0; $j<$cant_d; $j++)
+        {
+          
+          $html .= "<TR>";
+          $tipodiag = str_pad($dat['diagnostico_id'], 4, "-", STR_PAD_LEFT);
+          $html .= "<TD WIDTH='130' ALIGN='CENTER' HEIGHT=26>";
+          if($j!=0)
+            $html .= "Diagnostico relacionado ".$j."";
+          else
+            $html .= "Diagnostico principal";
+          
+          $html .= "</TD>";
+          $html .= "<TABLE BORDER='1'>";
+          for($i=0; $i<4; $i++)
+          {
+            $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+            if($tipodiag[$i]!="-")
+            {
+              $html .= "".$tipodiag[$i]."";
+            }else{
+              $html .= "&nbsp;";
+            }
+            $html .= "</TD>";
+          }
+          $html .= "</TABLE>";
+          $html .= "<TD WIDTH='10' ALIGN='LEFT' HEIGHT=26>";
+          $html .= "&nbsp;";
+          $html .= "</TD>";
+          $html .= "<TD WIDTH='560' ALIGN='LEFT' HEIGHT=26>";
+          for($k=0; $k<90; $k++)
+          {
+            $html .= "".$dat['diagnostico_nombre'][$k]."";
+          }
+          $html .= "</TD>";
+          $html .= "</TR>";
+          $j++;
+          if($j == 3) break;
+        }
+      }
+
+      $html .= "<TR>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='780' ALIGN='CENTER' HEIGHT=26>";
+      $html .= "<b>INFORMACION DE LA PERSONA QUE SOLICITA</b>";
+      $html .= "</TD>";
+      $html .= "</TABLE>";
+      $html .= "</TR>";
+      $html .= "<TR>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='360' ALIGN='LEFT' HEIGHT=26>";
+      if(!empty($datos['nomb_prof']))
+      {
+      $html .= "Nombre de quien reporta  ".$datos['nomb_prof']."";
+      }
+      else
+      {
+       $html .= "Nombre de quien reporta  ".$datos['nombre_us']."";
+      }
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='60' ALIGN='LEFT' HEIGHT=26>";
+      $html .= "Teléfono  ";
+      $html .= "</TD>";
+      if(!empty($datos['tel_prof']))
+      {
+        $len_tel_us = strlen($datos['tel_prof']);
+        for($i=0; $i<$len_tel_us;$i++)
+        {
+          if(is_numeric($datos['tel_prof'][$i]))
+            $num_tel_us = $num_tel_us.$datos['tel_prof'][$i];
+          else
+            break;
+        }
+        $numtelus = str_pad($num_tel_us, 7, "-", STR_PAD_LEFT);
+      }
+      else
+      {
+        $len_tel_us = strlen($datos['telefono_us']);
+         for($i=0; $i<$len_tel_us;$i++)
+        {
+          if(is_numeric($datos['telefono_us'][$i]))
+            $num_tel_us = $num_tel_us.$datos['telefono_us'][$i];
+          else
+            break;
+        }
+        $numtelus = str_pad($num_tel_us, 7, "-", STR_PAD_LEFT);
+      
+      }
+      if(!empty($datos['tel_prof']))
+      {
+      $ind_us = str_pad($datos['indicativo_prof'], 5, "-", STR_PAD_LEFT);
+      }
+      else
+      {
+        $ind_us = str_pad($datos['indicativo_us'], 5, "-", STR_PAD_LEFT);
+      }
+       if(!empty($datos['extencion_prof']))
+      {
+        $ext_us = str_pad($datos['extencion_prof'], 6, "-", STR_PAD_LEFT);
+      }
+      else
+      {
+        $ext_us = str_pad($datos['extension_us'], 6, "-", STR_PAD_LEFT);
+      }
+      for($j=0; $j<5; $j++)
+      {
+        $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+        if($ind_us[$j]!="-")
+        {
+          $html .= "".$ind_us[$j]."";
+        }else{
+          $html .= "&nbsp;";   
+        }
+        $html .= "</TD>";
+      }
+      for($i=0; $i<7; $i++)
+      {
+        $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+        if($numtelus[$i]!="-")
+        {
+          $html .= "".$numtelus[$i]."";
+        }else{
+          $html .= "&nbsp;";   
+        }
+        $html .= "</TD>";
+      }
+      for($j=0; $j<6; $j++)
+      {
+        $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+        if($ext_us[$j]!="-")
+        {
+          $html .= "".$ext_us[$j]."";
+        }else{
+          $html .= "&nbsp;";   
+        }
+        $html .= "</TD>";
+      }
+      $html .= "</TABLE>";
+      $html .= "</TR>";
+      $html .= "<TR>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='360' ALIGN='CENTER' HEIGHT=26>";
+      $html .= "&nbsp;";
+      $html .= "</TD>";    
+      $html .= "<TD WIDTH='60' ALIGN='CENTER' HEIGHT=26>";
+      $html .= "&nbsp;";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='100' ALIGN='CENTER' HEIGHT=26>";
+      $html .= "indicativo";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='140' ALIGN='CENTER' HEIGHT=26>";
+      $html .= "número";
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='120' ALIGN='CENTER' HEIGHT=26>";
+      $html .= "extensión";
+      $html .= "</TD>";
+      $html .= "</TABLE>";
+      $html .= "</TR>";
+      $html .= "<TR>";
+      $html .= "<TABLE BORDER='1'>";
+      $html .= "<TD WIDTH='360' ALIGN='LEFT' HEIGHT=26>";
+      if(!empty($datos['desc_prof']))
+      {
+          $html .= "Cargo o actividad:  ".$datos['desc_prof']."";
+      }
+      else
+      {
+          $html .= "Cargo o actividad:  ".$datos['descripcion_us']."";
+      }
+      $html .= "</TD>";
+      $html .= "<TD WIDTH='220' ALIGN='LEFT' HEIGHT=26>";
+      $html .= "Teléfono celular:  ";
+      $html .= "</TD>";
+      for($j=0; $j<10; $j++)
+      {
+        $html .= "<TD WIDTH='20' ALIGN='CENTER' HEIGHT=26>";
+        if($datos['tel_cel_prof'][$j]!="")
+          $html .= "".$datos['tel_cel_prof'][$j]."";
+        else
+          $html .= "&nbsp;";
+        $html .= "</TD>";
+      }
+      $html .= "</TABLE>";
+      $html .= "</TR>";
+      $html .= "</TABLE>";
+      
+      $pdf->WriteHTML($html);
+      $pdf->SetLineWidth(0.3);
+      $pdf->Rect(10, 5, 195, 263, '');
+      $pdf->Output($Dir, 'F');
+      
+      return true;
+    }
+  }
+?>

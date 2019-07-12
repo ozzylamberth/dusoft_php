@@ -1,0 +1,5 @@
+grupo_tarifario             subgrupo_tarifario
+01                          01 al 05 menos el 04
+11                          01-04-09
+04                          02
+El sw_copagos con valor 1 en la tabla subgrupos_tarifarios

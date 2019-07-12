@@ -1,0 +1,12 @@
+DROP TABLE areas_empresa cascade;
+
+CREATE TABLE areas_empresa(
+    id SERIAL primary key,
+    empresa_id char(2), 
+    codigo varchar(100),
+    descripcion text,
+    fecha_registro timestamp WITHOUT TIME ZONE DEFAULT now(),
+    CONSTRAINT fkey01
+        FOREIGN KEY (empresa_id)
+        REFERENCES public.empresas(empresa_id)
+);

@@ -1,0 +1,42 @@
+<?php
+// ConfigAplication.php  05/08/2003
+// ----------------------------------------------------------------------
+// eHospital v 0.1
+// Copyright (C) 2003 InterSoftware Ltda.
+// Emai: intersof@telesat.com.co
+// ----------------------------------------------------------------------
+// Autor: Alexander Giraldo
+// Proposito del Archivo: Configuraciones Generales de la Aplicacion.
+// ----------------------------------------------------------------------
+
+// Este archivo puede ser temporal y emplear un modulo de configuraciones
+// Por el momento las configuraciones se guardaran en el array global $ConfigAplicacion
+
+$ConfigAplication['DIR_SIIS'] = '/var/www/html/SIIS_DESARROLLO/';  // ruta absoluta del siis
+$ConfigAplication['DOMINIO_SIIS'] ='192.1.6.78/SIIS_DESARROLLO';
+$ConfigAplication['SessionName'] = 'SIIS_DESARROLLO';  // nombre de la sesion.
+$ConfigAplication['InactivarSesion'] = 120;  // Numero de Minutos align="left" en los cuales se inactiva la sesion.
+$ConfigAplication['ModuloInicial']   = 'EJEMPLO'; // Nombre del modulo inicial solo del contenedor app.
+$ConfigAplication['DefaultTheme']    = 'AzulXp'; // Nombre del Theme por defecto.
+$ConfigAplication['DefaultMenu']     = ''; // Nombre de un menu por defecto.
+$ConfigAplication['StyleFrames']     = true; // Estilo por defecto del Frame Work false=NO FRAMES true=FRAMES
+$ConfigAplication['IPStyleFrames']   = true; // Seleccionar el Estilo del Frame Work de acuerdo al almacenado con la IP false=NO true=SI
+$ConfigAplication['MaximosIntentosDeLoguin'] = 1000000;  //Limite de intentos de logueaese fallidos antes de bloquear el host.
+$ConfigAplication['DefaultPais'] ='CO';
+$ConfigAplication['DefaultDpto'] ='11';
+$ConfigAplication['DefaultMpio'] ='001';
+$ConfigAplication['DefaultZona'] ='U';
+$ConfigAplication['TipoRedondeo'] ='CENTENAS'; // VALORES POSIBLES CENTAVOS,UNIDADES,DECENAS,CENTENAS,MILES DEFAULT CENTENAS
+$ConfigAplication['MinutosCerradoEvoluciones']=15;
+$ConfigAplication['Cliente'] ='HOSPITAL EL TUNAL E.S.E.'; // VALORES POSIBLES CLINICA VALLE DEL LILI,S.O.S,CLINICA DE OCCIDENTE CALI.
+$ConfigAplication['DirSpool'] ='/var/www/html/SIIS_DESARROLLO/spool'; // Directorio Temporal de Impresion.
+$ConfigAplication['DirSpoolRelativo'] ='spool';
+$ConfigAplication['DirCache'] ='/var/www/html/SIIS_DESARROLLO/cache';
+$ConfigAplication['DirCacheRelativo'] ='cache';
+$ConfigAplication['DirGeneracionRips'] ='/var/www/html/SIIS_DESARROLLO/cache'; // Directorio Temporal de Impresion.
+$ConfigAplication['MostrarInfoFileLineErrores'] = true; //Si muestra la informacion de archivo-linea de error en los mensajes de error.
+$ConfigAplication['MostrarInfoEnviromentErrores'] = true; //Si muestra la informacion de los vectores $_REQUEST Y $_SESSION  en los mensajes de error.
+$ConfigAplication['ActivarDepuracionDeModulos'] = true;
+$ConfigAplication['EnDepuracionMostrarVariablesEntorno'] = true;//Activa depuracion mostrando el estado de las variables de entorno al final de cada modulo.
+//$ConfigAplication['CaducidadReset'] ='1'; // numero de dias en que caduca una contrase� 'RESET'...
+?>

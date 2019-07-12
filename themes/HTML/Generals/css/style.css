@@ -1,0 +1,22 @@
+.tr_btn_add_product td
+{
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+.tr_btn_add_product td input
+{
+    color: #FFF;
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+.btn_reset_values
+{
+    background: #7b1c1c;
+    color: #FFF;
+    cursor: pointer;
+}
+.title_accion
+{
+    text-align: center;
+    margin-top: 10px;
+}

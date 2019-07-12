@@ -1,0 +1,35 @@
+-- Table: public.planillas_despachos
+
+-- DROP TABLE public.planillas_despachos;
+
+CREATE TABLE public.planillas_despachos (
+  planilla_despacho_id  serial NOT NULL,
+  usuario_id            integer NOT NULL,
+  fecha_registro        timestamp WITHOUT TIME ZONE DEFAULT now(),
+  /* Keys */
+  CONSTRAINT planillas_despachos_pkey
+    PRIMARY KEY (planilla_despacho_id), 
+  CONSTRAINT planillas_despachos_usuario_id_fkey
+    FOREIGN KEY (usuario_id)
+    REFERENCES public.system_usuarios(usuario_id)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE
+) WITH (
+    OIDS = FALSE
+  );
+
+ALTER TABLE public.planillas_despachos
+  OWNER TO "admin";
+
+COMMENT ON TABLE public.planillas_despachos
+  IS 'Tabla que almacena la información de las planillas de despacho';
+
+COMMENT ON COLUMN public.planillas_despachos.planilla_despacho_id
+  IS 'PK tabla';
+
+COMMENT ON COLUMN public.planillas_despachos.usuario_id
+  IS 'Usuario Id';
+
+COMMENT ON COLUMN public.planillas_despachos.fecha_registro
+  IS 'Fecha de registro';
+  

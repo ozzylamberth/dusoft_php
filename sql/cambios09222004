@@ -1,0 +1,13 @@
+
+ALTER TABLE "hc_solicitudes_medicamentos_pacientes" DROP CONSTRAINT "$1";
+
+ALTER TABLE public.hc_solicitudes_medicamentos_pacientes DROP CONSTRAINT "$4";
+
+ALTER TABLE public.hc_solicitudes_medicamentos_pacientes
+  ADD CONSTRAINT "$1" FOREIGN KEY (medicamento_id, evolucion_id) REFERENCES public.hc_medicamentos_recetados_amb (codigo_producto, evolucion_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+	ALTER TABLE "hc_solicitudes_medicamentos_d" DROP CONSTRAINT "$1";
+
+	ALTER TABLE public.hc_solicitudes_medicamentos_d
+  ADD CONSTRAINT "$1" FOREIGN KEY (medicamento_id, evolucion_id) REFERENCES public.hc_medicamentos_recetados_amb (codigo_producto, evolucion_id) ON UPDATE CASCADE ON DELETE RESTRICT;

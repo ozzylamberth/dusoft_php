@@ -1,0 +1,567 @@
+
+/* FUNCION ENVIADA POR HUGO */
+
+    CREATE OR REPLACE FUNCTION inv_bodegas_movimiento_update_existencias() RETURNS TRIGGER AS $$
+    DECLARE
+
+        DOCUMENTO RECORD;
+        VAREXISTENCIA NUMERIC;
+        VAR_E INTEGER;
+        INV RECORD;
+        BODEGA_DESTINO RECORD;
+        CONCEPTOS_EGRESOS RECORD;
+        N_INV_EXISTENCIA NUMERIC;
+        N_INV_COSTO NUMERIC;
+        N_INV_COSTO_ANTERIOR NUMERIC;
+        N_INV_COSTO_ULTIMA_COMPRA NUMERIC;
+        N_INV_COSTO_PENULTIMA NUMERIC;
+        INV_OPCION INTEGER;
+    BEGIN
+        INV_OPCION := 0;
+        IF TG_OP = 'INSERT' THEN
+        SELECT INTO DOCUMENTO
+                a.*,
+                c.inv_tipo_movimiento as tipo_movimiento,
+                c.tipo_doc_general_id as tipo_doc_bodega_id
+        FROM
+                inv_bodegas_movimiento as a,
+                documentos as b,
+                tipos_doc_generales as c
+        WHERE   a.empresa_id  = NEW.empresa_id
+                AND a.prefijo = NEW.prefijo
+                AND a.numero  = NEW.numero
+                AND b.documento_id = a.documento_id
+                AND b.empresa_id = a.empresa_id
+                AND c.tipo_doc_general_id = b.tipo_doc_general_id;
+        IF NOT FOUND THEN
+            RAISE EXCEPTION 'DOCUMENTO NO ENCONTRADO EN [inv_bodegas_movimiento].';
+        END IF;
+        SELECT INTO INV
+            a.existencia as ext_bodega,
+            b.existencia as ext_inv,
+            b.costo_anterior,
+            b.costo,
+            b.costo_penultima_compra,
+            b.costo_ultima_compra,
+            ef.lote
+        FROM
+            existencias_bodegas as a
+            LEFT JOIN existencias_bodegas_lote_fv ef
+            ON( a.empresa_id = ef.empresa_id
+            AND a.centro_utilidad  = ef.centro_utilidad
+            AND a.bodega = ef.bodega
+            AND a.codigo_producto = ef.codigo_producto
+            AND ef.fecha_vencimiento = NEW.fecha_vencimiento
+            AND ef.lote = NEW.lote ),
+            inventarios as b
+        WHERE
+            a.empresa_id = NEW.empresa_id
+            AND a.centro_utilidad  = NEW.centro_utilidad
+            AND a.bodega = NEW.bodega
+            AND a.codigo_producto = NEW.codigo_producto
+            AND b.empresa_id = a.empresa_id
+            AND b.codigo_producto = a.codigo_producto;
+        IF NOT FOUND THEN
+            RAISE EXCEPTION 'EL PRODUCTO [%] NO ESTA REGISTRADO EN LA BODEGA[%] C.U[%] EMPRESA[%].', NEW.codigo_producto, NEW.bodega, NEW.centro_utilidad, NEW.empresa_id;
+        END IF;
+        IF DOCUMENTO.tipo_movimiento = 'I' THEN
+            INV_OPCION := 1;
+            IF DOCUMENTO.sw_estado != '1' THEN
+                RETURN NEW;
+            END IF;
+            IF DOCUMENTO.tipo_doc_bodega_id IN ('I003','I005') THEN
+                NEW.total_costo := (NEW.cantidad * INV.costo);
+                NEW.porcentaje_gravamen := 0;
+                VAREXISTENCIA := (INV.ext_bodega + NEW.cantidad);
+                NEW.existencia_bodega := INV.ext_bodega;
+                NEW.existencia_inventario := INV.ext_inv;
+                NEW.costo_inventario := INV.costo;
+                UPDATE existencias_bodegas
+                SET existencia = VAREXISTENCIA
+                WHERE
+                    empresa_id = NEW.empresa_id
+                    AND centro_utilidad  = NEW.centro_utilidad
+                    AND bodega = NEW.bodega
+                    AND codigo_producto = NEW.codigo_producto;
+            ELSE
+
+                N_INV_EXISTENCIA := INV.ext_bodega + NEW.cantidad;
+                N_INV_COSTO_ANTERIOR := INV.costo;
+                N_INV_COSTO_ULTIMA_COMPRA := (NEW.total_costo / NEW.cantidad);
+                N_INV_COSTO_PENULTIMA := INV.costo_ultima_compra;
+                N_INV_COSTO := (((INV.ext_inv * INV.costo) + NEW.total_costo) / (INV.ext_inv + NEW.cantidad));
+                VAREXISTENCIA := (INV.ext_bodega + NEW.cantidad);
+
+                NEW.existencia_bodega := INV.ext_bodega;
+                NEW.existencia_inventario := INV.ext_inv;
+                NEW.costo_inventario := INV.costo;
+                UPDATE inventarios
+                SET
+                    costo = N_INV_COSTO,
+                    costo_anterior = N_INV_COSTO_ANTERIOR,
+                    costo_ultima_compra = N_INV_COSTO_ULTIMA_COMPRA,
+                    costo_penultima_compra = N_INV_COSTO_PENULTIMA
+                WHERE
+                    empresa_id = NEW.empresa_id
+                    AND codigo_producto = NEW.codigo_producto;
+
+                UPDATE existencias_bodegas
+                SET existencia = VAREXISTENCIA
+                WHERE
+                    empresa_id = NEW.empresa_id
+                    AND centro_utilidad  = NEW.centro_utilidad
+                    AND bodega = NEW.bodega
+                    AND codigo_producto = NEW.codigo_producto;
+
+            END IF;
+
+        ELSIF DOCUMENTO.tipo_movimiento = 'E' THEN
+            INV_OPCION := 2;
+            IF DOCUMENTO.sw_estado != '1' THEN
+                RETURN NEW;
+            END IF;
+
+            IF DOCUMENTO.tipo_doc_bodega_id = 'E007' THEN
+
+                SELECT INTO CONCEPTOS_EGRESOS *
+                FROM inv_bodegas_movimiento_conceptos_egresos
+                WHERE   empresa_id  = NEW.empresa_id
+                        AND prefijo = NEW.prefijo
+                        AND numero  = NEW.numero;
+
+                IF NOT FOUND THEN
+                    RAISE EXCEPTION 'NO EXISTEN DATOS DEL CONCEPTO DE EGRESO. ';
+                END IF;
+
+                IF CONCEPTOS_EGRESOS.sw_costo_manual = '0' THEN
+                    NEW.total_costo := (NEW.cantidad * INV.costo);
+                END IF;
+
+            ELSE
+                NEW.total_costo := (NEW.cantidad * INV.costo);
+            END IF;
+
+            NEW.porcentaje_gravamen := 0;
+            NEW.existencia_bodega := INV.ext_bodega;
+            NEW.existencia_inventario := INV.ext_inv;
+            NEW.costo_inventario := INV.costo;
+
+            VAREXISTENCIA := (INV.ext_bodega - NEW.cantidad);
+
+            IF VAREXISTENCIA < 0 THEN
+                RAISE EXCEPTION 'LA EXISTENCIA EN LA BODEGA NO PUEDE QUEDAR POR DEBAJO DE CERO. [%] ', NEW.codigo_producto;
+            END IF;
+
+            UPDATE existencias_bodegas
+            SET existencia = VAREXISTENCIA
+            WHERE
+                empresa_id = NEW.empresa_id
+                AND centro_utilidad  = NEW.centro_utilidad
+                AND bodega = NEW.bodega
+                AND codigo_producto = NEW.codigo_producto;
+
+
+        ELSIF DOCUMENTO.tipo_movimiento = 'T' THEN
+            INV_OPCION := 3;
+            IF DOCUMENTO.sw_estado != '1' THEN
+                RETURN NEW;
+            END IF;
+
+
+            SELECT INTO BODEGA_DESTINO *
+            FROM inv_bodegas_movimiento_traslados
+            WHERE   empresa_id  = NEW.empresa_id
+                    AND prefijo = NEW.prefijo
+                    AND numero  = NEW.numero;
+
+            IF NOT FOUND THEN
+                RAISE EXCEPTION 'NO EXISTEN DATOS DEL TRASLADO. ';
+            END IF;
+
+            VAR_E := (SELECT COUNT(*) FROM  existencias_bodegas
+                        WHERE
+                            empresa_id = BODEGA_DESTINO.empresa_id
+                            AND centro_utilidad  = BODEGA_DESTINO.centro_utilidad_destino
+                            AND bodega = BODEGA_DESTINO.bodega_destino
+                            AND codigo_producto = NEW.codigo_producto);
+
+            IF VAR_E < 0 THEN
+                RAISE EXCEPTION 'NO EXISTE EL PRODUCTO EN LA BODEGA DESTINO.';
+            END IF;
+
+            NEW.total_costo := (NEW.cantidad * INV.costo);
+            NEW.porcentaje_gravamen := 0;
+            NEW.existencia_bodega := INV.ext_bodega;
+            NEW.existencia_inventario := INV.ext_inv;
+            NEW.costo_inventario := INV.costo;
+
+            VAREXISTENCIA := (INV.ext_bodega - NEW.cantidad);
+
+            IF VAREXISTENCIA < 0 THEN
+                RAISE EXCEPTION 'LA EXISTENCIA EN LA BODEGA NO PUEDE QUEDAR POR DEBAJO DE CERO. [%]', NEW.codigo_producto;
+            END IF;
+
+            UPDATE existencias_bodegas
+            SET existencia = VAREXISTENCIA
+            WHERE
+                empresa_id = NEW.empresa_id
+                AND centro_utilidad  = NEW.centro_utilidad
+                AND bodega = NEW.bodega
+                AND codigo_producto = NEW.codigo_producto;
+
+
+            UPDATE existencias_bodegas
+            SET existencia = (existencia + NEW.cantidad)
+            WHERE
+                empresa_id = BODEGA_DESTINO.empresa_id
+                AND centro_utilidad  = BODEGA_DESTINO.centro_utilidad_destino
+                AND bodega = BODEGA_DESTINO.bodega_destino
+                AND codigo_producto = NEW.codigo_producto;
+        
+        ELSIF DOCUMENTO.tipo_movimiento = 'C' THEN
+            RETURN NEW;
+        ELSIF DOCUMENTO.tipo_movimiento = 'D' THEN
+            RETURN NEW;
+        ELSE
+            RAISE EXCEPTION 'EL TIPO DE MOVIMIENTO DEL DOCUMENTO NO ES VALIDO CAMPO[tipos_doc_generales.inv_tipo_movimiento = %] PARA EL [tipo_doc_general_id = %]', DOCUMENTO.tipo_movimiento, DOCUMENTO.tipo_doc_bodega_id;
+        END IF;
+        IF INV.lote IS NULL THEN
+          INSERT INTO existencias_bodegas_lote_fv 
+          VALUES 
+          (
+            NEW.empresa_id,
+            NEW.centro_utilidad,
+            NEW.codigo_producto,
+            NEW.bodega,
+            NEW.fecha_vencimiento,
+            NEW.lote,
+            NEW.cantidad,
+            NEW.cantidad
+          );
+        ELSE 
+          IF INV_OPCION = 1 THEN
+            UPDATE existencias_bodegas_lote_fv
+            SET existencia_inicial =  existencia_inicial + NEW.cantidad,
+                existencia_actual =  existencia_actual + NEW.cantidad
+            WHERE empresa_id = NEW.empresa_id
+            AND centro_utilidad = NEW.centro_utilidad
+            AND bodega = NEW.bodega
+            AND codigo_producto = NEW.codigo_producto
+            AND fecha_vencimiento = NEW.fecha_vencimiento
+            AND lote = NEW.lote; 
+
+          ELSIF INV_OPCION = 2 THEN
+            UPDATE existencias_bodegas_lote_fv
+            SET existencia_actual =  existencia_actual - NEW.cantidad
+            WHERE empresa_id = NEW.empresa_id
+            AND centro_utilidad = NEW.centro_utilidad
+            AND bodega = NEW.bodega
+            AND codigo_producto = NEW.codigo_producto
+            AND fecha_vencimiento = NEW.fecha_vencimiento
+            AND lote = NEW.lote; 
+          END IF;
+        END IF; 
+        RETURN NEW;
+    END IF;
+
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+
+/* TABLA PARA DAR LOS PERMISOS*/
+
+  CREATE TABLE userpermisos_Dispensacion
+  (
+      empresa_id character(2) NOT NULL,
+      centro_utilidad 	 character(2) NOT NULL,
+      usuario_id integer NOT NULL
+  );
+  COMMENT ON COLUMN userpermisos_Dispensacion.empresa_id IS 'Id de la  Empresa';
+  COMMENT ON COLUMN userpermisos_Dispensacion.usuario_id IS 'Id  del Usuario';
+  COMMENT ON COLUMN userpermisos_Dispensacion.centro_utilidad IS 'Centro utilidad de la Empresa';
+
+  ALTER TABLE userpermisos_Dispensacion ADD CONSTRAINT  userpermisos_Dispensacion_pkey PRIMARY KEY (empresa_id, centro_utilidad,usuario_id);
+  ALTER TABLE ONLY  userpermisos_Dispensacion ADD CONSTRAINT userpermisos_Dispensacion_empresa_id_fkey FOREIGN KEY (empresa_id) REFERENCES empresas(empresa_id);
+  ALTER TABLE ONLY  userpermisos_Dispensacion ADD CONSTRAINT  userpermisos_Dispensacion_centro_utilidad_fkey FOREIGN KEY (empresa_id,centro_utilidad) REFERENCES centros_utilidad(empresa_id,centro_utilidad); 
+  ALTER TABLE ONLY  userpermisos_Dispensacion   ADD CONSTRAINT  userpermisos_Dispensacion_usuario_id_fkey FOREIGN KEY (usuario_id) REFERENCES system_usuarios(usuario_id);
+
+  CREATE TABLE hc_formulacion_despachos_medicamentos
+  (
+    hc_formuladesp_medicamentos_id SERIAL NOT NULL,
+    tipo_id_paciente          CHARACTER VARYING(3) NOT NULL,
+    paciente_id 	            CHARACTER VARYING(32) NOT NULL,
+	evolucion_id               integer NOT NULL,
+    codigo_medicamento        CHARACTER VARYING(60) NOT NULL,
+    Fecha_Entrega             DATE  NOT NULL,
+    Cantidad_Entrega          NUMERIC(7,2), 	
+    Unidad_Entrega           CHARACTER VARYING(200)  NULL,
+    fecha_Proxima_Entrega     DATE  NOT NULL,
+    Empresa_id                CHARACTER(2) 	NOT NULL,
+    Fecha_Registro            TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW(),
+    Usuario_id                 INTEGER NOT NULL,
+    Codigo_Medicamento_despachado  CHARACTER VARYING(60)  NULL,
+    Persona_Reclama           CHARACTER VARYING(60) ,
+    Persona_Reclama_tipo_id   CHARACTER VARYING(3) ,
+    Persona_Reclama_id        CHARACTER VARYING(32) ,
+    observacion                TEXT,
+    bodegas_doc_id             integer  null
+  );
+    ALTER TABLE hc_formulacion_despachos_medicamentos ADD PRIMARY KEY(hc_formuladesp_medicamentos_id);
+    ALTER TABLE hc_formulacion_despachos_medicamentos ADD FOREIGN KEY (codigo_medicamento) REFERENCES inventarios_productos(codigo_producto) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ALTER TABLE hc_formulacion_despachos_medicamentos ADD FOREIGN KEY (Codigo_Medicamento_despachado) REFERENCES inventarios_productos(codigo_producto) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ALTER TABLE hc_formulacion_despachos_medicamentos ADD FOREIGN KEY(Usuario_id)  REFERENCES system_usuarios(usuario_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+     ALTER TABLE ONLY hc_formulacion_despachos_medicamentos  ADD  FOREIGN KEY (evolucion_id) REFERENCES hc_evoluciones(evolucion_id);
+	
+		
+ALTER TABLE hc_formulacion_despachos_medicamentos ADD cantidad_pendiente  NUMERIC(14,1) NULL;
+COMMENT ON COLUMN hc_formulacion_despachos_medicamentos.cantidad_pendiente IS 'cantidad que no se reclamo por parte del paciente';
+
+	
+ALTER TABLE hc_formulacion_despachos_medicamentos ADD sw_estado character varying(2) default ('0') NULL;
+COMMENT ON COLUMN hc_formulacion_despachos_medicamentos.sw_estado IS '0=>Entregado,1=>paciente no reclama';
+	 
+    COMMENT ON COLUMN hc_formulacion_despachos_medicamentos.hc_formuladesp_medicamentos_id IS 'PK';
+    COMMENT ON COLUMN hc_formulacion_despachos_medicamentos.tipo_id_paciente IS 'Tipo Id del paciente';
+    COMMENT ON COLUMN hc_formulacion_despachos_medicamentos.paciente_id IS 'Id del paciente';
+    COMMENT ON COLUMN hc_formulacion_despachos_medicamentos.codigo_medicamento IS 'Codigo del Medicamento Formulado';
+    COMMENT ON COLUMN hc_formulacion_despachos_medicamentos.Fecha_Entrega IS 'Fecha de Entrega del Medicamento';
+    COMMENT ON COLUMN hc_formulacion_despachos_medicamentos.Cantidad_Entrega IS 'Cantidad  que se entrega al Paciente';
+    COMMENT ON COLUMN hc_formulacion_despachos_medicamentos.Unidad_Entrega IS 'unidad de entrega del medicamento';
+    COMMENT ON COLUMN hc_formulacion_despachos_medicamentos.fecha_Proxima_Entrega IS 'Fecha de la proxima entrega del medicamento';
+    COMMENT ON COLUMN hc_formulacion_despachos_medicamentos.Empresa_id IS 'Id de la Empresa que entrega el medicamento';
+    COMMENT ON COLUMN hc_formulacion_despachos_medicamentos.Fecha_Registro IS 'Fecha de Registro de la Entrega';
+    COMMENT ON COLUMN hc_formulacion_despachos_medicamentos.Usuario_id IS 'Id Usuario realiza Entrega';
+    COMMENT ON COLUMN hc_formulacion_despachos_medicamentos.Codigo_Medicamento_despachado IS 'Codigo medicamento despachado';
+    COMMENT ON COLUMN hc_formulacion_despachos_medicamentos.Persona_Reclama IS 'Persona que reclama ';
+    COMMENT ON COLUMN hc_formulacion_despachos_medicamentos.Persona_Reclama_tipo_id IS 'Tipo Id de la persona que reclama';
+    COMMENT ON COLUMN hc_formulacion_despachos_medicamentos.Persona_Reclama_id IS 'Id de la persona que reclama';
+    COMMENT ON COLUMN hc_formulacion_despachos_medicamentos.observacion IS 'observacion ';
+    COMMENT ON COLUMN hc_formulacion_despachos_medicamentos.bodegas_doc_id IS 'Id del documento de bodega';
+
+ 
+    CREATE TABLE medicamento_farmacia_tmp
+    (
+      medicafarma_id      character varying(35)	  NOT NULL,
+      tipo_id_paciente	character varying(3) NOT NULL,
+      paciente_id 	            CHARACTER VARYING(32) NOT NULL,
+      evolucion_id                integer not null,
+      cantidad_entrega	            numeric(7,2)	NOT NULL,	
+      tiempo_perioricidad_entrega 		integer not null,
+      unidad_perioricidad_entrega 	character varying(12) not null,
+      codigo_medicamento_formulado	character varying(60) NOT NULL,
+      dosis	                      numeric(7,2)	NOT NULL,
+      fecha_finalizacion	    date NOT NULL,
+      fecha_formulacion	    date NOT NULL,
+      fecha_proxima_entrega	    date  NULL
+    );
+    ALTER TABLE medicamento_farmacia_tmp ADD PRIMARY KEY (medicafarma_id);
+    ALTER TABLE medicamento_farmacia_tmp ADD FOREIGN KEY (codigo_medicamento_formulado) REFERENCES inventarios_productos(codigo_producto);
+   
+    COMMENT ON COLUMN medicamento_farmacia_tmp.medicafarma_id IS 'PK';
+    COMMENT ON COLUMN medicamento_farmacia_tmp.tipo_id_paciente IS 'Tipo Id del paciente';
+    COMMENT ON COLUMN medicamento_farmacia_tmp.paciente_id IS 'Id del paciente';
+    COMMENT ON COLUMN medicamento_farmacia_tmp.cantidad_entrega IS 'cantidad a entregar ';
+    COMMENT ON COLUMN medicamento_farmacia_tmp.codigo_medicamento_formulado IS 'Codigo del Medicamento Formulado';
+    COMMENT ON COLUMN medicamento_farmacia_tmp.dosis IS 'Dosis';
+    COMMENT ON COLUMN medicamento_farmacia_tmp.fecha_finalizacion IS 'Fecha de finalizacion del medicamento';
+    COMMENT ON COLUMN medicamento_farmacia_tmp.fecha_formulacion IS 'Fecha de la Formulacion del medicamento';
+    COMMENT ON COLUMN medicamento_farmacia_tmp.fecha_Proxima_Entrega IS 'Fecha de la proxima entrega del medicamento';
+    COMMENT ON COLUMN medicamento_farmacia_tmp.evolucion_id IS ' evolucion del paciente';
+
+/* COLUMNAS NUEVAS */
+    ALTER TABLE   bodegas_documentos_d  ADD fecha_vencimiento  DATE NULL;
+    COMMENT ON COLUMN  bodegas_documentos_d.fecha_vencimiento IS 'Fecha de vencimiento del medicamento';
+    ALTER TABLE bodegas_documentos_d  ADD lote  CHARACTER VARYING(30) NULL;
+    COMMENT ON COLUMN  bodegas_documentos_d.lote IS 'lote del medicamento ';
+/* TABLAS PARA LOS PENDIENTES AL DISPENSAR*/
+    CREATE TABLE Pendiente_x_Dispensacion 
+    (
+      pendiente_dispensacion_id serial not null,
+      empresa_id character(2) NOT NULL,
+      centro_utilidad character(2) NOT NULL,
+      bodega character(2) NOT NULL,
+      paciente_id   	character varying(32)  NOT NULL,
+      tipo_id_paciente 	character varying(3) 	not null,
+	  evolucion_id    Integer not null,
+      codigo_medicamento 	character varying(60) not null,
+      cantidad integer not null,
+      unidad character varying(40) not null,
+	  medicamento_despachado character varying(60) null,
+	  cantidad_despachada integer null,
+      sw_entregado    character(2) default'0' NOT NULL,
+      usuario_id integer NOT NULL,
+      fecha_registro date not null,
+      usuario_entrega integer null,
+      fecha_entrega date  null
+           
+    );
+	
+	
+    ALTER TABLE Pendiente_x_Dispensacion
+    ADD CONSTRAINT Pendiente_x_Dispensacion_pkey PRIMARY KEY (pendiente_dispensacion_id);
+    ALTER TABLE ONLY Pendiente_x_Dispensacion  ADD  FOREIGN KEY (empresa_id,centro_utilidad,bodega) REFERENCES bodegas(empresa_id,centro_utilidad,bodega);
+    ALTER TABLE ONLY Pendiente_x_Dispensacion  ADD  FOREIGN KEY (paciente_id,tipo_id_paciente) REFERENCES pacientes(paciente_id,tipo_id_paciente);
+    ALTER TABLE ONLY Pendiente_x_Dispensacion  ADD  FOREIGN KEY (codigo_medicamento) REFERENCES inventarios_productos(codigo_producto);
+    ALTER TABLE ONLY Pendiente_x_Dispensacion  ADD  FOREIGN KEY (evolucion_id) REFERENCES hc_evoluciones(evolucion_id);
+
+	
+	ALTER TABLE ONLY Pendiente_x_Dispensacion  ADD  FOREIGN KEY (usuario_id) REFERENCES system_usuarios(usuario_id);
+
+
+    COMMENT ON TABLE Pendiente_x_Dispensacion IS 'Tabla para registrar los pendientes  despues de relizar una dispensacion ';
+    COMMENT ON COLUMN Pendiente_x_Dispensacion.pendiente_dispensacion_id IS '(PK ) Id de la Tabla';
+    COMMENT ON COLUMN Pendiente_x_Dispensacion.empresa_id IS '(FK) Id de la empresa';
+    COMMENT ON COLUMN Pendiente_x_Dispensacion.centro_utilidad IS '(FK) Id del centro_utilidad';
+    COMMENT ON COLUMN Pendiente_x_Dispensacion.bodega IS '(FK) Id de la bodega';
+    COMMENT ON COLUMN Pendiente_x_Dispensacion.paciente_id IS 'Id del paciente';
+    COMMENT ON COLUMN Pendiente_x_Dispensacion.tipo_id_paciente IS 'Tipo Id del paciente';
+    COMMENT ON COLUMN Pendiente_x_Dispensacion.codigo_medicamento IS 'codigo_medicamento del medicamento formulado';
+    COMMENT ON COLUMN Pendiente_x_Dispensacion.cantidad IS 'Cantidad  pendiente';
+    COMMENT ON COLUMN Pendiente_x_Dispensacion.unidad IS ' unidad del medicamento ';
+    COMMENT ON COLUMN Pendiente_x_Dispensacion.sw_entregado IS '0=>pendiente,1=>Entregado,2=>No reclama ';
+    COMMENT ON COLUMN Pendiente_x_Dispensacion.usuario_id IS 'Id usuario';
+    COMMENT ON COLUMN Pendiente_x_Dispensacion.fecha_registro IS 'fecha de registro';
+    COMMENT ON COLUMN Pendiente_x_Dispensacion.usuario_entrega IS 'usuario que entrega lo pendiente';
+    COMMENT ON COLUMN Pendiente_x_Dispensacion.fecha_entrega IS 'fecha en la que se realiza la entrega';
+    GRANT ALL ON TABLE Pendiente_x_Dispensacion TO siis;
+
+    /* PARAMETRIZACION DEL DOCUMENTO DE DISPENSACION*/
+    
+Parametrizar el documento en tipos_doc_bodega
+Por ejemplo  E011 DISPENSACION DE PRODUCTOS A PACIENTES
+
+luego parametrizo el documento en la tabla bodegas_doc_numeraciones
+por ejemplo 
+
+INSERT INTO bodegas_doc_numeraciones (bodegas_doc_id,
+                                    empresa_id,
+                                    centro_utilidad,
+                                    bodega,
+                                    tipo_doc_bodega_id,
+                                    prefijo,
+                                    descripcion,	
+                                    numeracion,
+                                    sw_estado,
+                                    tipo_movimiento,
+                                    sw_ajuste,
+                                    sw_traslado, 
+                                    sw_compras,
+                                    numero_digitos,
+                                    sw_transaccion_medicamentos,	
+                                    text1, 
+                                    text2,
+                                    text3,
+                                    sw_contenedor_docs_cirugias,
+                                    sw_venta_directa,
+                                    sw_creafactura ) VALUES
+                                    (nextval('bodegas_doc_numeraciones_bodegas_doC_id_seq'),
+                                    '04',
+                                    '04',
+                                    '04',
+                                    'E011',
+                                    'EDP',
+                                    'EGRESO POR DISPENSACION DE PRODUCTOS',
+                                    '1',
+                                    '1',
+                                    'E',
+                                    '0',
+                                    '0',
+                                    '0',
+                                    '10',
+                                    '0',
+                                    NULL,
+                                    NULL,
+                                    NULL,
+                                    NULL,
+                                    '0',
+                                    '0' );
+
+									
+CON EL ANTERIOR TENGO EL bodegas_doc_id PARA CREAR LA VARIABLE DE MODULO
+
+EN EL CASO ANTERIOR EL bodegas_doc_id ES 29 ENTONCES LA VARIABLE DE MODULO SERIA:
+
+Egreso_Dispensacion_farmacia_04 con valor 29
+
+                               
+El Modulo tiene presente la variable  	ParametrizacionReformular es una variable global
+ 
+
+CREATE TABLE hc_despacho_medicamentos_eventos
+  (
+		hc_despacho_evento            serial not null,
+		paciente_id   	character varying(32)  NOT NULL,
+		tipo_id_paciente 	character varying(3) 	not null,
+		evolucion_id                integer not null,
+		observacion                TEXT,
+		Fecha_evento             DATE  NOT NULL,
+		Fecha_Registro            TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW(),
+		usuario_id                 INTEGER NOT NULL,
+		sw_estado        character varying(1) 	default ('1') not null
+	
+	);
+	
+
+    ALTER TABLE hc_despacho_medicamentos_eventos ADD PRIMARY KEY(hc_despacho_evento);
+    ALTER TABLE hc_despacho_medicamentos_eventos ADD FOREIGN KEY (evolucion_id) REFERENCES hc_evoluciones(evolucion_id);
+    ALTER TABLE hc_despacho_medicamentos_eventos  ADD  FOREIGN KEY (paciente_id,tipo_id_paciente) REFERENCES pacientes(paciente_id,tipo_id_paciente);
+	ALTER TABLE  hc_despacho_medicamentos_eventos  ADD  FOREIGN KEY (usuario_id) REFERENCES system_usuarios(usuario_id);
+  		
+	
+	COMMENT ON TABLE hc_despacho_medicamentos_eventos IS 'Tabla para registrar Los eventos que ha tenido un paciente para el despacho ';
+    COMMENT ON COLUMN hc_despacho_medicamentos_eventos.hc_despacho_evento IS '(PK ) Id de la Tabla';
+    COMMENT ON COLUMN hc_despacho_medicamentos_eventos.paciente_id IS 'Id del paciente';
+    COMMENT ON COLUMN hc_despacho_medicamentos_eventos.tipo_id_paciente IS 'Tipo Id del paciente';
+    COMMENT ON COLUMN hc_despacho_medicamentos_eventos.evolucion_id IS 'Evolucion del Paciente';
+    COMMENT ON COLUMN hc_despacho_medicamentos_eventos.observacion IS 'Observacion del evento';
+    COMMENT ON COLUMN hc_despacho_medicamentos_eventos.Fecha_evento IS ' Fecha del evento  ';
+	COMMENT ON COLUMN hc_despacho_medicamentos_eventos.fecha_registro IS 'fecha de registro';
+    COMMENT ON COLUMN hc_despacho_medicamentos_eventos.usuario_id IS 'Id usuario';
+	COMMENT ON COLUMN hc_despacho_medicamentos_eventos.sw_estado IS '1=>Activo, 0=>cerrado';
+    GRANT ALL ON TABLE hc_despacho_medicamentos_eventos TO siis;
+		
+	
+	CREATE TABLE hc_despacho_medicamentos_eventos_d
+   (
+		hc_despacho_evento_d          serial not null,
+		hc_despacho_evento            integer not null,
+	    codigo_medicamento 	          character varying(60) not null,
+        cantidad                      integer not null
+	);
+		
+		ALTER TABLE hc_despacho_medicamentos_eventos_d ADD PRIMARY KEY(hc_despacho_evento_d);
+		ALTER TABLE ONLY hc_despacho_medicamentos_eventos_d  ADD  FOREIGN KEY (codigo_medicamento) REFERENCES inventarios_productos(codigo_producto);
+		ALTER TABLE ONLY hc_despacho_medicamentos_eventos_d  ADD  FOREIGN KEY (hc_despacho_evento) REFERENCES hc_despacho_medicamentos_eventos(hc_despacho_evento);
+
+
+		COMMENT ON TABLE hc_despacho_medicamentos_eventos_d IS 'Tabla para registrar El detalle del evento ';
+		COMMENT ON COLUMN hc_despacho_medicamentos_eventos_d.hc_despacho_evento_d IS '(PK ) Id de la Tabla';
+		COMMENT ON COLUMN hc_despacho_medicamentos_eventos_d.hc_despacho_evento IS '(FK) Id de hc_despacho_medicamentos_eventos';
+		COMMENT ON COLUMN hc_despacho_medicamentos_eventos_d.codigo_medicamento IS 'codigo_medicamento del medicamento formulado';
+		COMMENT ON COLUMN hc_despacho_medicamentos_eventos_d.cantidad IS 'Cantidad  a entregar';
+		GRANT ALL ON TABLE hc_despacho_medicamentos_eventos_d TO siis;
+/* COLUMNA NUEVA PARA LA TABLA EMPRESAS*/
+alter table  empresas add sw_vende character(2) null;
+
+
+
+ ?
+14:15:49 412185984: buscas los lotes y los organizas del mas proximo a vencer hasta el mas lejano a vencer
+14:15:56 412185984: estamos en esa parte?
+14:15:57 279989223: si señor
+14:15:59 279989223: aja
+14:16:15 412185984:  
+14:16:50 412185984: por ejemplo si al buscar encuentre cuatro lotes l1 con 10, l2 con 20, l3 con 15 y l4 con 22
+14:16:59 279989223: sip
+14:17:03 412185984: y si la cantidad a dispensar son 33
+14:17:22 412185984: entonces automaticamente se pone en la cantidad a dispensar seria
+14:17:32 412185984: de l1 10
+14:17:48 412185984: como tengo que dispensar 33 -10 falta 23
+14:17:59 412185984: entonces l2 20
+14:18:08 412185984: ahi aun no se ha cubierto
+14:18:14 279989223: aja
+14:18:16 412185984: faltan 3
+14:18:24 412185984: entonces de l3 3
+14:18:31 279989223: si ya entendi 
+14:18:39 412185984: y el l4 no lo muestras
+14:18:43 279989223: listo

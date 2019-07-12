@@ -1,0 +1,81 @@
+CREATE TABLE banco_sangre_cruzes_sanguineos(
+
+		cruze_sanguineo_id SERIAL,
+		ingreso_bolsa_id integer NOT NULL,
+		solicitud_reserva_sangre_id integer NOT NULL,
+		hemoclasificacion_manual_anti_a character(1),
+    hemoclasificacion_manual_anti_b character(1),
+		hemoclasificacion_manual_anti_ab character(1),
+		hemoclasificacion_manual_anti_d character(1),
+    interpretacion_grupo_manual character varying(2) NOT NULL,
+    interpretacion_rh_manual character(1) NOT NULL,
+		tipo_id_profesional_manual character varying(3) NOT NULL,
+		profesional_manual_id character varying(32) NOT NULL,
+		hemoclasificacion_gel_anti_a character(1),
+    hemoclasificacion_gel_anti_b character(1),
+		hemoclasificacion_gel_anti_ab character(1),
+		hemoclasificacion_gel_anti_d character(1),
+    interpretacion_grupo_gel character varying(2) NOT NULL,
+    interpretacion_rh_gel character(1) NOT NULL,
+		tipo_id_profesional_gel character varying(3) NOT NULL,
+		profesional_gel_id character varying(32) NOT NULL,
+		reaccion_cruzada_visual character(1) NOT NULL,
+		rai_cel1 character(1),
+		rai_cel2 character(1),
+		rai_auto character(1),
+    lectina character(1),
+		cde character(4),
+		celulas_a character(1),
+		celulas_b character(1),
+		celulas_0 character(1),
+		interpretacion_grupo_cruze character varying(2) NOT NULL,
+    interpretacion_rh_cruze character(1) NOT NULL,
+		tipo_id_profesional_cruze character varying(3) NOT NULL,
+		profesional_cruze_id character varying(32) NOT NULL,
+    fecha_prueba timestamp without time zone NOT NULL,
+		observaciones text,
+    enz character(1) NOT NULL DEFAULT 0,
+		coobms_d character(1) NOT NULL DEFAULT 0,
+		compatibilidad character(1) NOT NULL DEFAULT 1,
+    tipo_id_profesional_entrega character varying(3) NOT NULL,
+		profesional_entrega_id character varying(32) NOT NULL,
+		tipo_id_profesional_recibe character varying(3) NOT NULL,
+		profesional_recibe_id character varying(32) NOT NULL,
+		fecha_recibe timestamp without time zone NOT NULL,
+		usuario_id integer NOT NULL,
+    fecha_registro timestamp without time zone NOT NULL
+);
+
+ALTER TABLE ONLY banco_sangre_cruzes_sanguineos ADD CONSTRAINT banco_sangre_cruzes_sanguineos_pkey PRIMARY KEY (cruze_sanguineo_id);
+ALTER TABLE ONLY banco_sangre_cruzes_sanguineos ADD CONSTRAINT "$1" FOREIGN KEY (ingreso_bolsa_id) REFERENCES banco_sangre_bolsas(ingreso_bolsa_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY banco_sangre_cruzes_sanguineos ADD CONSTRAINT "$2" FOREIGN KEY (solicitud_reserva_sangre_id) REFERENCES banco_sangre_reserva(solicitud_reserva_sangre_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY banco_sangre_cruzes_sanguineos ADD CONSTRAINT "$3" FOREIGN KEY (interpretacion_grupo_manual,interpretacion_rh_manual) REFERENCES hc_tipos_sanguineos(grupo_sanguineo,rh)  ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY banco_sangre_cruzes_sanguineos ADD CONSTRAINT "$4" FOREIGN KEY (tipo_id_profesional_manual,profesional_manual_id) REFERENCES profesionales(tipo_id_tercero,tercero_id)  ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY banco_sangre_cruzes_sanguineos ADD CONSTRAINT "$5" FOREIGN KEY (interpretacion_grupo_gel,interpretacion_rh_gel) REFERENCES hc_tipos_sanguineos(grupo_sanguineo,rh)  ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY banco_sangre_cruzes_sanguineos ADD CONSTRAINT "$6" FOREIGN KEY (tipo_id_profesional_gel,profesional_gel_id) REFERENCES profesionales(tipo_id_tercero,tercero_id)  ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY banco_sangre_cruzes_sanguineos ADD CONSTRAINT "$7" FOREIGN KEY (interpretacion_grupo_cruze,interpretacion_rh_cruze) REFERENCES hc_tipos_sanguineos(grupo_sanguineo,rh)  ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY banco_sangre_cruzes_sanguineos ADD CONSTRAINT "$8" FOREIGN KEY (tipo_id_profesional_cruze,profesional_cruze_id) REFERENCES profesionales(tipo_id_tercero,tercero_id)  ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY banco_sangre_cruzes_sanguineos ADD CONSTRAINT "$9" FOREIGN KEY (tipo_id_profesional_entrega,profesional_entrega_id) REFERENCES profesionales(tipo_id_tercero,tercero_id)  ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY banco_sangre_cruzes_sanguineos ADD CONSTRAINT "$10" FOREIGN KEY (tipo_id_profesional_recibe,profesional_recibe_id) REFERENCES profesionales(tipo_id_tercero,tercero_id)  ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY banco_sangre_cruzes_sanguineos ADD CONSTRAINT "$11" FOREIGN KEY (usuario_id) REFERENCES system_usuarios(usuario_id)  ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+
+INSERT INTO system_modulos VALUES ('CentralImpresionHospitalizacion', 'app', 'Para la impresion de hospitalizacion', 1.00, '1', '1', '1', '1');
+
+INSERT INTO "system_menus" ("menu_id", "menu_nombre", "descripcion", "sw_system") VALUES (62, 'IMPRESION HOSPITALIZACION', '', 0);
+INSERT INTO "system_menus_items" ("menu_item_id", "menu_id", "titulo", "modulo_tipo", "modulo", "tipo", "metodo", "descripcion", "indice_de_orden") VALUES (93, '62', 'IMPRESION HOSPITALIZACION', 'app', 'CentralImpresionHospitalizacion', 'user', 'main', ''::character varying, 0);
+
+INSERT INTO system_usuarios_menus VALUES (62, 2);
+
+
+CREATE TABLE userpermisos_impresion_hospitalaria (
+    estacion_id character varying(4) NOT NULL,
+    usuario_id integer NOT NULL
+);
+
+
+
+ALTER TABLE ONLY userpermisos_impresion_hospitalaria
+    ADD CONSTRAINT userpermisos_impresion_hospitalaria_pkey PRIMARY KEY (estacion_id,usuario_id);
+

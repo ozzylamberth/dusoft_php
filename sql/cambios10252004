@@ -1,0 +1,3 @@
+
+ALTER TABLE "signos_vitales_triages" ADD COLUMN "evaluacion_dolor" smallint;
+

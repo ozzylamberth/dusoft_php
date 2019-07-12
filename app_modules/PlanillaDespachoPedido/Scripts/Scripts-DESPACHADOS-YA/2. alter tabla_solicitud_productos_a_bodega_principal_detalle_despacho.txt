@@ -1,0 +1,10 @@
+ALTER TABLE solicitud_productos_a_bodega_principal_detalle_despacho ADD COLUMN planilla_despacho_id INTEGER NULL;
+COMMENT ON COLUMN public.solicitud_productos_a_bodega_principal_detalle_despacho.planilla_despacho_id
+  IS 'Id de la planilla (de despacho) relacionada al (detalle de) despacho';
+  
+ALTER TABLE solicitud_productos_a_bodega_principal_detalle_despacho
+ADD CONSTRAINT planillas_despachos_solicitud_productos_a_bodega_principal_detalle_despacho_fkey
+FOREIGN KEY (planilla_despacho_id)
+REFERENCES planillas_despachos (planilla_despacho_id)
+ON DELETE CASCADE
+ON UPDATE CASCADE;

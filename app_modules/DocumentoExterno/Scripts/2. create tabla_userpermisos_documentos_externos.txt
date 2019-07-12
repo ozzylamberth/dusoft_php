@@ -1,0 +1,40 @@
+-- Table: public.userpermisos_documentos_externos
+
+-- DROP TABLE public.userpermisos_documentos_externos;
+
+CREATE TABLE public.userpermisos_documentos_externos (
+  documento_externo_id  serial NOT NULL,
+  usuario_id   integer,
+  empresa_id   varchar(2),
+  /* Keys */
+  CONSTRAINT userpermisos_documentos_externos_pkey
+    PRIMARY KEY (documento_externo_id),
+  /* Foreign keys */
+  CONSTRAINT userpermisos_documentos_externos_empresa_id_fkey
+    FOREIGN KEY (empresa_id)
+    REFERENCES public.empresas(empresa_id)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE, 
+  CONSTRAINT userpermisos_documentos_externos_usuario_id_fkey
+    FOREIGN KEY (usuario_id)
+    REFERENCES public.system_usuarios(usuario_id)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE
+) WITH (
+    OIDS = FALSE
+  );
+
+ALTER TABLE public.userpermisos_documentos_externos
+  OWNER TO "admin";
+
+COMMENT ON TABLE public.userpermisos_documentos_externos
+  IS 'Tabla de permisos para el módulo de documentos externos';
+
+COMMENT ON COLUMN public.userpermisos_documentos_externos.documento_externo_id
+  IS 'PK tabla';
+
+COMMENT ON COLUMN public.userpermisos_documentos_externos.usuario_id
+  IS 'Usuario Id';
+
+COMMENT ON COLUMN public.userpermisos_documentos_externos.empresa_id
+  IS 'Empresa Id';

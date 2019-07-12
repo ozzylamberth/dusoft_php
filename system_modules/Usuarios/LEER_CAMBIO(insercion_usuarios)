@@ -1,0 +1,9 @@
+
+
+//cuando se este en tulua se debera hacer esta insercion en esta tabla ya que ,aqui estamos insertando el menu_id que es la llave del modulo de usuario_config
+//este modulo se realizo para separar el admin de usuarios, del modulo de usuarios
+
+
+insert into system_usuarios_menus (menu_id,usuario_id)
+(
+select 45,usuario_id from system_usuarios WHERE usuario_id <> 0);

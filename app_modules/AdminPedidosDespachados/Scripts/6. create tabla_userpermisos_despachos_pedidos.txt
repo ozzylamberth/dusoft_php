@@ -1,0 +1,40 @@
+-- Table: public.userpermisos_despachos_pedidos
+
+-- DROP TABLE public.userpermisos_despachos_pedidos;
+
+CREATE TABLE public.userpermisos_despachos_pedidos (
+  tbl_despachos_pedidos_id  serial NOT NULL,
+  usuario_id   integer,
+  empresa_id   varchar(2),
+  /* Keys */
+  CONSTRAINT userpermisos_despachos_pedidos_pkey
+    PRIMARY KEY (tbl_despachos_pedidos_id),
+  /* Foreign keys */
+  CONSTRAINT userpermisos_despachos_pedidos_empresa_id_fkey
+    FOREIGN KEY (empresa_id)
+    REFERENCES public.empresas(empresa_id)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE, 
+  CONSTRAINT userpermisos_despachos_pedidos_usuario_id_fkey
+    FOREIGN KEY (usuario_id)
+    REFERENCES public.system_usuarios(usuario_id)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE
+) WITH (
+    OIDS = FALSE
+  );
+
+ALTER TABLE public.userpermisos_despachos_pedidos
+  OWNER TO "admin";
+
+COMMENT ON TABLE public.userpermisos_despachos_pedidos
+  IS 'Tabla de permisos para el módulo de administración de despachos de pedidos';
+
+COMMENT ON COLUMN public.userpermisos_despachos_pedidos.tbl_despachos_pedidos_id
+  IS 'PK tabla';
+
+COMMENT ON COLUMN public.userpermisos_despachos_pedidos.usuario_id
+  IS 'Usuario Id';
+
+COMMENT ON COLUMN public.userpermisos_despachos_pedidos.empresa_id
+  IS 'Empresa Id';

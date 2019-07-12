@@ -1,0 +1,11 @@
+
+CREATE TABLE categoria_casos_pqrs(
+    id SERIAL primary key,
+    codigo varchar(100),
+    descripcion text,
+    area_empresa_id int,
+   fecha_registro timestamp WITHOUT TIME ZONE DEFAULT now(),
+    CONSTRAINT fkey01
+        FOREIGN KEY (area_empresa_id)
+        REFERENCES public.areas_empresa(id)
+);

@@ -1,0 +1,12 @@
+/class.nusoap_base.php////*///
+/class.soap_fault.php////*///
+/class.soap_parser.php////*///
+/class.soap_server.php////*///
+/class.soap_transport_http.php////*///
+/class.soap_val.php////*///
+/class.soapclient.php////*///
+/class.wsdl.php////*///
+/class.wsdlcache.php////*///
+/class.xmlschema.php////*///
+/nusoap.php////*///
+/nusoapmime.php////*///

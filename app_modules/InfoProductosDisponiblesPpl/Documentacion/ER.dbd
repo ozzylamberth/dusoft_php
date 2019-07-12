@@ -1,0 +1,74 @@
+<XMLDiagram version="1.0">
+<TDBADiagramController Locked="0">
+<Elements>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.centros_utilidad">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="10" top="577" width="200" height="209"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.empresas">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="10" top="10" width="200" height="489"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.centros_utilidad.$1">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="48" top="48" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="110" y="680"/>
+<Point x="110" y="250"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.system_usuarios">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="234" top="549" width="200" height="265"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.userpermisos_infoproductosdisponibleppl">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="122" top="863" width="200" height="80"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.userpermisos_infoproductosdisponibleppl.userpermisos_infoproductosdisponibleppl_empresa_id_fkey">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="96" top="96" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="220" y="900"/>
+<Point x="110" y="680"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.userpermisos_infoproductosdisponibleppl.userpermisos_infoproductosdisponibleppl_usuario_id_fkey">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="112" top="112" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="220" y="900"/>
+<Point x="330" y="680"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+</Elements>
+<Surface zoom="59,1586280814577" scrollx="0" scrolly="0"/>
+</TDBADiagramController>
+</XMLDiagram>

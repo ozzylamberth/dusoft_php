@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wc-entries
+   xmlns="svn:">
+<entry
+   committed-rev="6"
+   name=""
+   committed-date="2012-01-12T15:34:08.578843Z"
+   url="http://10.0.0.254/repositorio/ips/trunk/codigo%20fuente/sinergias_ips/app_modules/Cuentas/reports"
+   last-author="andres.velez"
+   kind="dir"
+   revision="6"/>
+<entry
+   name="fpdf"
+   kind="dir"/>
+</wc-entries>

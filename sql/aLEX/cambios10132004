@@ -1,0 +1,22 @@
+CREATE TABLE qx_cumplimiento_profesionales(
+    qx_cumplimiento_id integer NOT NULL,
+    tipo_id_anestesiologo character varying(3),
+    anestesiologo_id character varying(32),
+    tipo_id_instrumentista character varying(3),
+    instrumentista_id character varying(32),
+    tipo_id_circulante character varying(3),
+    circulante_id character varying(32)
+);
+ALTER TABLE ONLY qx_cumplimiento_profesionales ADD CONSTRAINT qx_cumplimiento_profesionales_pkey PRIMARY KEY (qx_cumplimiento_id);
+ALTER TABLE ONLY qx_cumplimiento_profesionales ADD CONSTRAINT "$1" FOREIGN KEY (tipo_id_anestesiologo, anestesiologo_id) REFERENCES profesionales(tipo_id_tercero, tercero_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_cumplimiento_profesionales ADD CONSTRAINT "$2" FOREIGN KEY (tipo_id_instrumentista, instrumentista_id) REFERENCES profesionales(tipo_id_tercero, tercero_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_cumplimiento_profesionales ADD CONSTRAINT "$3" FOREIGN KEY (tipo_id_circulante, circulante_id) REFERENCES profesionales(tipo_id_tercero, tercero_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_cumplimiento_profesionales ADD CONSTRAINT "$4" FOREIGN KEY (qx_cumplimiento_id) REFERENCES qx_cumplimientos(qx_cumplimiento_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+CREATE TABLE qx_cumplimiento_paquetes (
+    qx_cumplimiento_id integer NOT NULL,
+    paquete_insumos_id integer NOT NULL,
+    cantidad smallint
+);
+ALTER TABLE ONLY qx_cumplimiento_paquetes ADD CONSTRAINT qx_cumplimiento_paquetes_pkey PRIMARY KEY (qx_cumplimiento_id, paquete_insumos_id);
+ALTER TABLE ONLY qx_cumplimiento_paquetes ADD CONSTRAINT "$1" FOREIGN KEY (paquete_insumos_id) REFERENCES qx_paquetes_insumos(paquete_insumos_id) ON UPDATE CASCADE ON DELETE RESTRICT;

@@ -1,0 +1,20 @@
+
+-- altera la tabla hc_signos_vitales
+ALTER TABLE "hc_signos_vitales" ADD COLUMN "pani_baja" numeric(5,2);
+ALTER TABLE "hc_signos_vitales" ADD COLUMN "pani_alta" numeric(5,2);
+ALTER TABLE "hc_signos_vitales" ADD COLUMN "pai_baja" numeric(5,2);
+ALTER TABLE "hc_signos_vitales" ADD COLUMN "pai_alta" numeric(5,2);
+
+ALTER TABLE protocolos_cx RENAME TO qx_protocolos;
+ALTER TABLE qx_acto ADD protocolo character varying(3);
+
+ALTER TABLE cups ADD sw_bilateral character varying(1);
+UPDATE cups SET sw_bilateral=0;
+ALTER TABLE cups ALTER sw_bilateral SET DEFAULT 0;
+ALTER TABLE cups ALTER sw_bilateral SET NOT NULL;
+
+ALTER TABLE qx_vias_acceso ADD sw_bilateral character varying(1);
+UPDATE qx_vias_acceso SET sw_bilateral=0;
+ALTER TABLE qx_vias_acceso ALTER sw_bilateral SET DEFAULT 0;
+ALTER TABLE qx_vias_acceso ALTER sw_bilateral SET NOT NULL;
+ALTER TABLE qx_procedimientos_programacion ADD via_procedimiento_bilateral character varying(4);

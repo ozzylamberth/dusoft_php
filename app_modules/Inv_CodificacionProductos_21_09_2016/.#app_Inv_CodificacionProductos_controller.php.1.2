@@ -1,0 +1,213 @@
+<?php
+	/**
+  * @package IPSOFT-SIIS
+  * @version $Id: app_Inv_CodificacionProductos_controller.php,v 1.2 2009/09/11 20:47:04 mauricio Exp $
+  * @copyright (C) 2005 IPSOFT - SA (www.ipsoft-sa.com)
+  * @author Mauricio Medina Santacruz
+  */
+  /**
+  * Clase Control: Inv_CodificacionProductos
+  * Clase encargada del control de llamado de metodos en el modulo
+  *
+  * @package IPSOFT-SIIS
+  * @version $Revision: 1.2 $
+  * @copyright (C) 2009 IPSOFT - SA (www.ipsoft-sa.com)
+  * @author Mauricio Medina Santacruz
+  */
+    class app_Inv_CodificacionProductos_controller extends classModulo
+    {
+        /**
+        * @var array $action  Vector donde se almacenan los links de la aplicacion
+        */
+        var $action = array();
+        /**
+        * @var array $request Vector donde se almacenan los datos pasados por request
+        */
+        var $request = array();
+		
+		
+        /**
+        * Constructor de la clase
+        */
+        function app_Inv_CodificacionProductos_controller(){}
+        /**
+        * Funcion principal del modulo
+        *
+        * @return boolean
+        */
+        
+		function main()
+		{	
+			
+			
+			
+			$request = $_REQUEST;
+						
+			$url[0]='app';                         //Tipo de Modulo
+			$url[1]='Inv_CodificacionProductos';   //Nombre del Modulo
+			$url[2]='controller';                  //Si es User,controller...
+			$url[3]='MenuCodificacionProductos';   //Metodo.
+			$url[4]='datos';						//vector de $_request.
+			$arreglo[0]='EMPRESA';					//Sub Titulo de la Tabla
+						
+			//Generar de Busqueda de Permisos SQL
+			$obj_busqueda=AutoCarga::factory("Permisos", "", "app","Inv_CodificacionProductos");
+			//Obtenemos los resultados del Query realizado en Classes. Accediendo al metodo del Objeto $obj_busqueda.
+			$datos=$obj_busqueda->BuscarPermisos(); 
+		
+		//Generamos el pantallazo inicial sobre las empresas. gui_theme_menu_acceso retorna codigo html.
+										// Titulo de la Tabla, Subtitulo de la Tabla(campos),destino,Boton Volver
+			$forma = gui_theme_menu_acceso("CODIFICACION PRODUCTOS",$arreglo,$datos,$url,ModuloGetURL('system','Menu')); 
+			$this->salida=$forma;
+					
+/*			
+			//(nombre de la Tabla Acceso,
+			FormaMostrarMenuHospitalizacion($forma); //Invocar un view, para mostrar la informacion.
+*/
+			return true; 
+
+		}
+		
+		/**
+        * Funcion Crear Modulo del modulo
+        * Con esta Funcion, procedemos a crear el Menú de opciones como:
+		* 1- Crear Moleculas.
+		* 2- Crear Laboratorios.
+		* 3- Clasificacion General de los Productos.
+        * @return boolean
+        */
+		function MenuCodificacionProductos()
+		{
+		/*Crear el Menú de Opciones*/
+		$Obj_Menu=AutoCarga::factory("CodificacionProductos_MenuHTML", "views", "app","Inv_CodificacionProductos");
+		
+		//Volver a Empresas.
+		$action['volver'] = ModuloGetURL("app","Inv_CodificacionProductos","controller","main");
+		$_SESSION['datos']['empresa_id']=$_REQUEST['datos']['empresa_id'];	
+		//Mostramos el Objeto Creado.
+		$this->salida=$Obj_Menu->Menu($action);
+		
+		return true;
+		
+		}
+		/* FUNCION CREAR MOLÉCULAS
+		*  Funcion que consiste en Generar la Interfaz para el Ingreso de Moléculas al sistema.
+		*  @param NULL
+		*	return booleam.
+		*/
+		
+		
+		
+		function CrearMoleculas()
+		{
+		//Incluye al script controller el archivo remotos de XAJAX.
+			IncludeFileModulo("Remotos","RemoteXajax","app","Inv_CodificacionProductos");
+			$this->SetXajax(array("BuscarMolecula")); //Registrando las funciones que hay en Php "remotos"
+		// Instancia de clases que contienen formularios del modulo.
+		$Obj_Form=AutoCarga::factory("Formularios_HTML", "views", "app","Inv_CodificacionProductos");
+		// Instancia de clases que contienen las consultas a la BD.
+		$Obj_Consultas=AutoCarga::factory("Consultas", "", "app","Inv_CodificacionProductos");
+		
+		//Boton Volver==>Ruta
+		$action['volver'] = ModuloGetURL("app","Inv_CodificacionProductos","controller","MenuCodificacionProductos");
+		
+		$UnidadMedidaMedicamentos=$Obj_Consultas->Listar_Unidades_Medida_Medicamento();
+		
+		
+		//Genero Formulario para la creacion de moléculas.
+		$Html_FormMolecula=$Obj_Form->Form_CrearMolecula($action,$UnidadMedidaMedicamentos);
+				
+		//Imprimo Formulario.		
+		$this->salida = $Html_FormMolecula;
+		
+		//Para hacer la insercion de datos a la tabla Moléculas sIN XAJAX
+		
+		if($_POST['molecula_id']!='')
+		{
+		$this->salida .=$_POST['molecula_id'];
+					
+						$molecula_id=$_POST['molecula_id'];
+						$descripcion=$_POST['descripcion'];
+						$bandera=NULL;
+						$bandera=$Obj_Consultas->Insertar_Molecula($molecula_id,$descripcion);
+						
+						$this->salida .=$_POST['molecula_id'];
+				
+							if($bandera==true)
+								{
+								$this->salida .="<script languaje='javascript'>
+								alert('Ingreso Exitoso!!!');
+								</script>";
+								}
+						else
+								{
+								$this->salida .="<script languaje='javascript'>
+								alert('Error en El Ingreso!!!');
+								</script>";
+								}
+		}			
+		
+		
+		
+		return true;
+		
+		}
+		
+		
+		/* FUNCION CREAR LABORATORIOS
+		*	Funcion que consiste en Generar la Interfaz para el Ingreso de Moléculas al sistema.
+		*	@param NULL
+		*	return booleam.
+		*/
+		function CrearLaboratorios()
+		{
+		$request = $_REQUEST;
+		//Incluye al script controller el archivo remotos de XAJAX.
+		IncludeFileModulo("Remotos","RemoteXajax","app","Inv_CodificacionProductos");
+		$this->SetXajax(array("BuscarLaboratorio","IngresoLaboratorio","InsertarLaboratorio","ModificarLaboratorio","CambioEstado","LaboratoriosT","GuardarModLaboratorio","LaboratorioProveedor","Actividades_sgrupo","GuardarProveedor","IngresoTitular","IngresoLaboratorioFabricante","GuardarLaboratorioFabricante","BusquedaLaboratorio_Codigo","BusquedaLaboratorio_Nombre")); //Registrando las funciones que hay en Php "remotos"
+		$this->IncludeJS("CrossBrowser");
+		$this->IncludeJS("CrossBrowserEvent");
+		$this->IncludeJS("CrossBrowserDrag");	
+		
+		$Obj_Form=AutoCarga::factory("Formularios_HTML", "views", "app","Inv_CodificacionProductos");
+		//Antes de crear el formulario para crear laboratorios, incluir informacion extraída de la base de datos como los Paises.
+		
+		$Obj_Consultas=AutoCarga::factory("Consultas", "", "app","Inv_CodificacionProductos");
+		//Boton Volver==>Ruta
+		$action['volver'] = ModuloGetURL("app","Inv_CodificacionProductos","controller","MenuCodificacionProductos");
+		//$action['paginador'] = ModuloGetURL("app","Inv_CodificacionProductos","controller","CrearLaboratorios");
+		
+		
+		$datos=$Obj_Consultas->BuscarPaises("NULL");
+		$Laboratorios=$Obj_Consultas->Listar_Laboratorios(NULL);
+		
+					
+		//Genero Formulario para la creacion de laboratorios.
+		$Html_FormLaboratorio=$Obj_Form->Form_CrearLaboratorio($action,$datos,$Laboratorios,$request);
+				
+		//Imprimo Formulario.		
+		//$this->salida = $datos;
+		$this->salida = $Html_FormLaboratorio;
+		
+				
+		return true;
+		}
+		
+		
+		
+			
+		function Clasificacion_Productos()
+		{
+		return true;
+		}
+		
+		
+		
+		function funcion()
+		{
+		
+		$this->salida= "Hola";
+		return true;
+		}
+	}
+    

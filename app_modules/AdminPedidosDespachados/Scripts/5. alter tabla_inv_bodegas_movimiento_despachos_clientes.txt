@@ -1,0 +1,10 @@
+ALTER TABLE inv_bodegas_movimiento_despachos_clientes ADD COLUMN venta_orden_pedido_det_des_id INTEGER NULL;
+COMMENT ON COLUMN public.inv_bodegas_movimiento_despachos_clientes.venta_orden_pedido_det_des_id
+  IS 'Id del detalle (de despacho) relacionado al despacho';
+  
+ALTER TABLE inv_bodegas_movimiento_despachos_clientes
+ADD CONSTRAINT inv_bodegas_movimiento_despachos_clientes_ventas_ordenes_pedidos_detalle_despacho_fkey
+FOREIGN KEY (venta_orden_pedido_det_des_id)
+REFERENCES ventas_ordenes_pedidos_detalle_despacho (venta_orden_pedido_det_des_id)
+ON DELETE RESTRICT
+ON UPDATE CASCADE;

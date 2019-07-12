@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wc-entries
+   xmlns="svn:">
+<entry
+   committed-rev="6"
+   name=""
+   committed-date="2012-01-12T15:34:08.578843Z"
+   url="http://10.0.0.254/repositorio/ips/trunk/codigo%20fuente/sinergias_ips/app_modules/EE_AdministracionMedicamentos/reports/html"
+   last-author="andres.velez"
+   kind="dir"
+   uuid="de7826d0-36f2-11e1-8d81-3fd762807c8f"
+   revision="6"/>
+<entry
+   committed-rev="6"
+   name="formula_medica_estacion_html.report.php"
+   text-time="2012-01-12T15:35:09.000000Z"
+   committed-date="2012-01-12T15:34:08.578843Z"
+   checksum="59a184349ce0b7fb98cbfbe519bc3d59"
+   last-author="andres.velez"
+   kind="file"
+   prop-time="2012-01-12T15:35:09.000000Z"/>
+<entry
+   committed-rev="6"
+   name="reporte_solicitudes_devolucion_html.report.php"
+   text-time="2012-01-12T15:35:09.000000Z"
+   committed-date="2012-01-12T15:34:08.578843Z"
+   checksum="21ab59058d46e95baca74bb1f56b1232"
+   last-author="andres.velez"
+   kind="file"
+   prop-time="2012-01-12T15:35:09.000000Z"/>
+<entry
+   committed-rev="6"
+   name="JustificacionMEDPACIENTES_NO_POS_html.report.php"
+   text-time="2012-01-12T15:35:09.000000Z"
+   committed-date="2012-01-12T15:34:08.578843Z"
+   checksum="6d2fe2fba57bdd365fa5cada65395b00"
+   last-author="andres.velez"
+   kind="file"
+   prop-time="2012-01-12T15:35:09.000000Z"/>
+</wc-entries>

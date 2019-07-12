@@ -1,0 +1,72 @@
+-- Table: public.documentos_externos
+
+-- DROP TABLE public.documentos_externos;
+
+CREATE TABLE public.documentos_externos (
+  documento_externo_id      serial NOT NULL,
+  empresa_id      			character varying(2) NOT NULL,
+  centro_utilidad  			character varying(2) NOT NULL,
+  bodega          			character varying(2) NOT NULL,
+  prefijo       			character varying(3) NOT NULL,
+  documento       			character varying(10) NOT NULL,
+  cantidad_cajas          	integer NOT NULL,
+  cantidad_neveras          integer NOT NULL,
+  temperatura_neveras       integer NOT NULL,
+  usuario_id            	integer NOT NULL,
+  fecha_registro        	timestamp WITHOUT TIME ZONE DEFAULT now(),
+  /* Keys */
+  CONSTRAINT documentos_externos_pkey
+    PRIMARY KEY (documento_externo_id),
+  /* Foreign keys */
+  CONSTRAINT documentos_externos_farmacia_id_centro_utilidad_bodega_fkey
+    FOREIGN KEY (empresa_id,centro_utilidad,bodega)
+    REFERENCES public.bodegas(empresa_id,centro_utilidad,bodega)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE,
+  CONSTRAINT documentos_externos_usuario_id_fkey
+    FOREIGN KEY (usuario_id)
+    REFERENCES public.system_usuarios(usuario_id)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE
+) WITH (
+    OIDS = FALSE
+  );
+
+ALTER TABLE public.documentos_externos
+  OWNER TO "admin";
+
+COMMENT ON TABLE public.documentos_externos
+  IS 'Tabla que almacena la información de los documentos "externos" al sistema, es decir DC, TE y EDD';
+  
+COMMENT ON COLUMN public.documentos_externos.documento_externo_id
+  IS 'PK tabla, número único del documento externo';
+
+COMMENT ON COLUMN public.documentos_externos.empresa_id
+  IS 'Id de la empresa a la que pertenece el documento';
+
+COMMENT ON COLUMN public.documentos_externos.centro_utilidad
+  IS 'Id del centro de utilidad al que pertenece el documento';
+
+COMMENT ON COLUMN public.documentos_externos.bodega
+  IS 'Id de la bodega a la que pertenece el documento';
+  
+COMMENT ON COLUMN public.documentos_externos.prefijo
+  IS 'Prefijo del tipo de documento DC, TE ó EDD';
+
+COMMENT ON COLUMN public.documentos_externos.documento
+  IS 'Código del documento externo';
+  
+  COMMENT ON COLUMN public.documentos_externos.cantidad_cajas
+  IS 'Cantidad de cajas enviadas';
+
+COMMENT ON COLUMN public.documentos_externos.cantidad_neveras
+  IS 'Cantidad de neveras enviadas';
+
+COMMENT ON COLUMN public.documentos_externos.temperatura_neveras
+  IS 'Temperatura (en grados centigrados) de las neveras enviadas';
+
+COMMENT ON COLUMN public.documentos_externos.usuario_id
+  IS 'Usuario que registra';
+
+COMMENT ON COLUMN public.documentos_externos.fecha_registro
+  IS 'Fecha de registro';

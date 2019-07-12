@@ -1,0 +1,317 @@
+<XMLDiagram version="1.0">
+<TDBADiagramController Locked="0">
+<Elements>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.contratacion_produc_prov_detalle">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="750" top="1190" width="200" height="181"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.contratacion_produc_proveedor">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="550" top="110" width="200" height="293"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.contratacion_produc_prov_detalle.contratacion_produc_prov_detalle_contratacion_prod_id_fkey">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="48" top="48" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="849" y="1281"/>
+<Point x="650" y="257"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.contratacion_produc_proveedor_politicas">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="990" top="900" width="200" height="111"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.contratacion_produc_proveedor_politicas.foreign_key01">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="80" top="80" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="1087" y="951"/>
+<Point x="849" y="1281"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.contrato_prod_detalle_envios">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="259" top="1221" width="200" height="139"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.contrato_prod_detalle_envios.contrato_prod_detalle_envios_contratacion_prod_id_fkey">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="112" top="112" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="360" y="1290"/>
+<Point x="650" y="257"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.contrato_proveed_politicas_vencimientos">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="520" top="1190" width="200" height="167"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.contrato_proveed_politicas_vencimientos.contrato_proveed_politicas_vencimient_contratacion_prod_id_fkey">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="144" top="144" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="617" y="1274"/>
+<Point x="650" y="257"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.empresas">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="195" top="10" width="200" height="489"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.contratacion_produc_prov_detalle.contratacion_produc_prov_detalle_empresa_id_fkey">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="176" top="176" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="849" y="1281"/>
+<Point x="300" y="250"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.contratacion_produc_proveedor.contratacion_produc_proveedor_empresa_id_fkey">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="192" top="192" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="650" y="257"/>
+<Point x="300" y="250"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.contrato_prod_detalle_envios.contrato_prod_detalle_envios_empresa_id_fkey">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="208" top="208" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="360" y="1290"/>
+<Point x="300" y="250"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.contrato_proveed_politicas_vencimientos.contrato_proveed_politicas_vencimientos_empresa_id_fkey">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="224" top="224" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="617" y="1274"/>
+<Point x="300" y="250"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.inventarios_productos">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="1270" top="800" width="200" height="601"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.contratacion_produc_prov_detalle.contratacion_produc_prov_detalle_codigo_producto_fkey">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="256" top="256" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="849" y="1281"/>
+<Point x="1370" y="1101"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.contratacion_produc_prov_detalle.contratacion_produc_prov_detalle_codigo_producto_fkey1">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="272" top="272" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="850" y="1280"/>
+<Point x="1370" y="1100"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.system_usuarios">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="1070" top="120" width="200" height="265"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.contratacion_produc_prov_detalle.contratacion_produc_prov_detalle_usuario_id_fkey">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="304" top="304" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="849" y="1281"/>
+<Point x="1167" y="248"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.contratacion_produc_prov_detalle.contratacion_produc_prov_detalle_usuario_id_fkey1">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="320" top="320" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="850" y="1280"/>
+<Point x="1170" y="252"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.contratacion_produc_proveedor.contratacion_produc_proveedor_usuario_id_fkey">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="336" top="336" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="650" y="257"/>
+<Point x="1167" y="248"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.contratacion_produc_proveedor_politicas.foreign_key02">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="352" top="352" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="1087" y="951"/>
+<Point x="1167" y="248"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.contrato_prod_detalle_envios.contrato_prod_detalle_envios_usuario_id_fkey">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="368" top="368" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="360" y="1290"/>
+<Point x="1167" y="248"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.contrato_proveed_politicas_vencimientos.contrato_proveed_politicas_vencimientos_usuario_id_fkey">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="384" top="384" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="617" y="1274"/>
+<Point x="1167" y="248"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.inventarios_productos.foreign_key02">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="400" top="400" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="1370" y="1101"/>
+<Point x="1167" y="248"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.userpermisos_contratacion_productos">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="50" top="810" width="200" height="83"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.userpermisos_contratacion_productos.userpermisos_contratacion_productos_empresa_id_fkey">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="432" top="432" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="155" y="851"/>
+<Point x="300" y="250"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.userpermisos_contratacion_productos.userpermisos_contratacion_productos_usuario_id_fkey">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="448" top="448" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="155" y="851"/>
+<Point x="1167" y="248"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+</Elements>
+<Surface zoom="36,0751633986928" scrollx="125" scrolly="7"/>
+</TDBADiagramController>
+</XMLDiagram>

@@ -1,0 +1,68 @@
+
+S (Tabla del sistema Implementada con anterioridad en otro modulos.)
+M (Tabla de Movimiento, cuando la instalacion es nueva debera estar vacia)
+T (Tabla maestra de tipos)
+
+M userpermisos_central
+S departamentos
+S centros_utilidad
+S empresas
+T tipos_servicios_ambulatorios
+T tipos_consulta
+S agenda_turnos
+S profesionales_estado
+S profesionales
+S terceros
+T tipos_consultorios
+S agenda_turnos
+S agenda_citas
+S agenda_citas_asignadas
+S pacientes
+S os_cruce_citas
+S os_maestro
+S cuentas
+S hc_evoluciones
+S autorizaciones
+S system_usuarios
+S planes
+S terceros
+S planes_proveedores
+S os_internas
+S os_externas
+S terceros_proveedores_cargos
+S departamentos_cargos
+S planes_proveedores
+T tipos_id_pacientes
+S os_ordenes_servicios
+S os_ordenes_servicios
+T tipo_dptos
+T tipo_mpios
+T tipos_afiliado
+S hc_os_solicitudes
+S hc_os_solicitudes_apoyod
+S hc_os_solicitudes_interconsultas
+S hc_os_solicitudes_no_quirurgicos
+T especialidades
+S os_maestro_cargos
+S tarifarios_detalle
+hc_apoyod_requisitos
+hc_medicamentos_recetados_amb
+T hc_vias_administracion
+S profesionales_usuarios
+T tipos_profesionales
+S planes_rangos
+hc_posologia_horario_op1
+hc_posologia_horario_op2
+hc_posologia_horario_op3
+hc_posologia_horario_op4
+hc_posologia_horario_op5
+hc_incapacidades
+S hc_diagnosticos_ingreso
+S diagnosticos
+S hc_diagnosticos_egreso
+
+
+
+
+
+

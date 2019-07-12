@@ -1,0 +1,66 @@
+<?php
+	
+	function Medicamentos_Despacho($ingreso,$tipo_solicitud,$medicamento_sol)
+	{
+		       $objResponse = new xajaxResponse();  
+            $slt = AutoCarga::factory("SolicitudesAutomaticas","classes","app","EE_AdministracionMedicamentos");
+           $datos = $slt->Despachados_por_Medicamento_Solicitado($ingreso,$tipo_solicitud,$medicamento_sol);
+      if(!empty($datos))
+      {
+         $this->salida .= "  <table align=\"center\" width=\"100%\" cellpadding=\"2\" cellspacing=\"2\" border=\"0\" class=\"\">\n";
+          $this->salida .= "      <tr class=\"modulo_table_title\">\n";
+          $this->salida.="<td align=\"center\" colspan=\"5\">MEDICAMENTOS DESPACHADOS</td>";
+           $this->salida .= "</tr>";
+           
+
+              $this->salida.="<tr class=\"modulo_table_title\">";
+             $this->salida.="  <td align=\"center\" colspan=\"1\">CODIGO</td>";
+              $this->salida.="  <td align=\"center\" colspan=\"2\">PRODUCTO</td>";
+              $this->salida.="  <td align=\"center\" colspan=\"2\">CANT</td>";
+              $this->salida .= "</tr>";
+              $total=0;
+               foreach($datos as $i => $dtl)
+            {
+            
+              $this->salida.="<tr class=\"modulo_list_oscuro\">";
+              $this->salida.="  <td align=\"center\" colspan=\"1\" >".$dtl['codigo_producto']."</td>";
+              $this->salida.="  <td align=\"center\" colspan=\"2\">".$dtl['descripcion']."</td>";
+              $this->salida.="  <td align=\"center\"  colspan=\"2\">".floor($dtl['cantidad'])."</td>";
+              
+              $this->salida .= "</tr>";
+             $total=$total+$dtl['cantidad'];
+            }
+              $this->salida.="<tr class=\"modulo_table_title\">";
+              $this->salida.="  <td align=\"right\" colspan=\"3\">Total</td>";
+              $this->salida.="  <td  align=\"left\" colspan=\"2\">".floor($total)."</td>";
+           
+              $this->salida .= "</tr>";
+        
+          $this->salida .= "</table><BR>";
+    	}else
+      {
+               $this->salida .= "   <table align=\"center\" width=\"80%\" cellpadding=\"2\" cellspacing=\"2\" border=\"0\" >\n";
+               $this->salida .= "       <tr >\n";
+               $this->salida .= "           <td align=\"center\"><label class='label_mark'>NO HAY DESPACHO DE MEDICAMENTOS !</label></td>\n";
+               $this->salida.="</tr></table>";
+      
+      
+      }
+      $objResponse->assign("Contenido","innerHTML",$objResponse->setTildes($this->salida));
+			$objResponse->call("MostrarSpan");
+          return $objResponse;
+	}
+      function GeneraReporte($entidad){
+	    if(!empty($entidad))
+	    {
+		$_SESSION['entidad']=$entidad;
+	    }
+            else{
+		if(empty($entidad) && isset($_SESSION['entidad']))
+		{
+		    unset($_SESSION['entidad']);
+		}
+	    }		
+	}
+	
+?>       

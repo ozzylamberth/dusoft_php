@@ -1,0 +1,211 @@
+
+S (Tabla del sistema Implementada con anterioridad en otro modulos.)
+M (Tabla de Movimiento, cuando la instalacion es nueva debera estar vacia)
+T (Tabla maestra de tipos)
+
+S bodegas
+M bodegas_documentos
+M bodegas_documentos_d
+M bodegas_doc_numeraciones
+M bodegas_documento_despacho_med
+M bodegas_documento_despacho_med_d
+M bodegas_documentos_inv_devolucion
+M bodegas_documentos_d_fvencimiento_lotes
+M bodegas_restitucion
+M bodegas_tipo_movimiento
+S bodegas_usuarios
+S bodegas_ubicaciones
+S camas
+S centros_utilidad
+S compras_ordenes_pedidos
+S compras_ordenes_pedidos_detalle
+S cuentas
+M cuentas_detalle
+M cuentas_codigos_agrupamiento
+S departamentos
+S empresas
+S estaciones_enfermeria
+S existencias_bodegas
+S hc_bodega_paciente
+S hc_solicitudes_insumos_d
+S hc_solicitudes_medicamentos
+S hc_solicitudes_medicamentos_d
+S hc_solicitudes_medicamentos_mezclas_d
+S ingresos
+S inventarios
+S inventarios_productos
+M inv_bodegas_transferencia_fvencimiento_lotes
+M inv_documento_transferencia_bodegas
+M inv_documento_transferencia_bodegas_d
+S inv_clases_inventarios
+S inv_equipos_temperaturas
+S inv_grupos_inventarios
+S inv_med_cod_forma_farmacologica
+M inv_registro_temperaturas
+M inv_solicitudes_devolucion
+M inv_solicitudes_devolucion_d
+M inv_solicitudes_devolucion_fvencimiento_lotes
+S inv_subclases_inventarios
+S inv_tipos_medidas
+S inv_tipos_medidas_equipos
+M inv_toma_fisica
+M inv_toma_fisica_d
+S medicamentos
+S movimientos_habitacion
+S pacientes
+S planes
+S terceros_proveedores
+S terceros
+S tipos_afiliado
+S tipos_doc_bodega
+S tmp_cuenta_insumos
+M tmp_bodegas_documentos
+M tmp_bodegas_documentos_d
+M tmp_bodegas_documentos_d_fvencimiento_lotes
+M tmp_bodegas_documentos_hc_solicitudes
+S unidades
+S system_usuarios
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

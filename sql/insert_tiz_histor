@@ -1,0 +1,44 @@
+--
+-- PostgreSQL database dump
+--
+
+SET SESSION AUTHORIZATION 'admin';
+
+SET search_path = public, pg_catalog;
+
+--
+-- Data for TOC entry 1 (OID 4548848)
+-- Name: historias_clinicas_templates; Type: TABLE DATA; Schema: public; Owner: admin
+--
+
+INSERT INTO historias_clinicas_templates VALUES ('UrgenciasConsulta', 'PlanTerapeuticoTexto', 11, 0, '2', '1', '0', '0');
+INSERT INTO historias_clinicas_templates VALUES ('UrgenciasConsulta', 'Interconsulta', 12, 0, '2', '1', '0', '0');
+INSERT INTO historias_clinicas_templates VALUES ('UrgenciasConsulta', 'Apoyos_Diagnosticos_Solicitud', 13, 0, '2', '1', '0', '0');
+INSERT INTO historias_clinicas_templates VALUES ('UrgenciasConsulta', 'Solicitud_De_Procedimientos_Qx', 14, 0, '2', '1', '0', '0');
+INSERT INTO historias_clinicas_templates VALUES ('UrgenciasConsulta', 'Solicitud_De_Procedimientos_NO_Qx', 15, 0, '2', '1', '0', '0');
+INSERT INTO historias_clinicas_templates VALUES ('UrgenciasConsulta', 'ReservaSangre', 16, 0, '2', '1', '0', '0');
+INSERT INTO historias_clinicas_templates VALUES ('UrgenciasConsulta', 'Generacion_Incapacidades', 17, 0, '2', '1', '0', '0');
+INSERT INTO historias_clinicas_templates VALUES ('UrgenciasConsulta', 'Apoyos_Diagnosticos', 18, 0, '3', '1', '0', '0');
+INSERT INTO historias_clinicas_templates VALUES ('UrgenciasConsulta', 'Evolucion', 19, 0, '3', '1', '0', '0');
+INSERT INTO historias_clinicas_templates VALUES ('UrgenciasConsulta', 'DiagnosticoE', 20, 0, '3', '1', '0', '0');
+INSERT INTO historias_clinicas_templates VALUES ('UrgenciasConsulta', 'SignosVitalesHospitalizacion', 0, 0, '1', '1', '0', '0');
+INSERT INTO historias_clinicas_templates VALUES ('UrgenciasPediatria', 'MotivoConsulta', 1, 0, '1', '1', '0', '0');
+INSERT INTO historias_clinicas_templates VALUES ('UrgenciasPediatria', 'RevisionxSistemas', 2, 0, '1', '1', '0', '0');
+INSERT INTO historias_clinicas_templates VALUES ('UrgenciasPediatria', 'AntecedentesFamiliares', 3, 0, '1', '1', '0', '0');
+INSERT INTO historias_clinicas_templates VALUES ('UrgenciasPediatria', 'AntecedentesPersonales', 4, 0, '1', '1', '0', '0');
+INSERT INTO historias_clinicas_templates VALUES ('UrgenciasPediatria', 'AntecedentesPerinatales', 5, 0, '1', '1', '0', '0');
+INSERT INTO historias_clinicas_templates VALUES ('UrgenciasPediatria', 'Vacunacion', 6, 0, '1', '1', '0', '0');
+INSERT INTO historias_clinicas_templates VALUES ('UrgenciasPediatria', 'SignosVitalesHospitalizacion', 7, 0, '1', '1', '0', '0');
+INSERT INTO historias_clinicas_templates VALUES ('UrgenciasPediatria', 'ExamenFisico', 8, 0, '1', '1', '0', '0');
+INSERT INTO historias_clinicas_templates VALUES ('UrgenciasPediatria', 'DiagnosticoI', 9, 0, '1', '1', '0', '0');
+INSERT INTO historias_clinicas_templates VALUES ('UrgenciasPediatria', 'OrdenesMedicas', 10, 0, '1', '1', '0', '0');
+INSERT INTO historias_clinicas_templates VALUES ('UrgenciasPediatria', 'PlanTerapeuticoTexto', 11, 0, '1', '1', '0', '0');
+INSERT INTO historias_clinicas_templates VALUES ('UrgenciasPediatria', 'Apoyos_Diagnosticos_Solicitud', 12, 0, '1', '1', '0', '0');
+INSERT INTO historias_clinicas_templates VALUES ('UrgenciasPediatria', 'Interconsulta', 13, 0, '1', '1', '0', '0');
+INSERT INTO historias_clinicas_templates VALUES ('UrgenciasPediatria', 'ReservaSangre', 14, 0, '1', '1', '0', '0');
+INSERT INTO historias_clinicas_templates VALUES ('UrgenciasPediatria', 'Solicitud_De_Procedimientos_NO_Qx', 15, 0, '1', '1', '0', '0');
+INSERT INTO historias_clinicas_templates VALUES ('UrgenciasPediatria', 'Solicitud_De_Procedimientos_Qx', 16, 0, '1', '1', '0', '0');
+INSERT INTO historias_clinicas_templates VALUES ('UrgenciasPediatria', 'Apoyos_Diagnosticos', 17, 0, '1', '1', '0', '0');
+INSERT INTO historias_clinicas_templates VALUES ('UrgenciasPediatria', 'Evolucion', 18, 0, '1', '1', '0', '0');
+INSERT INTO historias_clinicas_templates VALUES ('UrgenciasConsulta', 'AntecedentesFamiliares', 3, 0, '1', '1', '0', '0');
+INSERT INTO historias_clinicas_templates VALUES ('UrgenciasConsulta', 'AntecedentesPersonales', 4, 0

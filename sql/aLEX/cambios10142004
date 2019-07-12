@@ -1,0 +1,45 @@
+CREATE TABLE qx_cumplimiento_insumos (
+    qx_cumplimiento_id integer NOT NULL,
+    codigo_producto character varying(10) NOT NULL,
+    cantidad smallint
+);
+ALTER TABLE ONLY qx_cumplimiento_insumos ADD CONSTRAINT qx_cumplimiento_insumos_pkey PRIMARY KEY (qx_cumplimiento_id, codigo_producto);
+ALTER TABLE ONLY qx_cumplimiento_insumos ADD CONSTRAINT "$1" FOREIGN KEY (codigo_producto) REFERENCES inventarios_productos(codigo_producto) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+CREATE TABLE qx_cumplimiento_procedimientos (
+    qx_cumplimiento_id integer NOT NULL,
+    procedimiento_qx character varying(10) NOT NULL,
+    tipo_id_cirujano character varying(3),
+    cirujano_id character varying(32),
+    tipo_id_ayudante character varying(3),
+    ayudante_id character varying(32),
+    plan_id integer NOT NULL,
+    via_procedimiento_bilateral character varying(4)
+);
+
+ALTER TABLE ONLY qx_cumplimiento_procedimientos ADD CONSTRAINT qx_cumplimiento_procedimientos_pkey PRIMARY KEY (procedimiento_qx, qx_cumplimiento_id);
+ALTER TABLE ONLY qx_cumplimiento_procedimientos ADD CONSTRAINT "$1" FOREIGN KEY (qx_cumplimiento_id) REFERENCES qx_cumplimientos(qx_cumplimiento_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_cumplimiento_procedimientos ADD CONSTRAINT "$2" FOREIGN KEY (tipo_id_cirujano, cirujano_id) REFERENCES profesionales(tipo_id_tercero, tercero_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_cumplimiento_procedimientos ADD CONSTRAINT "$3" FOREIGN KEY (tipo_id_ayudante, ayudante_id) REFERENCES profesionales(tipo_id_tercero, tercero_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_cumplimiento_procedimientos ADD CONSTRAINT "$4" FOREIGN KEY (procedimiento_qx) REFERENCES cups(cargo) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_cumplimiento_procedimientos ADD CONSTRAINT "$5" FOREIGN KEY (plan_id) REFERENCES planes(plan_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+CREATE TABLE qx_cumplimiento_procedimientos_pediatricos(
+    procedimiento_qx character varying(10) NOT NULL,
+    qx_cumplimiento_id integer NOT NULL,
+    tipo_id_pediatra character varying(3) NOT NULL,
+    pediatra_id character varying(32) NOT NULL
+);
+ALTER TABLE ONLY qx_cumplimiento_procedimientos_pediatricos ADD CONSTRAINT "$1" FOREIGN KEY (procedimiento_qx, qx_cumplimiento_id) REFERENCES qx_cumplimiento_procedimientos(procedimiento_qx, qx_cumplimiento_id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE ONLY qx_cumplimiento_procedimientos_pediatricos ADD CONSTRAINT "$2" FOREIGN KEY (tipo_id_pediatra, pediatra_id) REFERENCES profesionales(tipo_id_tercero, tercero_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+CREATE TABLE qx_cumplimiento_procedimientos_ordenes(
+    numero_orden_id integer NOT NULL,
+    qx_cumplimiento_id integer NOT NULL,
+    procedimiento_qx character varying(10) NOT NULL
+);
+ALTER TABLE ONLY qx_cumplimiento_procedimientos_ordenes ADD CONSTRAINT qx_cumplimiento_procedimientos_ordenes_pkey PRIMARY KEY (numero_orden_id, qx_cumplimiento_id);
+ALTER TABLE ONLY qx_cumplimiento_procedimientos_ordenes ADD CONSTRAINT "$1" FOREIGN KEY (qx_cumplimiento_id) REFERENCES qx_cumplimientos(qx_cumplimiento_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_cumplimiento_procedimientos_ordenes ADD CONSTRAINT "$2" FOREIGN KEY (numero_orden_id) REFERENCES os_maestro(numero_orden_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+

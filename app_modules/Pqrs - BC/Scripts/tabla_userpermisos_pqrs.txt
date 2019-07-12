@@ -1,0 +1,40 @@
+-- Table: public.userpermisos_pqrs
+
+-- DROP TABLE public.userpermisos_pqrs;
+
+CREATE TABLE public.userpermisos_pqrs (
+  tbl_pqrs_id  serial NOT NULL,
+  usuario_id   integer,
+  empresa_id   varchar(2),
+  /* Keys */
+  CONSTRAINT userpermisos_pqrs_pkey
+    PRIMARY KEY (tbl_pqrs_id),
+  /* Foreign keys */
+  CONSTRAINT userpermisos_pqrs_empresa_id_fkey
+    FOREIGN KEY (empresa_id)
+    REFERENCES public.empresas(empresa_id)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE, 
+  CONSTRAINT userpermisos_pqrs_usuario_id_fkey
+    FOREIGN KEY (usuario_id)
+    REFERENCES public.system_usuarios(usuario_id)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE
+) WITH (
+    OIDS = FALSE
+  );
+
+ALTER TABLE public.userpermisos_pqrs
+  OWNER TO "admin";
+
+COMMENT ON TABLE public.userpermisos_pqrs
+  IS 'Tabla de permisos para el modulo de pqrs';
+
+COMMENT ON COLUMN public.userpermisos_pqrs.tbl_pqrs_id
+  IS 'PK tabla';
+
+COMMENT ON COLUMN public.userpermisos_pqrs.usuario_id
+  IS 'Usuario Id';
+
+COMMENT ON COLUMN public.userpermisos_pqrs.empresa_id
+  IS 'Empresa Id';

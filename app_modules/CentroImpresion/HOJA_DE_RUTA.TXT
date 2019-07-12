@@ -1,0 +1,42 @@
+
+S (Tabla del sistema Implementada con anterioridad en otro modulos.)
+M (Tabla de Movimiento, cuando la instalacion es nueva debera estar vacia)
+T (Tabla maestra de tipos)
+
+
+
+S userpermisos_centro_impresion
+T tipos_id_pacientes
+S hc_os_solicitudes
+S os_ordenes_servicios
+S hc_evoluciones
+S pacientes
+S hc_os_solicitudes_manuales
+S os_internas
+S departamentos
+S os_externas
+S planes_proveedores
+S os_tipos_periodos_planes
+S os_tipos_periodos_tramites
+S ingresos
+S planes
+T servicios
+S cups
+T os_tipos_solicitudes
+S cuentas
+S empresas
+T tipo_dptos
+T tipo_mpios
+S system_usuarios
+T tipos_afiliado
+M recepciones_ordenes
+hc_os_solicitudes_apoyod
+hc_os_solicitudes_interconsultas
+hc_os_solicitudes_no_quirurgicos
+T especialidades
+M os_maestro_cargos
+S hc_apoyod_requisitos
+M autorizaciones_os_solicitudes_requerimientos_det
+M autorizaciones_os_solicitudes_requerimientos
+
+

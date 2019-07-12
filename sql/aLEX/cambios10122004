@@ -1,0 +1,26 @@
+ALTER TABLE public.userpermisos_busqueda_agenda ADD COLUMN sw_mostrar_historia char(1);
+update userpermisos_busqueda_agenda set sw_mostrar_historia='0';
+ALTER TABLE public.userpermisos_busqueda_agenda ALTER COLUMN sw_mostrar_historia SET NOT NULL;
+ALTER TABLE public.userpermisos_busqueda_agenda ALTER COLUMN sw_mostrar_historia SET DEFAULT '0'::bpchar;
+
+
+CREATE TABLE qx_cumplimientos (
+    qx_cumplimiento_id serial NOT NULL,
+    departamento character varying(6) NOT NULL,
+    tipo_id_cirujano character varying(3),
+    cirujano_id character varying(32),
+    tipo_id_paciente character varying(3) NOT NULL,
+    paciente_id character varying(32) NOT NULL,
+    plan_id integer,
+    estado character(1) DEFAULT 1 NOT NULL,
+    usuario_id integer NOT NULL,
+    fecha_registro timestamp without time zone DEFAULT now() NOT NULL,
+    diagnostico_id character varying(6),
+		numerodecuenta integer NOT NULL
+);
+ALTER TABLE ONLY qx_cumplimientos ADD CONSTRAINT qx_cumplimiento_id_pkey PRIMARY KEY (qx_cumplimiento_id);
+ALTER TABLE ONLY qx_cumplimientos ADD CONSTRAINT "$1" FOREIGN KEY (departamento, tipo_id_cirujano, cirujano_id) REFERENCES profesionales_departamentos(departamento, tipo_id_tercero, tercero_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_cumplimientos ADD CONSTRAINT "$2" FOREIGN KEY (usuario_id) REFERENCES system_usuarios(usuario_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_cumplimientos ADD CONSTRAINT "$3" FOREIGN KEY (plan_id) REFERENCES planes(plan_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_cumplimientos ADD CONSTRAINT "$4" FOREIGN KEY (departamento) REFERENCES departamentos(departamento) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_cumplimientos ADD CONSTRAINT "$5" FOREIGN KEY (numerodecuenta) REFERENCES cuentas(numerodecuenta) ON UPDATE CASCADE ON DELETE RESTRICT;

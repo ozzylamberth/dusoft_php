@@ -1,0 +1,12 @@
+DROP TABLE if exists estados_casos_pqrs;
+
+CREATE TABLE "public"."estados_casos_pqrs" (
+  "id" SERIAL, 
+  "codigo" VARCHAR(100), 
+  "descripcion" TEXT, 
+  "fecha_registro" TIMESTAMP WITHOUT TIME ZONE DEFAULT now(), 
+  CONSTRAINT "estados_casos_pqrs_pkey" PRIMARY KEY("id")
+) WITHOUT OIDS;
+
+CREATE UNIQUE INDEX "codigo" ON "public"."estados_casos_pqrs"
+  USING btree ("codigo");

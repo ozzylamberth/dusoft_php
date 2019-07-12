@@ -1,0 +1,28 @@
+
+S (Tabla del sistema Implementada con anterioridad en otro modulos.)
+M (Tabla de Movimiento, cuando la instalacion es nueva debera estar vacia)
+T (Tabla maestra de tipos)
+
+
+M triages
+S estaciones_enfermeria
+S planes
+S empresas
+T system_usuarios
+S pacientes
+S cuentas
+S terceros
+M pacientes_urgencias
+M ingresos
+T niveles_triages
+S profesionales_usuarios
+S  profesionales
+M hc_evoluciones
+M ingresos_departamento
+M movimientos_habitacion
+S departamentos
+S triage_no_atencion
+S system_hc_modulos
+M hc_os_solicitudes
+M hc_os_solicitudes_interconsultas
+S especialidades

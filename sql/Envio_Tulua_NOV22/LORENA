@@ -1,0 +1,722 @@
+//BODEGAS
+
+DROP TABLE bodegas_documentos_d_equiv_ins CASCADE;
+DROP TABLE bodegas_documentos_d_equiv_med CASCADE;
+DROP TABLE bodegas_documentos_d_equiv_mez CASCADE;
+DROP TABLE bodegas_documentos_hc_solicitudes CASCADE;
+
+
+ALTER TABLE "bodegas" DROP COLUMN "tipo_numeracion" CASCADE;
+ALTER TABLE "inv_solicitudes_devolucion_d" DROP COLUMN "empresa_id" CASCADE;
+ALTER TABLE "inv_solicitudes_devolucion_d" DROP COLUMN "centro_utilidad" CASCADE;
+ALTER TABLE "inv_solicitudes_devolucion_d" DROP COLUMN "bodega" CASCADE;
+CREATE TABLE bodegas_documento_despacho_med(
+    documento_despacho_id serial NOT NULL,
+		bodegas_doc_id integer,
+    fecha date NOT NULL,
+    total_costo numeric(13,2) DEFAULT 0 NOT NULL,
+		observacion text,
+    usuario_id integer NOT NULL,
+    fecha_registro timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY bodegas_documento_despacho_med ADD CONSTRAINT bodegas_documento_despacho_med_pkey PRIMARY KEY (documento_despacho_id);
+ALTER TABLE ONLY bodegas_documento_despacho_med ADD CONSTRAINT "$2" FOREIGN KEY (usuario_id) REFERENCES system_usuarios(usuario_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY bodegas_documento_despacho_med ADD CONSTRAINT "$1" FOREIGN KEY (bodegas_doc_id) REFERENCES bodegas_doc_numeraciones(bodegas_doc_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+CREATE TABLE bodegas_documento_despacho_med_d(
+    consecutivo_depacho serial NOT NULL,
+    documento_despacho_id integer NOT NULL,
+    codigo_producto character varying(10) NOT NULL,
+    cantidad numeric(14,4) NOT NULL,
+    total_costo numeric(13,2) DEFAULT 0 NOT NULL,
+		consecutivo_solicitud integer
+);
+
+ALTER TABLE ONLY bodegas_documento_despacho_med_d ADD CONSTRAINT bodegas_documento_despacho_med_d_pkey PRIMARY KEY (consecutivo_depacho);
+ALTER TABLE ONLY bodegas_documento_despacho_med_d ADD CONSTRAINT "$1" FOREIGN KEY (codigo_producto) REFERENCES inventarios_productos(codigo_producto) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY bodegas_documento_despacho_med_d ADD CONSTRAINT "$2" FOREIGN KEY (documento_despacho_id) REFERENCES bodegas_documento_despacho_med(documento_despacho_id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE ONLY bodegas_documento_despacho_med_d ADD CONSTRAINT "$3" FOREIGN KEY (consecutivo_solicitud) REFERENCES hc_solicitudes_medicamentos_d(consecutivo_d) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+
+CREATE TABLE tmp_bodegas_documentos_hc_solicitudes (
+    solicitud_id integer NOT NULL,
+    documento integer
+);
+ALTER TABLE ONLY tmp_bodegas_documentos_hc_solicitudes ADD CONSTRAINT "$2" FOREIGN KEY (solicitud_id) REFERENCES hc_solicitudes_medicamentos(solicitud_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY tmp_bodegas_documentos_hc_solicitudes ADD CONSTRAINT "$1" FOREIGN KEY (documento) REFERENCES tmp_bodegas_documentos(documento) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+CREATE TABLE tmp_bodegas_documentos_d_equiv_med (
+    consecutivo integer NOT NULL,
+    consecutivo_d integer NOT NULL
+);
+ALTER TABLE ONLY tmp_bodegas_documentos_d_equiv_med ADD CONSTRAINT tmp_bodegas_documentos_d_equiv_pkey PRIMARY KEY (consecutivo);
+ALTER TABLE ONLY tmp_bodegas_documentos_d_equiv_med ADD CONSTRAINT "$1" FOREIGN KEY (consecutivo) REFERENCES tmp_bodegas_documentos_d(consecutivo) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY tmp_bodegas_documentos_d_equiv_med ADD CONSTRAINT "$2" FOREIGN KEY (consecutivo_d) REFERENCES hc_solicitudes_medicamentos_d(consecutivo_d) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+CREATE TABLE tmp_bodegas_documentos_d_equiv_ins (
+    consecutivo integer NOT NULL,
+    consecutivo_d integer NOT NULL
+);
+ALTER TABLE ONLY tmp_bodegas_documentos_d_equiv_ins ADD CONSTRAINT bodegas_documentos_d_equiv_ins_pkey PRIMARY KEY (consecutivo);
+ALTER TABLE ONLY tmp_bodegas_documentos_d_equiv_ins ADD CONSTRAINT "$1" FOREIGN KEY (consecutivo) REFERENCES bodegas_documentos_d(consecutivo) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY tmp_bodegas_documentos_d_equiv_ins ADD CONSTRAINT "$2" FOREIGN KEY (consecutivo_d) REFERENCES hc_solicitudes_insumos_d(consecutivo_d) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+CREATE TABLE tmp_bodegas_documentos_d_equiv_mez (
+    consecutivo integer NOT NULL,
+    consecutivo_d integer NOT NULL
+);
+ALTER TABLE ONLY tmp_bodegas_documentos_d_equiv_mez ADD CONSTRAINT tmp_bodegas_documentos_d_equiv_mez_pkey PRIMARY KEY (consecutivo);
+ALTER TABLE ONLY tmp_bodegas_documentos_d_equiv_mez ADD CONSTRAINT "$1" FOREIGN KEY (consecutivo) REFERENCES tmp_bodegas_documentos_d(consecutivo) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY tmp_bodegas_documentos_d_equiv_mez ADD CONSTRAINT "$2" FOREIGN KEY (consecutivo_d) REFERENCES hc_solicitudes_medicamentos_mezclas_d(consecutivo_d) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+DROP TABLE "tmp_bodegas_documentos_d_equiv_ins";
+DROP TABLE "tmp_bodegas_documentos_d_equiv_med";
+DROP TABLE "tmp_bodegas_documentos_d_equiv_mez";
+DROP TABLE "tmp_bodegas_documentos_hc_solicitudes";
+
+ALTER TABLE "inv_grupos_inventarios" ADD COLUMN "sw_insumos" character(1);
+ALTER TABLE "inv_grupos_inventarios" ALTER COLUMN "sw_insumos" SET DEFAULT 0;
+UPDATE inv_grupos_inventarios SET sw_insumos=0;
+ALTER TABLE "inv_grupos_inventarios" ALTER COLUMN "sw_insumos" SET NOT NULL;
+
+ALTER TABLE "hc_solicitudes_medicamentos" ADD COLUMN "documento_despacho" integer;
+ALTER TABLE "hc_solicitudes_medicamentos" ADD COLUMN "bodegas_doc_id" integer;
+ALTER TABLE "hc_solicitudes_medicamentos" ADD COLUMN "numeracion" integer;
+ALTER TABLE ONLY hc_solicitudes_medicamentos ADD CONSTRAINT "$5" FOREIGN KEY (documento_despacho) REFERENCES bodegas_documento_despacho_med(documento_despacho_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY hc_solicitudes_medicamentos ADD CONSTRAINT "$6" FOREIGN KEY (bodegas_doc_id, numeracion) REFERENCES bodegas_documentos(bodegas_doc_id, numeracion) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+//*****************************************BANCO SANGRE**********************************
+
+INSERT INTO system_menus VALUES (60, 'BANCO DE SANGRE', 'modulo realizado por el banco de sangre', '0');
+INSERT INTO system_modulos VALUES ('Banco_Sangre', 'app', 'Modulo del Banco de Sangre', 1.00, '', '1', '1', '1');
+INSERT INTO system_modulos VALUES ('Solicitud_Reserva_Sangre', 'app', 'realizar solicitud reserva sangre', 1.00, '', '1', '1', '1');
+INSERT INTO system_menus_items VALUES (90, 60, 'UNIDADES SANGUINEAS', 'app', 'Banco_Sangre', 'user', 'main', '', 0);
+INSERT INTO system_menus_items VALUES (91, 60, 'RESERVA UNIDADES SANGUINEAS', 'app', 'Solicitud_Reserva_Sangre', 'user', 'main', '', 0);
+INSERT INTO system_usuarios_menus VALUES (60, 2);
+
+ALTER TABLE ONLY terceros_sgsss ADD CONSTRAINT terceros_sgsss_codigo_sgsss_key UNIQUE (codigo_sgsss);
+
+CREATE TABLE banco_sangre_bolsas (
+    ingreso_bolsa_id serial NOT NULL,
+    bolsa_id character varying(32) NOT NULL,
+    sello_calidad character varying(32) NOT NULL,
+    grupo_sanguineo character varying(2) NOT NULL,
+    rh character(1) NOT NULL,
+    entidad_origen character varying(6) NOT NULL,
+    fecha_vencimiento date NOT NULL,
+    tipo_componente integer NOT NULL,
+    fecha_extraccion date,
+    usuario_id integer NOT NULL,
+    fecha_registro timestamp without time zone NOT NULL,
+    motivo_insercion character(1),
+    estado character(1) DEFAULT 1 NOT NULL
+);
+ALTER TABLE ONLY banco_sangre_bolsas ADD CONSTRAINT banco_sangre_bolsas_pkey PRIMARY KEY (ingreso_bolsa_id);
+ALTER TABLE ONLY banco_sangre_bolsas ADD CONSTRAINT "$1" FOREIGN KEY (grupo_sanguineo, rh) REFERENCES hc_tipos_sanguineos(grupo_sanguineo, rh) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY banco_sangre_bolsas ADD CONSTRAINT "$2" FOREIGN KEY (entidad_origen) REFERENCES terceros_sgsss(codigo_sgsss) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY banco_sangre_bolsas ADD CONSTRAINT "$3" FOREIGN KEY (tipo_componente) REFERENCES hc_tipos_componentes(hc_tipo_componente) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY banco_sangre_bolsas ADD CONSTRAINT "$4" FOREIGN KEY (usuario_id) REFERENCES system_usuarios(usuario_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+CREATE TABLE banco_sangre_estados_bolsas (
+    estado character(1) NOT NULL,
+    descripcion character varying(30)
+);
+ALTER TABLE ONLY banco_sangre_estados_bolsas ADD CONSTRAINT banco_sangre_estados_bolsas_pkey PRIMARY KEY (estado);
+INSERT INTO banco_sangre_estados_bolsas VALUES ('1', 'EN INVENTARIO');
+INSERT INTO banco_sangre_estados_bolsas VALUES ('2', 'TRANSFUNDIDA');
+INSERT INTO banco_sangre_estados_bolsas VALUES ('3', 'DESPACHO EXTERNO');
+INSERT INTO banco_sangre_estados_bolsas VALUES ('4', 'INCINERADA');
+INSERT INTO banco_sangre_estados_bolsas VALUES ('5', 'CRUZADA');
+
+CREATE TABLE banco_sangre_motivos_incineraciones (
+    motivo_id character varying(2) NOT NULL,
+    descripcion character varying(60)
+);
+ALTER TABLE ONLY banco_sangre_motivos_incineraciones ADD CONSTRAINT banco_sangre_motivos_incineraciones_pkey PRIMARY KEY (motivo_id);
+INSERT INTO banco_sangre_motivos_incineraciones VALUES ('01', 'VENCIMIENTO');
+INSERT INTO banco_sangre_motivos_incineraciones VALUES ('02', 'CONTAMINACION');
+INSERT INTO banco_sangre_motivos_incineraciones VALUES ('03', 'ASPECTO FISICO');
+INSERT INTO banco_sangre_motivos_incineraciones VALUES ('04', 'SISTEMA ABIERTO');
+INSERT INTO banco_sangre_motivos_incineraciones VALUES ('06', 'DESCONGELAMIENTO');
+INSERT INTO banco_sangre_motivos_incineraciones VALUES ('07', 'SOBRANTE');
+INSERT INTO banco_sangre_motivos_incineraciones VALUES ('10', 'OTROS');
+INSERT INTO banco_sangre_motivos_incineraciones VALUES ('08', 'AUTOTRANSFUSION SIN AUTORIZACION');
+INSERT INTO banco_sangre_motivos_incineraciones VALUES ('09', 'FLEBOTOMIA TERAPEUTICA');
+INSERT INTO banco_sangre_motivos_incineraciones VALUES ('05', 'PRUEBAS POSITIVAS DE COOMBS DIRECTO');
+
+
+CREATE TABLE banco_sangre_bolsas_incineradas (
+    ingreso_bolsa_id integer NOT NULL,
+    motivo_id character varying(2) NOT NULL,
+    observaciones text,
+    usuario_id integer NOT NULL,
+    fecha_registro timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY banco_sangre_bolsas_incineradas ADD CONSTRAINT banco_sangre_bolsas_incineradas_pkey PRIMARY KEY (ingreso_bolsa_id, motivo_id);
+ALTER TABLE ONLY banco_sangre_bolsas_incineradas ADD CONSTRAINT "$1" FOREIGN KEY (ingreso_bolsa_id) REFERENCES banco_sangre_bolsas(ingreso_bolsa_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY banco_sangre_bolsas_incineradas ADD CONSTRAINT "$2" FOREIGN KEY (motivo_id) REFERENCES banco_sangre_motivos_incineraciones(motivo_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+CREATE TABLE banco_sangre_solicitud_ext (
+    documento_solicitud_id serial NOT NULL,
+    entidad_solicitante character varying(6),
+    motivo_solicitud character(1),
+    fecha_registro timestamp without time zone,
+    usuario_id integer
+);
+ALTER TABLE ONLY banco_sangre_solicitud_ext ADD CONSTRAINT banco_sangre_solicitud_ext_pkey PRIMARY KEY (documento_solicitud_id);
+ALTER TABLE ONLY banco_sangre_solicitud_ext ADD CONSTRAINT "$1" FOREIGN KEY (usuario_id) REFERENCES system_usuarios(usuario_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY banco_sangre_solicitud_ext ADD CONSTRAINT "$2" FOREIGN KEY (entidad_solicitante) REFERENCES terceros_sgsss(codigo_sgsss) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+CREATE TABLE banco_sangre_solicitud_ext_detalle (
+    documento_solicitud_id serial NOT NULL,
+    ingreso_bolsa_id integer NOT NULL
+);
+ALTER TABLE ONLY banco_sangre_solicitud_ext_detalle ADD CONSTRAINT banco_sangre_solicitud_ext_detalle_pkey PRIMARY KEY (documento_solicitud_id, ingreso_bolsa_id);
+ALTER TABLE ONLY banco_sangre_solicitud_ext_detalle ADD CONSTRAINT "$1" FOREIGN KEY (documento_solicitud_id) REFERENCES banco_sangre_solicitud_ext(documento_solicitud_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY banco_sangre_solicitud_ext_detalle ADD CONSTRAINT "$2" FOREIGN KEY (ingreso_bolsa_id) REFERENCES banco_sangre_bolsas(ingreso_bolsa_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+
+CREATE TABLE banco_sangre_reserva (
+    solicitud_reserva_sangre_id serial NOT NULL,
+    paciente_id character varying(32) NOT NULL,
+    tipo_id_paciente character varying(3) NOT NULL,
+    ubicacion_paciente character varying(255),
+    responsable_solicitud character varying(60),
+    departamento character varying(6),
+    sw_urgencia character(1) DEFAULT '0'::bpchar NOT NULL,
+    grupo_sanguineo character varying(2) NOT NULL,
+    rh character(1) NOT NULL,
+    fecha_hora_reserva timestamp without time zone,
+    transfuciones_ant character(1) DEFAULT '0'::bpchar NOT NULL,
+    reacciones_adv character(1) DEFAULT '0'::bpchar NOT NULL,
+    descripcion_reac text DEFAULT ''::text,
+    embarazos_previos character(1) DEFAULT '0'::bpchar NOT NULL,
+    fecha_ultimo_embarazo date,
+    motivo_reserva text DEFAULT ''::text,
+    sw_estado character(1) DEFAULT 1 NOT NULL,
+    estado_gestacion character(1) DEFAULT 0 NOT NULL,
+    usuario_id integer NOT NULL,
+    fecha_registro timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY banco_sangre_reserva ADD CONSTRAINT banco_sangre_reserva_pkek PRIMARY KEY (solicitud_reserva_sangre_id);
+ALTER TABLE ONLY banco_sangre_reserva ADD CONSTRAINT "$1" FOREIGN KEY (grupo_sanguineo, rh) REFERENCES hc_tipos_sanguineos(grupo_sanguineo, rh) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY banco_sangre_reserva ADD CONSTRAINT "$2" FOREIGN KEY (tipo_id_paciente, paciente_id) REFERENCES pacientes(tipo_id_paciente, paciente_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY banco_sangre_reserva ADD CONSTRAINT "$3" FOREIGN KEY (departamento) REFERENCES departamentos(departamento) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY banco_sangre_reserva ADD CONSTRAINT "$4" FOREIGN KEY (usuario_id) REFERENCES system_usuarios(usuario_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+CREATE TABLE banco_sangre_reserva_detalle (
+    solicitud_reserva_sangre_id integer NOT NULL,
+    tipo_componente_id integer NOT NULL,
+    cantidad_componente smallint NOT NULL
+);
+ALTER TABLE ONLY banco_sangre_reserva_detalle ADD CONSTRAINT banco_sangre_reserva_detalle_pkey PRIMARY KEY (solicitud_reserva_sangre_id, tipo_componente_id);
+ALTER TABLE ONLY banco_sangre_reserva_detalle ADD CONSTRAINT "$1" FOREIGN KEY (tipo_componente_id) REFERENCES hc_tipos_componentes(hc_tipo_componente) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE ONLY  hc_tipos_componentes ADD COLUMN dias_previos_vencimiento smallint;
+
+ALTER TABLE "hc_tipos_componentes" ADD COLUMN "sw_cruze" character(1);
+UPDATE hc_tipos_componentes SET sw_cruze=0;
+ALTER TABLE "hc_tipos_componentes" ALTER COLUMN "sw_cruze" SET NOT NULL;
+ALTER TABLE "hc_tipos_componentes" ALTER COLUMN "sw_cruze" SET DEFAULT 0;
+
+CREATE TABLE banco_sangre_cruzes_sanguineos(
+
+		cruze_sanguineo_id SERIAL,
+		ingreso_bolsa_id integer NOT NULL,
+		solicitud_reserva_sangre_id integer NOT NULL,
+		hemoclasificacion_manual_anti_a character(1),
+    hemoclasificacion_manual_anti_b character(1),
+		hemoclasificacion_manual_anti_ab character(1),
+		hemoclasificacion_manual_anti_d character(1),
+    interpretacion_grupo_manual character varying(2) NOT NULL,
+    interpretacion_rh_manual character(1) NOT NULL,
+		tipo_id_profesional_manual character varying(3) NOT NULL,
+		profesional_manual_id character varying(32) NOT NULL,
+		hemoclasificacion_gel_anti_a character(1),
+    hemoclasificacion_gel_anti_b character(1),
+		hemoclasificacion_gel_anti_ab character(1),
+		hemoclasificacion_gel_anti_d character(1),
+    interpretacion_grupo_gel character varying(2) NOT NULL,
+    interpretacion_rh_gel character(1) NOT NULL,
+		tipo_id_profesional_gel character varying(3) NOT NULL,
+		profesional_gel_id character varying(32) NOT NULL,
+		reaccion_cruzada_visual character(1) NOT NULL,
+		rai_cel1 character(1),
+		rai_cel2 character(1),
+		rai_auto character(1),
+    lectina character(1),
+		cde character(4),
+		celulas_a character(1),
+		celulas_b character(1),
+		celulas_0 character(1),
+		interpretacion_grupo_cruze character varying(2) NOT NULL,
+    interpretacion_rh_cruze character(1) NOT NULL,
+		tipo_id_profesional_cruze character varying(3) NOT NULL,
+		profesional_cruze_id character varying(32) NOT NULL,
+    fecha_prueba timestamp without time zone NOT NULL,
+		observaciones text,
+    enz character(1) NOT NULL DEFAULT 0,
+		coobms_d character(1) NOT NULL DEFAULT 0,
+		compatibilidad character(1) NOT NULL DEFAULT 1,
+    tipo_id_profesional_entrega character varying(3) NOT NULL,
+		profesional_entrega_id character varying(32) NOT NULL,
+		tipo_id_profesional_recibe character varying(3) NOT NULL,
+		profesional_recibe_id character varying(32) NOT NULL,
+		fecha_recibe timestamp without time zone NOT NULL,
+		usuario_id integer NOT NULL,
+    fecha_registro timestamp without time zone NOT NULL
+);
+
+ALTER TABLE ONLY banco_sangre_cruzes_sanguineos ADD CONSTRAINT banco_sangre_cruzes_sanguineos_pkey PRIMARY KEY (cruze_sanguineo_id);
+ALTER TABLE ONLY banco_sangre_cruzes_sanguineos ADD CONSTRAINT "$1" FOREIGN KEY (ingreso_bolsa_id) REFERENCES banco_sangre_bolsas(ingreso_bolsa_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY banco_sangre_cruzes_sanguineos ADD CONSTRAINT "$2" FOREIGN KEY (solicitud_reserva_sangre_id) REFERENCES banco_sangre_reserva(solicitud_reserva_sangre_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY banco_sangre_cruzes_sanguineos ADD CONSTRAINT "$3" FOREIGN KEY (interpretacion_grupo_manual,interpretacion_rh_manual) REFERENCES hc_tipos_sanguineos(grupo_sanguineo,rh)  ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY banco_sangre_cruzes_sanguineos ADD CONSTRAINT "$4" FOREIGN KEY (tipo_id_profesional_manual,profesional_manual_id) REFERENCES profesionales(tipo_id_tercero,tercero_id)  ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY banco_sangre_cruzes_sanguineos ADD CONSTRAINT "$5" FOREIGN KEY (interpretacion_grupo_gel,interpretacion_rh_gel) REFERENCES hc_tipos_sanguineos(grupo_sanguineo,rh)  ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY banco_sangre_cruzes_sanguineos ADD CONSTRAINT "$6" FOREIGN KEY (tipo_id_profesional_gel,profesional_gel_id) REFERENCES profesionales(tipo_id_tercero,tercero_id)  ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY banco_sangre_cruzes_sanguineos ADD CONSTRAINT "$7" FOREIGN KEY (interpretacion_grupo_cruze,interpretacion_rh_cruze) REFERENCES hc_tipos_sanguineos(grupo_sanguineo,rh)  ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY banco_sangre_cruzes_sanguineos ADD CONSTRAINT "$8" FOREIGN KEY (tipo_id_profesional_cruze,profesional_cruze_id) REFERENCES profesionales(tipo_id_tercero,tercero_id)  ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY banco_sangre_cruzes_sanguineos ADD CONSTRAINT "$9" FOREIGN KEY (tipo_id_profesional_entrega,profesional_entrega_id) REFERENCES profesionales(tipo_id_tercero,tercero_id)  ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY banco_sangre_cruzes_sanguineos ADD CONSTRAINT "$10" FOREIGN KEY (tipo_id_profesional_recibe,profesional_recibe_id) REFERENCES profesionales(tipo_id_tercero,tercero_id)  ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY banco_sangre_cruzes_sanguineos ADD CONSTRAINT "$11" FOREIGN KEY (usuario_id) REFERENCES system_usuarios(usuario_id)  ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+ALTER TABLE "banco_sangre_reserva_detalle" ADD COLUMN "sw_estado" character(1);
+UPDATE "banco_sangre_reserva_detalle" SET sw_estado=1;
+ALTER TABLE "banco_sangre_reserva_detalle" ALTER COLUMN "sw_estado" SET NOT NULL;
+ALTER TABLE "banco_sangre_reserva_detalle" ALTER COLUMN "sw_estado" SET DEFAULT 1;
+ALTER TABLE "banco_sangre_cruzes_sanguineos" ADD UNIQUE ("ingreso_bolsa_id","solicitud_reserva_sangre_id");
+
+
+
+CREATE FUNCTION garbage_reserva_sangre_vencidas () RETURNS void AS '
+DECLARE
+varCount INTEGER;
+BEGIN
+    varCount:=(SELECT COUNT(*) FROM banco_sangre_reserva WHERE sw_estado = 1 AND (fecha_hora_reserva + 72 hours) < (LOCALTIMESTAMP));
+IF varCount > 0 THEN
+    UPDATE banco_sangre_reserva SET sw_estado=2 WHERE sw_estado = 1 AND (fecha_hora_reserva + 72 hours) < (LOCALTIMESTAMP);
+END IF;
+RETURN NULL;
+END;
+'
+LANGUAGE plpgsql
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
+
+
+ALTER TABLE "banco_sangre_cruzes_sanguineos" ADD COLUMN "rai_otros" character(1);
+ALTER TABLE "banco_sangre_bolsas" RENAME COLUMN "estado" TO "cruzada";
+ALTER TABLE "banco_sangre_estados_bolsas" RENAME TO banco_sangre_estados_bolsas_alicuotas;
+DELETE FROM "banco_sangre_estados_bolsas_alicuotas" WHERE estado='5';
+CREATE TABLE banco_sangre_bolsas_alicuotas(
+		ingreso_bolsa_id integer,
+		numero_alicuota smallint,
+		cantidad numeric(5,2),
+		sw_estado character(1) NOT NULL DEFAULT 0
+);
+ALTER TABLE ONLY banco_sangre_bolsas_alicuotas ADD PRIMARY KEY (ingreso_bolsa_id,numero_alicuota);
+ALTER TABLE ONLY banco_sangre_bolsas_alicuotas ADD CONSTRAINT "$1" FOREIGN KEY (ingreso_bolsa_id) REFERENCES banco_sangre_bolsas(ingreso_bolsa_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY banco_sangre_bolsas_alicuotas ADD CONSTRAINT "$2" FOREIGN KEY (sw_estado) REFERENCES banco_sangre_estados_bolsas_alicuotas(estado) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE "banco_sangre_bolsas_incineradas" ADD COLUMN "numero_alicuota" smallint;
+ALTER TABLE "banco_sangre_bolsas_incineradas" ALTER COLUMN numero_alicuota SET NOT NULL;
+ALTER TABLE "banco_sangre_bolsas_incineradas" ADD FOREIGN KEY (ingreso_bolsa_id,numero_alicuota) REFERENCES banco_sangre_bolsas_alicuotas(ingreso_bolsa_id,numero_alicuota) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE "banco_sangre_solicitud_ext_detalle" ADD COLUMN "numero_alicuota" smallint;
+ALTER TABLE "banco_sangre_solicitud_ext_detalle" ALTER COLUMN numero_alicuota SET NOT NULL;
+ALTER TABLE "banco_sangre_solicitud_ext_detalle" ADD FOREIGN KEY (ingreso_bolsa_id,numero_alicuota) REFERENCES banco_sangre_bolsas_alicuotas(ingreso_bolsa_id,numero_alicuota) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE "banco_sangre_solicitud_ext_detalle" DROP CONSTRAINT "banco_sangre_solicitud_ext_detalle_pkey";
+ALTER TABLE "banco_sangre_solicitud_ext_detalle" ADD PRIMARY KEY ("documento_solicitud_id","ingreso_bolsa_id","numero_alicuota");
+
+
+//**************************************HC************************************
+
+CREATE TABLE hc_notas_operatorias_cirugias (
+    hc_nota_operatoria_cirugia_id serial NOT NULL,
+    qx_cumplimiento_id integer,
+    tipo_id_paciente character varying(3),
+    paciente_id character varying(32),
+    quirofano_id character varying(4),
+    hora_inicio timestamp without time zone,
+    hora_fin timestamp without time zone,
+    usuario_id integer,
+    fecha_registro timestamp without time zone,
+    via_acceso character varying(4),
+    tipo_cirugia character varying(2),
+    ambito_cirugia character varying(2),
+    finalidad_procedimiento_id character varying(1)
+);
+ALTER TABLE ONLY hc_notas_operatorias_cirugias ADD CONSTRAINT hc_notas_operatorias_cirugias_pkey PRIMARY KEY (hc_nota_operatoria_cirugia_id);
+ALTER TABLE ONLY hc_notas_operatorias_cirugias ADD CONSTRAINT "$1" FOREIGN KEY (qx_cumplimiento_id) REFERENCES qx_cumplimientos(qx_cumplimiento_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY hc_notas_operatorias_cirugias ADD CONSTRAINT "$2" FOREIGN KEY (tipo_id_paciente, paciente_id) REFERENCES pacientes(tipo_id_paciente, paciente_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY hc_notas_operatorias_cirugias ADD CONSTRAINT "$3" FOREIGN KEY (quirofano_id) REFERENCES qx_quirofanos(quirofano) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY hc_notas_operatorias_cirugias ADD CONSTRAINT "$4" FOREIGN KEY (usuario_id) REFERENCES system_usuarios(usuario_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY hc_notas_operatorias_cirugias ADD CONSTRAINT "$5" FOREIGN KEY (via_acceso) REFERENCES qx_vias_acceso(via_acceso) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY hc_notas_operatorias_cirugias ADD CONSTRAINT "$6" FOREIGN KEY (tipo_cirugia) REFERENCES qx_tipos_cirugia(tipo_cirugia_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY hc_notas_operatorias_cirugias ADD CONSTRAINT "$7" FOREIGN KEY (ambito_cirugia) REFERENCES qx_ambitos_cirugias(ambito_cirugia_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY hc_notas_operatorias_cirugias ADD CONSTRAINT "$8" FOREIGN KEY (finalidad_procedimiento_id) REFERENCES qx_finalidades_procedimientos(finalidad_procedimiento_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+CREATE TABLE hc_notas_operatorias_cirujanos (
+    hc_nota_operatoria_cirugia_id integer NOT NULL,
+    tipo_id_cirujano character varying(3) NOT NULL,
+    cirujano_id character varying(32) NOT NULL,
+    diagnostico_id character varying(6),
+    complicacion_id character varying(6)
+);
+
+ALTER TABLE ONLY hc_notas_operatorias_cirujanos ADD CONSTRAINT hc_notas_operatorias_cirujanos_pkey PRIMARY KEY (hc_nota_operatoria_cirugia_id, tipo_id_cirujano, cirujano_id);
+ALTER TABLE ONLY hc_notas_operatorias_cirujanos ADD CONSTRAINT "$1" FOREIGN KEY (hc_nota_operatoria_cirugia_id) REFERENCES hc_notas_operatorias_cirugias(hc_nota_operatoria_cirugia_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY hc_notas_operatorias_cirujanos ADD CONSTRAINT "$2" FOREIGN KEY (tipo_id_cirujano, cirujano_id) REFERENCES profesionales(tipo_id_tercero, tercero_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY hc_notas_operatorias_cirujanos ADD CONSTRAINT "$3" FOREIGN KEY (diagnostico_id) REFERENCES diagnosticos(diagnostico_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY hc_notas_operatorias_cirujanos ADD CONSTRAINT "$4" FOREIGN KEY (complicacion_id) REFERENCES diagnosticos(diagnostico_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+CREATE TABLE hc_notas_operatorias_procedimientos (
+    hc_nota_operatoria_cirugia_id integer NOT NULL,
+    tipo_id_cirujano character varying(3) NOT NULL,
+    cirujano_id character varying(32) NOT NULL,
+    procedimiento_qx character varying(10) NOT NULL,
+    tipo_id_ayudante character varying(3) NOT NULL,
+    ayudante_id character varying(32),
+    tecnica_quirurgica text,
+    hallazgos_quirurgicos text
+);
+ALTER TABLE ONLY hc_notas_operatorias_procedimientos ADD CONSTRAINT hc_notas_operatorias_procedimientos_pkey PRIMARY KEY (hc_nota_operatoria_cirugia_id, tipo_id_cirujano, cirujano_id, procedimiento_qx, tipo_id_ayudante);
+ALTER TABLE ONLY hc_notas_operatorias_procedimientos ADD CONSTRAINT "$1" FOREIGN KEY (hc_nota_operatoria_cirugia_id, tipo_id_cirujano, cirujano_id) REFERENCES hc_notas_operatorias_cirujanos(hc_nota_operatoria_cirugia_id, tipo_id_cirujano, cirujano_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY hc_notas_operatorias_procedimientos ADD CONSTRAINT "$2" FOREIGN KEY (procedimiento_qx) REFERENCES cups(cargo) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY hc_notas_operatorias_procedimientos ADD CONSTRAINT "$3" FOREIGN KEY (tipo_id_ayudante, ayudante_id) REFERENCES profesionales(tipo_id_tercero, tercero_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY hc_notas_operatorias_procedimientos ADD CONSTRAINT "$4" FOREIGN KEY (tipo_id_cirujano, cirujano_id) REFERENCES profesionales(tipo_id_tercero, tercero_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY hc_notas_operatorias_procedimientos ADD CONSTRAINT "$5" FOREIGN KEY (hc_nota_operatoria_cirugia_id) REFERENCES hc_notas_operatorias_cirugias(hc_nota_operatoria_cirugia_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE "hc_notas_operatorias_cirugias" DROP COLUMN  "tipo_id_paciente";
+ALTER TABLE "hc_notas_operatorias_cirugias" DROP COLUMN  "paciente_id";
+ALTER TABLE "hc_notas_operatorias_cirugias" ADD COLUMN   "evolucion_id" integer;
+ALTER TABLE "hc_notas_operatorias_cirugias" ALTER COLUMN "evolucion_id" SET NOT NULL;
+ALTER TABLE "hc_notas_operatorias_cirugias" ADD FOREIGN KEY (evolucion_id) REFERENCES hc_evoluciones(evolucion_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+/*********************************************qx**************************
+DROP TABLE protocolos_cx CASCADE;
+ALTER TABLE cups ADD sw_bilateral character varying(1);
+UPDATE cups SET sw_bilateral=0;
+ALTER TABLE cups ALTER sw_bilateral SET DEFAULT 0;
+ALTER TABLE cups ALTER sw_bilateral SET NOT NULL;
+
+ALTER TABLE qx_tipos_anestesia ADD sw_uso_gases character(1);
+UPDATE qx_tipos_anestesia SET sw_uso_gases=0;
+ALTER TABLE qx_tipos_anestesia ALTER sw_uso_gases SET DEFAULT 0;
+ALTER TABLE qx_tipos_anestesia ALTER sw_uso_gases SET NOT NULL;
+
+ALTER TABLE qx_vias_acceso ADD sw_bilateral character varying(1);
+UPDATE qx_vias_acceso SET sw_bilateral=0;
+ALTER TABLE qx_vias_acceso ALTER sw_bilateral SET DEFAULT 0;
+ALTER TABLE qx_vias_acceso ALTER sw_bilateral SET NOT NULL;
+ALTER TABLE qx_procedimientos_programacion ADD via_procedimiento_bilateral character varying(4);
+
+ALTER TABLE especialidades ADD sw_cirujano character(1);
+UPDATE especialidades SET sw_cirujano='0';
+ALTER TABLE especialidades ALTER COLUMN sw_cirujano SET NOT NULL;
+
+ALTER TABLE "qx_programacion_paquetes" ADD PRIMARY KEY ("programacion_id");
+ALTER TABLE "qx_programacion_paquetes" ADD FOREIGN KEY ("paquete_insumos_id") REFERENCES "public"."qx_paquetes_insumos"("paquete_insumos_id")  ON UPDATE CASCADE ON DELETE RESTRICT;
+
+CREATE TABLE qx_programacion_insumos(
+    programacion_id integer NOT NULL,
+    codigo_producto character varying(10) NOT NULL ,
+    cantidad smallint
+);
+ALTER TABLE ONLY qx_programacion_insumos ADD CONSTRAINT qx_programacion_insumos_pkey PRIMARY KEY (programacion_id);
+ALTER TABLE ONLY qx_programacion_insumos ADD CONSTRAINT "$1" FOREIGN KEY (codigo_producto) REFERENCES inventarios_productos(codigo_producto) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE "qx_programacion_insumos" ADD UNIQUE ("programacion_id","codigo_producto");
+
+ALTER TABLE "qx_programacion_insumos" DROP CONSTRAINT "qx_programacion_insumos_pkey";
+ALTER TABLE "qx_programacion_insumos" DROP CONSTRAINT "qx_programacion_insumos_programacion_id_key";
+ALTER TABLE "qx_programacion_insumos" ADD PRIMARY KEY ("programacion_id","codigo_producto");
+
+ALTER TABLE "qx_reservas_quirofanos_clientes" DROP CONSTRAINT "$1";
+ALTER TABLE "qx_reservas_quirofanos_clientes" ADD FOREIGN KEY ("tipo_id_tercero","tercero_id") REFERENCES "public"."terceros"("tipo_id_tercero","tercero_id")  ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE "qx_anestesiologo_programacion" ADD COLUMN "circulante_id" character varying(32);
+
+CREATE TABLE qx_consentimientos_tipos (
+    qx_consentimiento_id character varying(2) NOT NULL,
+    descripcion character varying(40)
+);
+
+ALTER TABLE ONLY qx_consentimientos_tipos ADD CONSTRAINT qx_consentimientos_tipos_pkey PRIMARY KEY (qx_consentimiento_id);
+
+CREATE TABLE qx_consentimientos_confirmaciones (
+    programacion_id integer NOT NULL,
+    tipo_id_otroresponsable character varying(3),
+    otroresponsable_id character varying(32),
+    tipo_id_testigo1 character varying(3),
+    testigo1_id character varying(32),
+    tipo_id_testigo2 character varying(3),
+    testigo2_id character varying(32),
+    numero_radicacion integer,
+    observaciones text,
+    qx_consentimiento_id character varying(2) NOT NULL,
+    sw_consentimiento_recibido character(1) DEFAULT 1 NOT NULL,
+    usuario_id integer NOT NULL,
+    fecha_registro timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY qx_consentimientos_confirmaciones ADD CONSTRAINT qx_consentimientos_confirmaciones_pkey PRIMARY KEY (programacion_id, qx_consentimiento_id);
+ALTER TABLE ONLY qx_consentimientos_confirmaciones ADD CONSTRAINT "$1" FOREIGN KEY (programacion_id) REFERENCES qx_programaciones(programacion_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_consentimientos_confirmaciones ADD CONSTRAINT "$4" FOREIGN KEY (usuario_id) REFERENCES system_usuarios(usuario_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_consentimientos_confirmaciones ADD CONSTRAINT "$2" FOREIGN KEY (qx_consentimiento_id) REFERENCES qx_consentimientos_tipos(qx_consentimiento_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+CREATE TABLE qx_consentimientos_testigos (
+    programacion_id integer NOT NULL,
+    tipo_id_testigo character varying(3) NOT NULL,
+    testigo_id character varying(32) NOT NULL,
+    nombre character varying(40) NOT NULL,
+    tipo_parentesco_id character varying(2) NOT NULL,
+    qx_consentimiento_id character varying(2) NOT NULL
+);
+ALTER TABLE ONLY qx_consentimientos_testigos ADD CONSTRAINT qx_consentimientos_testigos_pkey PRIMARY KEY (programacion_id, tipo_id_testigo, testigo_id, qx_consentimiento_id);
+ALTER TABLE ONLY qx_consentimientos_testigos ADD CONSTRAINT "$1" FOREIGN KEY (tipo_parentesco_id) REFERENCES tipos_parentescos(tipo_parentesco_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_consentimientos_testigos ADD CONSTRAINT "$2" FOREIGN KEY (programacion_id, qx_consentimiento_id) REFERENCES qx_consentimientos_confirmaciones(programacion_id, qx_consentimiento_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+CREATE TABLE qx_reserva_cama (
+    qx_reserva_id serial NOT NULL,
+    fecha_reserva date NOT NULL,
+    cama character varying(8),
+    usuario_id integer,
+    fecha_registro timestamp without time zone,
+    programacion_id integer NOT NULL
+);
+ALTER TABLE ONLY qx_reserva_cama ADD CONSTRAINT qx_reserva_cama_pkey PRIMARY KEY (qx_reserva_id);
+ALTER TABLE ONLY qx_reserva_cama ADD CONSTRAINT "$1" FOREIGN KEY (usuario_id) REFERENCES system_usuarios(usuario_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_reserva_cama ADD CONSTRAINT "$2" FOREIGN KEY (cama) REFERENCES camas(cama) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_reserva_cama ADD CONSTRAINT "$3" FOREIGN KEY (programacion_id) REFERENCES qx_programaciones(programacion_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+CREATE TABLE qx_cumplimientos (
+    qx_cumplimiento_id serial NOT NULL,
+    departamento character varying(6) NOT NULL,
+    tipo_id_cirujano character varying(3),
+    cirujano_id character varying(32),
+    tipo_id_paciente character varying(3) NOT NULL,
+    paciente_id character varying(32) NOT NULL,
+    plan_id integer,
+    estado character(1) DEFAULT 1 NOT NULL,
+    usuario_id integer NOT NULL,
+    fecha_registro timestamp without time zone DEFAULT now() NOT NULL,
+    diagnostico_id character varying(6),
+		numerodecuenta integer NOT NULL
+);
+ALTER TABLE ONLY qx_cumplimientos ADD CONSTRAINT qx_cumplimiento_id_pkey PRIMARY KEY (qx_cumplimiento_id);
+ALTER TABLE ONLY qx_cumplimientos ADD CONSTRAINT "$1" FOREIGN KEY (departamento, tipo_id_cirujano, cirujano_id) REFERENCES profesionales_departamentos(departamento, tipo_id_tercero, tercero_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_cumplimientos ADD CONSTRAINT "$2" FOREIGN KEY (usuario_id) REFERENCES system_usuarios(usuario_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_cumplimientos ADD CONSTRAINT "$3" FOREIGN KEY (plan_id) REFERENCES planes(plan_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_cumplimientos ADD CONSTRAINT "$4" FOREIGN KEY (departamento) REFERENCES departamentos(departamento) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_cumplimientos ADD CONSTRAINT "$5" FOREIGN KEY (numerodecuenta) REFERENCES cuentas(numerodecuenta) ON UPDATE CASCADE ON DELETE RESTRICT;
+CREATE TABLE qx_cumplimiento_profesionales(
+    qx_cumplimiento_id integer NOT NULL,
+    tipo_id_anestesiologo character varying(3),
+    anestesiologo_id character varying(32),
+    tipo_id_instrumentista character varying(3),
+    instrumentista_id character varying(32),
+    tipo_id_circulante character varying(3),
+    circulante_id character varying(32)
+);
+ALTER TABLE ONLY qx_cumplimiento_profesionales ADD CONSTRAINT qx_cumplimiento_profesionales_pkey PRIMARY KEY (qx_cumplimiento_id);
+ALTER TABLE ONLY qx_cumplimiento_profesionales ADD CONSTRAINT "$1" FOREIGN KEY (tipo_id_anestesiologo, anestesiologo_id) REFERENCES profesionales(tipo_id_tercero, tercero_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_cumplimiento_profesionales ADD CONSTRAINT "$2" FOREIGN KEY (tipo_id_instrumentista, instrumentista_id) REFERENCES profesionales(tipo_id_tercero, tercero_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_cumplimiento_profesionales ADD CONSTRAINT "$3" FOREIGN KEY (tipo_id_circulante, circulante_id) REFERENCES profesionales(tipo_id_tercero, tercero_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_cumplimiento_profesionales ADD CONSTRAINT "$4" FOREIGN KEY (qx_cumplimiento_id) REFERENCES qx_cumplimientos(qx_cumplimiento_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+CREATE TABLE qx_cumplimiento_paquetes (
+    qx_cumplimiento_id integer NOT NULL,
+    paquete_insumos_id integer NOT NULL,
+    cantidad smallint
+);
+ALTER TABLE ONLY qx_cumplimiento_paquetes ADD CONSTRAINT qx_cumplimiento_paquetes_pkey PRIMARY KEY (qx_cumplimiento_id, paquete_insumos_id);
+ALTER TABLE ONLY qx_cumplimiento_paquetes ADD CONSTRAINT "$1" FOREIGN KEY (paquete_insumos_id) REFERENCES qx_paquetes_insumos(paquete_insumos_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+CREATE TABLE qx_cumplimiento_insumos (
+    qx_cumplimiento_id integer NOT NULL,
+    codigo_producto character varying(10) NOT NULL,
+    cantidad smallint
+);
+ALTER TABLE ONLY qx_cumplimiento_insumos ADD CONSTRAINT qx_cumplimiento_insumos_pkey PRIMARY KEY (qx_cumplimiento_id, codigo_producto);
+ALTER TABLE ONLY qx_cumplimiento_insumos ADD CONSTRAINT "$1" FOREIGN KEY (codigo_producto) REFERENCES inventarios_productos(codigo_producto) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+CREATE TABLE qx_cumplimiento_procedimientos (
+    qx_cumplimiento_id integer NOT NULL,
+    procedimiento_qx character varying(10) NOT NULL,
+    tipo_id_cirujano character varying(3),
+    cirujano_id character varying(32),
+    tipo_id_ayudante character varying(3),
+    ayudante_id character varying(32),
+    plan_id integer NOT NULL,
+    via_procedimiento_bilateral character varying(4)
+);
+
+ALTER TABLE ONLY qx_cumplimiento_procedimientos ADD CONSTRAINT qx_cumplimiento_procedimientos_pkey PRIMARY KEY (procedimiento_qx, qx_cumplimiento_id);
+ALTER TABLE ONLY qx_cumplimiento_procedimientos ADD CONSTRAINT "$1" FOREIGN KEY (qx_cumplimiento_id) REFERENCES qx_cumplimientos(qx_cumplimiento_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_cumplimiento_procedimientos ADD CONSTRAINT "$2" FOREIGN KEY (tipo_id_cirujano, cirujano_id) REFERENCES profesionales(tipo_id_tercero, tercero_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_cumplimiento_procedimientos ADD CONSTRAINT "$3" FOREIGN KEY (tipo_id_ayudante, ayudante_id) REFERENCES profesionales(tipo_id_tercero, tercero_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_cumplimiento_procedimientos ADD CONSTRAINT "$4" FOREIGN KEY (procedimiento_qx) REFERENCES cups(cargo) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_cumplimiento_procedimientos ADD CONSTRAINT "$5" FOREIGN KEY (plan_id) REFERENCES planes(plan_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+CREATE TABLE qx_cumplimiento_procedimientos_pediatricos(
+    procedimiento_qx character varying(10) NOT NULL,
+    qx_cumplimiento_id integer NOT NULL,
+    tipo_id_pediatra character varying(3) NOT NULL,
+    pediatra_id character varying(32) NOT NULL
+);
+ALTER TABLE ONLY qx_cumplimiento_procedimientos_pediatricos ADD CONSTRAINT "$1" FOREIGN KEY (procedimiento_qx, qx_cumplimiento_id) REFERENCES qx_cumplimiento_procedimientos(procedimiento_qx, qx_cumplimiento_id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE ONLY qx_cumplimiento_procedimientos_pediatricos ADD CONSTRAINT "$2" FOREIGN KEY (tipo_id_pediatra, pediatra_id) REFERENCES profesionales(tipo_id_tercero, tercero_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+CREATE TABLE qx_cumplimiento_procedimientos_ordenes(
+    numero_orden_id integer NOT NULL,
+    qx_cumplimiento_id integer NOT NULL,
+    procedimiento_qx character varying(10) NOT NULL
+);
+ALTER TABLE ONLY qx_cumplimiento_procedimientos_ordenes ADD CONSTRAINT qx_cumplimiento_procedimientos_ordenes_pkey PRIMARY KEY (numero_orden_id, qx_cumplimiento_id);
+ALTER TABLE ONLY qx_cumplimiento_procedimientos_ordenes ADD CONSTRAINT "$1" FOREIGN KEY (qx_cumplimiento_id) REFERENCES qx_cumplimientos(qx_cumplimiento_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_cumplimiento_procedimientos_ordenes ADD CONSTRAINT "$2" FOREIGN KEY (numero_orden_id) REFERENCES os_maestro(numero_orden_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+CREATE TABLE qx_cumplimientos_equipos(
+    equipo_id character varying(4) NOT NULL,
+    qx_cumplimiento_id integer NOT NULL
+);
+ALTER TABLE ONLY qx_cumplimientos_equipos ADD CONSTRAINT "$1" FOREIGN KEY (equipo_id) REFERENCES qx_equipos_moviles(equipo_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_cumplimientos_equipos ADD CONSTRAINT "$2" FOREIGN KEY (qx_cumplimiento_id) REFERENCES qx_cumplimientos(qx_cumplimiento_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE qx_cumplimientos ADD COLUMN programacion_id integer;
+
+
+
+
+CREATE TABLE qx_acto_cirujanos (
+    qx_acto integer NOT NULL,
+    tipo_id_cirujano character varying(3) NOT NULL,
+    cirujano_id character varying(32) NOT NULL,
+    tipo_id_ayudante character varying(3),
+    ayudante_id character varying(32)
+);
+
+ALTER TABLE ONLY qx_acto_cirujanos ADD CONSTRAINT qx_acto_cirujanos_pkey PRIMARY KEY (qx_acto, tipo_id_cirujano, cirujano_id);
+ALTER TABLE ONLY qx_acto_cirujanos ADD CONSTRAINT "$1" FOREIGN KEY (qx_acto) REFERENCES qx_acto(qx_acto_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_acto_cirujanos ADD CONSTRAINT "$2" FOREIGN KEY (tipo_id_cirujano, cirujano_id) REFERENCES profesionales(tipo_id_tercero, tercero_id) ON UPDATE RESTRICT ON DELETE CASCADE;
+ALTER TABLE ONLY qx_acto_cirujanos ADD CONSTRAINT "$3" FOREIGN KEY (tipo_id_ayudante, ayudante_id) REFERENCES profesionales(tipo_id_tercero, tercero_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+CREATE TABLE qx_cumplimientos_quirofano (
+    qx_cumplimiento_id integer NOT NULL,
+    quirofano_id character varying(4) NOT NULL,
+    hora_inicio timestamp without time zone NOT NULL,
+    hora_fin timestamp without time zone NOT NULL,
+    departamento character varying(6) NOT NULL,
+    usuario_id integer NOT NULL,
+    fecha_registro timestamp without time zone DEFAULT now() NOT NULL
+);
+ALTER TABLE ONLY qx_cumplimientos_quirofano ADD CONSTRAINT qx_cumplimientos_quirofano_pkey PRIMARY KEY (qx_cumplimiento_id);
+ALTER TABLE ONLY qx_cumplimientos_quirofano ADD CONSTRAINT "$1" FOREIGN KEY (quirofano_id) REFERENCES qx_quirofanos(quirofano) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_cumplimientos_quirofano ADD CONSTRAINT "$2" FOREIGN KEY (qx_cumplimiento_id) REFERENCES qx_cumplimientos(qx_cumplimiento_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_cumplimientos_quirofano ADD CONSTRAINT "$3" FOREIGN KEY (departamento) REFERENCES departamentos(departamento) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+CREATE TABLE qx_presupuesto_acto (
+    qx_presupuesto_acto_id serial NOT NULL,
+    tipo_id_paciente character varying(3),
+    paciente_id character varying(32),
+    nombre_paciente character varying(32),
+    plan_id integer NOT NULL,
+    tipo_afiliado_id character varying(2) NOT NULL,
+    rango character varying(2) NOT NULL,
+    ambito_cirugia_id character varying(2),
+    qx_tipo_anestesia_id character varying(2),
+    gas_anestesico character varying(18),
+    gas_medicinal character varying(18),
+    tiempo_suministro_gas character varying(4),
+    tiempo_quirofano time without time zone,
+    semanas_cotizadas smallint,
+    sw_perfusionista character(1) DEFAULT '0'::bpchar NOT NULL,
+    fecha_registro timestamp without time zone,
+    usuario_id integer
+);
+ALTER TABLE ONLY qx_presupuesto_acto ADD CONSTRAINT qx_presupuesto_acto_pkey PRIMARY KEY (qx_presupuesto_acto_id);
+ALTER TABLE ONLY qx_presupuesto_acto ADD CONSTRAINT "$1" FOREIGN KEY (plan_id) REFERENCES planes(plan_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_presupuesto_acto ADD CONSTRAINT "$2" FOREIGN KEY (plan_id, tipo_afiliado_id, rango) REFERENCES planes_rangos(plan_id, tipo_afiliado_id, rango) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_presupuesto_acto ADD CONSTRAINT "$3" FOREIGN KEY (ambito_cirugia_id) REFERENCES qx_ambitos_cirugias(ambito_cirugia_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_presupuesto_acto ADD CONSTRAINT "$4" FOREIGN KEY (qx_tipo_anestesia_id) REFERENCES qx_tipos_anestesia(qx_tipo_anestesia_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_presupuesto_acto ADD CONSTRAINT "$5" FOREIGN KEY (gas_anestesico) REFERENCES qx_gases_anestesia(gas_anestesia) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_presupuesto_acto ADD CONSTRAINT "$6" FOREIGN KEY (gas_medicinal) REFERENCES qx_gases_anestesia(gas_anestesia) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_presupuesto_acto ADD CONSTRAINT "$7" FOREIGN KEY (usuario_id) REFERENCES system_usuarios(usuario_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+CREATE TABLE qx_presupuesto_acto_cirujanos (
+    qx_presupuesto_acto_id integer NOT NULL,
+    tipo_id_cirujano character varying(3) NOT NULL,
+    cirujano_id character varying(32) NOT NULL
+);
+ALTER TABLE ONLY qx_presupuesto_acto_cirujanos ADD CONSTRAINT qx_presupuesto_acto_cirujanos_pkey PRIMARY KEY (qx_presupuesto_acto_id, tipo_id_cirujano, cirujano_id);
+ALTER TABLE ONLY qx_presupuesto_acto_cirujanos ADD CONSTRAINT "$1" FOREIGN KEY (qx_presupuesto_acto_id) REFERENCES qx_presupuesto_acto(qx_presupuesto_acto_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_presupuesto_acto_cirujanos ADD CONSTRAINT "$2" FOREIGN KEY (tipo_id_cirujano, cirujano_id) REFERENCES terceros(tipo_id_tercero, tercero_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+CREATE TABLE qx_presupuesto_acto_procedimientos (
+    qx_presupuesto_acto_id integer NOT NULL,
+    tipo_id_cirujano character varying(3) NOT NULL,
+    cirujano_id character varying(32) NOT NULL,
+    procedimiento_qx character varying(10) NOT NULL,
+    procedimiento_via character varying(4)
+);
+
+ALTER TABLE ONLY qx_presupuesto_acto_procedimientos ADD CONSTRAINT qx_presupuesto_acto_procedimientos_pkey PRIMARY KEY (qx_presupuesto_acto_id, tipo_id_cirujano, cirujano_id, procedimiento_qx);
+ALTER TABLE ONLY qx_presupuesto_acto_procedimientos ADD CONSTRAINT "$1" FOREIGN KEY (qx_presupuesto_acto_id, tipo_id_cirujano, cirujano_id) REFERENCES qx_presupuesto_acto_cirujanos(qx_presupuesto_acto_id, tipo_id_cirujano, cirujano_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_presupuesto_acto_procedimientos ADD CONSTRAINT "$2" FOREIGN KEY (procedimiento_qx) REFERENCES cups(cargo) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_presupuesto_acto_procedimientos ADD CONSTRAINT "$3" FOREIGN KEY (procedimiento_via) REFERENCES qx_vias_acceso(via_acceso) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+CREATE TABLE qx_protocolos (
+    protocolo character varying(3) NOT NULL,
+    descripcion character varying(40) NOT NULL
+);
+ALTER TABLE ONLY qx_protocolos ADD PRIMARY KEY (protocolo);
+
+/*CREATE TABLE qx_cumplimientos_datos(qx_cumplimiento_id integer NOT NULL,
+                                     via_acceso character varying(4) NOT NULL,
+																		 tipo_cirugia character varying(2) NOT NULL,
+																		 ambito_cirugia character varying(2) NOT NULL);
+
+ALTER TABLE ONLY qx_cumplimientos_datos ADD CONSTRAINT qx_cumplimientos_datos_pkey PRIMARY KEY (qx_cumplimiento_id);
+ALTER TABLE ONLY qx_cumplimientos_datos ADD CONSTRAINT "$2" FOREIGN KEY (tipo_cirugia) REFERENCES qx_tipos_cirugia(tipo_cirugia_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_cumplimientos_datos ADD CONSTRAINT "$3" FOREIGN KEY (ambito_cirugia) REFERENCES qx_ambitos_cirugias(ambito_cirugia_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_cumplimientos_datos ADD CONSTRAINT "$1" FOREIGN KEY (via_acceso) REFERENCES qx_vias_acceso(via_acceso) ON UPDATE CASCADE ON DELETE RESTRICT;
+*/
+DROP TABLE tmp_cirugias_detalle CASCADE;
+DROP TABLE tmp_cirugias_otros_cargos CASCADE;
+DROP TABLE tmp_cirugias_quirofano CASCADE;
+DROP TABLE tmp_cirugias CASCADE;
+
+ALTER TABLE "qx_acto" DROP COLUMN tipo_id_circulante_dos;
+ALTER TABLE "qx_acto" DROP COLUMN circulante_dos;
+ALTER TABLE "qx_acto" DROP COLUMN fecha_egreso_recuperacion;
+ALTER TABLE "qx_acto" DROP COLUMN fecha_ingreso_recuperacion;
+ALTER TABLE "qx_acto" DROP COLUMN fecha_inicio_anestesia;
+ALTER TABLE "qx_acto" DROP COLUMN fecha_fin_anestesia;
+ALTER TABLE "qx_acto" DROP COLUMN complicacion_id;
+ALTER TABLE "qx_acto" DROP COLUMN sw_estado_salida;
+
+ALTER TABLE qx_acto ADD sw_estado character(1);
+UPDATE qx_acto SET sw_estado=1;
+ALTER TABLE qx_acto ALTER sw_estado SET DEFAULT 1;
+ALTER TABLE qx_acto ALTER sw_estado SET NOT NULL;
+
+ALTER TABLE "qx_acto_procedimientos_realizados" DROP COLUMN tipo_id_ayudante;
+ALTER TABLE "qx_acto_procedimientos_realizados" DROP COLUMN ayudante_id;
+
+ALTER TABLE "qx_anestesiologo_programacion" ADD COLUMN tipo_id_instrumentista character varying(3);
+ALTER TABLE "qx_anestesiologo_programacion" ADD COLUMN instrumentista_id character varying(32);
+ALTER TABLE "qx_anestesiologo_programacion" DROP COLUMN circulante_id;
+ALTER TABLE "qx_anestesiologo_programacion" ADD COLUMN tipo_id_circulante character varying(3);
+ALTER TABLE "qx_anestesiologo_programacion" ADD COLUMN circulante_id character varying(32);
+
+
+
+
+
+
+
+
+

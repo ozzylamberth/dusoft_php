@@ -1,0 +1,7 @@
+
+S (Tabla del sistema Implementada con anterioridad en otro modulos.)
+M (Tabla de Movimiento, cuando la instalacion es nueva debera estar vacia)
+T (Tabla maestra de tipos)
+
+
+

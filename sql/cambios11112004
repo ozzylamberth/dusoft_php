@@ -1,0 +1,17 @@
+
+
+INSERT INTO system_modulos VALUES ('Admisiones', 'app', 'Admisiones', 1.00, '1', '1', '1', '1');
+
+--DARLING TABLA PARA EL TUNAL
+CREATE TABLE hc_os_solicitudes_manuales_datos_adicionales (
+    orden_servicio_id integer NOT NULL,
+		departamento character varying(60),
+		cama  character varying(20)
+
+);
+
+ALTER TABLE ONLY hc_os_solicitudes_manuales_datos_adicionales
+    ADD PRIMARY KEY (orden_servicio_id);
+
+ALTER TABLE ONLY hc_os_solicitudes_manuales_datos_adicionales
+    ADD FOREIGN KEY (orden_servicio_id) REFERENCES os_ordenes_servicios(orden_servicio_id) ON UPDATE CASCADE ON DELETE RESTRICT;

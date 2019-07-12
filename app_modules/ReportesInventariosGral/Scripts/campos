@@ -1,0 +1,109 @@
+old_plan_id 	integer;
+old_empresa_id character(2);
+old_tipo_tercero_id character varying(3);	
+old_tercero_id  character varying(32);		
+old_plan_descripcion  character varying(60);	
+old_tipo_cliente  character varying(2);		
+old_num_contrato  character varying(20);		
+old_fecha_inicio date;	
+old_fecha_final 	date;
+old_monto_contrato numeric(16,2);	
+old_saldo_contrato numeric(16,2);	
+old_tope_maximo_factura numeric(12,2);	
+old_sw_autoriza_sin_bd character(1);	
+old_sw_afiliacion character(1);	
+old_sw_tipo_plan character(1);	
+old_fecha_registro timestamp;	
+old_sw_paragrafados_cd character(1);	
+old_sw_paragrafados_imd 	character(1);
+old_usuario_id integer;	
+old_estado character(1);	
+old_sw_facturacion_agrupada character(1);
+old_servicios_contratados text;
+old_protocolos  character varying(255);	
+old_contacto text;	
+old_nombre_cuota_moderadora 	character varying(20);	
+old_nombre_copago character varying(20);		
+old_lineas_atencion 	text;
+old_monto_contrato_mensual 	character varying(1);	
+old_sw_base_liquidacion_imd 	character varying(1);	
+old_sw_exceder_monto_mensual character varying(1);	
+old_tipo_liquidacion_id integer;
+old_actividad_incumplimientos smallint;	
+old_meses_consulta_base_datos smallint;
+old_telefono_cancelacion_cita character varying(40);
+old_horas_cancelacion character varying(2);	
+old_observacion text;	
+old_tipo_liquidacion_cargo 	integer;
+old_tipo_para_imd integer;	
+old_dias_credito_cartera smallint;
+old_sw_contrata_hospitalizacion 	character(1);
+old_lista_precios character varying(4);	
+old_porcentaje_utilidad 	numeric(15,2);
+old_protocolo_internacion text;	
+old_sw_rips_con_cargo_cups 	character(1);
+old_marca_prioridad_atencion character varying(1);		
+old_sw_solicita_autorizacion_admision 	character varying(1);
+old_porcentaje_descuento_iym numeric(12,2);	
+old_mensaje_plan text;	
+old_sw_afiliados character(1);
+old_programas_id 	integer;
+old_sw_desc_nomina character varying(1);	
+old_programa_consulta_externa_id 	integer;
+old_sw_multimedicas integer;
+
+
+
+old_plan_id 	:= OLD.plan_id 	
+old_empresa_id 	:= OLD.empresa_id 	
+old_tipo_tercero_id 	:= OLD.tipo_tercero_id 	
+old_tercero_id 	:= OLD.tercero_id 	
+old_plan_descripcion 	:= OLD.plan_descripcion 	
+old_tipo_cliente 	:= OLD.tipo_cliente 	
+old_num_contrato 	:= OLD.num_contrato 	
+old_fecha_inicio 	:= OLD.fecha_inicio 	
+old_fecha_final 	:= OLD.fecha_final 	
+old_monto_contrato 	:= OLD.monto_contrato 	
+old_saldo_contrato 	:= OLD.saldo_contrato 	
+old_tope_maximo_factura 	:= OLD.tope_maximo_factura 	
+old_sw_autoriza_sin_bd 	:= OLD.sw_autoriza_sin_bd 	
+old_sw_afiliacion 	:= OLD.sw_afiliacion 	
+old_sw_tipo_plan 	:= OLD.sw_tipo_plan 	
+old_fecha_registro 	:= OLD.fecha_registro 	
+old_sw_paragrafados_cd 	:= OLD.sw_paragrafados_cd 	
+old_sw_paragrafados_imd 	:= OLD.sw_paragrafados_imd 	
+old_usuario_id 	:= OLD.usuario_id 	
+old_estado 	:= OLD.estado 	
+old_sw_facturacion_agrupada 	:= OLD.sw_facturacion_agrupada 	
+old_servicios_contratados 	:= OLD.servicios_contratados 	
+old_protocolos 	:= OLD.protocolos 	
+old_contacto 	:= OLD.contacto 	
+old_nombre_cuota_moderadora 	:= OLD.nombre_cuota_moderadora 	
+old_nombre_copago 	:= OLD.nombre_copago 	
+old_lineas_atencion 	:= OLD.lineas_atencion 	
+old_monto_contrato_mensual 	:= OLD.monto_contrato_mensual 	
+old_sw_base_liquidacion_imd 	:= OLD.sw_base_liquidacion_imd 	
+old_sw_exceder_monto_mensual 	:= OLD.sw_exceder_monto_mensual 	
+old_tipo_liquidacion_id 	:= OLD.tipo_liquidacion_id 	
+old_actividad_incumplimientos 	:= OLD.actividad_incumplimientos 	
+old_meses_consulta_base_datos 	:= OLD.meses_consulta_base_datos 	
+old_telefono_cancelacion_cita 	:= OLD.telefono_cancelacion_cita 	
+old_horas_cancelacion 	:= OLD.horas_cancelacion 	
+old_observacion 	:= OLD.observacion 	
+old_tipo_liquidacion_cargo 	:= OLD.tipo_liquidacion_cargo 	
+old_tipo_para_imd 	:= OLD.tipo_para_imd 	
+old_dias_credito_cartera 	:= OLD.dias_credito_cartera 	
+old_sw_contrata_hospitalizacion 	:= OLD.sw_contrata_hospitalizacion 	
+old_lista_precios 	:= OLD.lista_precios 	
+old_porcentaje_utilidad 	:= OLD.porcentaje_utilidad 	
+old_protocolo_internacion 	:= OLD.protocolo_internacion 	
+old_sw_rips_con_cargo_cups 	:= OLD.sw_rips_con_cargo_cups 	
+old_marca_prioridad_atencion 	:= OLD.marca_prioridad_atencion 	
+old_sw_solicita_autorizacion_admision 	:= OLD.sw_solicita_autorizacion_admision 	
+old_porcentaje_descuento_iym 	:= OLD.porcentaje_descuento_iym 	
+old_mensaje_plan 	:= OLD.mensaje_plan 	
+old_sw_afiliados 	:= OLD.sw_afiliados 	
+old_programas_id 	:= OLD.programas_id 	
+old_sw_desc_nomina 	:= OLD.sw_desc_nomina 	
+old_programa_consulta_externa_id 	:= OLD.programa_consulta_externa_id 	
+old_sw_multimedicas := OLD.sw_multimedicas

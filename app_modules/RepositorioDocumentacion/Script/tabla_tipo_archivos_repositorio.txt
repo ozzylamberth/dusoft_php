@@ -1,0 +1,34 @@
+-- Table: public.tipo_archivos_repositorio
+
+-- DROP TABLE public.tipo_archivos_repositorio;
+
+CREATE TABLE public.tipo_archivos_repositorio (
+  tipo_archivo_id  serial NOT NULL,
+  tipo_nombre      varchar(30),
+  descripcion      varchar(100),
+  sw_facturar      varchar(1),
+  /* Keys */
+  CONSTRAINT tipo_archivos_repositorio_pkey
+    PRIMARY KEY (tipo_archivo_id)
+) WITH (
+    OIDS = FALSE
+  );
+
+ALTER TABLE public.tipo_archivos_repositorio
+  OWNER TO "admin";
+
+COMMENT ON TABLE public.tipo_archivos_repositorio
+  IS 'Tipo de archivo a subir en el repositorio (formulas, ordenes req, facturas)';
+
+COMMENT ON COLUMN public.tipo_archivos_repositorio.tipo_archivo_id
+  IS 'PK tabla';
+
+COMMENT ON COLUMN public.tipo_archivos_repositorio.tipo_nombre
+  IS 'Nombre del tipo de documento a subir';
+
+COMMENT ON COLUMN public.tipo_archivos_repositorio.descripcion
+  IS 'Descripcion del tipo de documento';
+
+COMMENT ON COLUMN public.tipo_archivos_repositorio.sw_facturar
+  IS 'Aplica factura';
+

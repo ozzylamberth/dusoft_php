@@ -1,0 +1,840 @@
+<?php
+	
+    IncludeClass("LogicaAF",NULL,"hc","UV_FormulacionAntecedentes");
+
+
+
+    /**
+    * Funcion que sirve para modificar medicametos no formulados por el medico
+    * @param array $vector con los datos del paciente y el medicamento
+    * @return string con un mensaje de error o exito segun corresponda.
+    **/
+    function ModMedNoformu($vector)
+    {
+        
+        $path = SessionGetVar("rutaImagenes");
+        $objResponse=new xajaxResponse();
+        $vector1=SessionGetVar("datos_usu");
+        $vector['tipo_id_paciente']=$vector1['tipo_id_paciente'];
+        $vector['paciente_id']=$vector1['paciente_id'];
+        $vector['fecha_registro']=date("Y-m-d");
+        if($vector['tipo']==1 && $vector['fecha_finalizacion']=='')
+        {
+            $vector['fecha_finalizacion']="NULL";
+        }
+        elseif($vector['tipo']==2 && $vector['fecha_finalizacion']=='')
+        {
+            $objResponse->assign("errorMed","innerHTML","NO HA SELECCIONADO LA FECHA DE SUSPENSION DEL MEDICAMENTO");
+            return $objResponse;
+            
+        }
+        else
+        {
+            $vector['fecha_finalizacion']="'".$vector['fecha_finalizacion']."'";
+    
+        }
+        
+     
+
+        if($vector['dosis']=='')
+        {
+            $objResponse->assign("errorMed","innerHTML","EL CAMPO DOSIS SE ENCUENTRA VACIO");
+            return $objResponse;
+        }
+        
+        if($vector['unidad_dosificacion']=='--')
+        {
+            $objResponse->assign("errorMed","innerHTML","NO HA SELECCIONADO NINGUNA UNIDAD DE DOSIFICACION");
+            return $objResponse;
+        }
+        
+        if($vector['frecuencia']=='')
+        {
+            $objResponse->assign("errorMed","innerHTML","NO HA INGRESADO LA FRECUENCIA DE USO DEL MEDICAMENTO");
+            return $objResponse;
+        }
+        
+        if(empty($vector['sw_permanente']))
+        {   
+            $vector['sw_permanente']=0;
+        }
+        $vector['sw_formulado']=0;
+        if($vector['descripcion']=='')
+        {
+            $vector['descripcion']="NULL";
+        }
+        else
+        {
+            $vector['descripcion']="'".$vector['descripcion']."'";
+        }
+        //$vector['evolucion_id']=$vector1['evolucion_id'];
+        //VAR_DUMP();
+        $consultar = new LogicaAF();
+        $resultado=$consultar->ModificarMedicamento($vector);
+        //var_dump($resultado);
+        if($resultado===true)
+        {
+            $cad="MEDICAMENTO ACTUALIZADO SATISFACTORIAMENTE";
+            $objResponse->assign("mensaje","innerHTML",$cad);
+            $objResponse->call("VentanaClose");
+        }
+        else
+        {
+            $cad=$consultar->Error['MensajeError'];
+            $objResponse->assign("errorMed","innerHTML",$cad.$resultado);
+        }
+            
+            
+        
+        return $objResponse;
+ 
+    }
+
+    
+    /**
+    * Funcion que sirve para guardar medicametos no formulados por el medico
+    * @param array $vector con los datos del paciente y el medicamento
+    * @return string con un mensaje de error o exito segun corresponda.
+    **/
+    function GuardarMedNoformu($vector)
+    {
+        
+        $path = SessionGetVar("rutaImagenes");
+        $objResponse=new xajaxResponse();
+        $vector1=SessionGetVar("datos_usu");
+        $vector['tipo_id_paciente']=$vector1['tipo_id_paciente'];
+        $vector['paciente_id']=$vector1['paciente_id'];
+        $vector['fecha_registro']=date("Y-m-d");
+        if($vector['tipo']==1)
+        {
+            $vector['fecha_finalizacion']="NULL";
+        }
+        elseif($vector['tipo']==2 && $vector['fecha_finalizacion']=='')
+        {
+            $objResponse->assign("errorMed","innerHTML","NO HA SELECCIONADO LA FECHA DE SUSPENSION DEL MEDICAMENTO");
+            return $objResponse;
+            
+        }
+        else
+        {
+            $vector['fecha_finalizacion']="'".$vector['fecha_finalizacion']."'";
+    
+        }
+        $vector['medico_id']=UserGetUID();
+        
+        
+        if($vector['cod_med']=='')
+        {
+            $objResponse->assign("errorMed","innerHTML","NO HA COLOCADO EL NOMBRE DEL MEDICAMENTO");
+            return $objResponse;
+    
+        }
+        if($vector['dosis']=='')
+        {
+            $objResponse->assign("errorMed","innerHTML","EL CAMPO DOSIS SE ENCUENTRA VACIO");
+            return $objResponse;
+        }
+        
+        if($vector['unidad_dosificacion']=='--')
+        {
+            $objResponse->assign("errorMed","innerHTML","NO HA SELECCIONADO NINGUNA UNIDAD DE DOSIFICACION");
+            return $objResponse;
+        }
+        
+        if($vector['frecuencia']=='')
+        {
+            $objResponse->assign("errorMed","innerHTML","NO HA INGRESADO LA FRECUENCIA DE USO DEL MEDICAMENTO");
+            return $objResponse;
+        }
+        
+        if(empty($vector['sw_permanente']))
+        {   
+            $vector['sw_permanente']=0;
+        }
+        $vector['sw_formulado']=0;
+        if($vector['descripcion']=='')
+        {
+            $vector['descripcion']="NULL";
+        }
+        else
+        {
+            $vector['descripcion']="'".$vector['descripcion']."'";
+        }
+        $vector['evolucion_id']=$vector1['evolucion_id'];
+        //VAR_DUMP();
+        $consultar = new LogicaAF();
+        $resultado=$consultar->GuardarNoformulado($vector);
+        //var_dump($resultado);
+        if($resultado===true)
+        {
+            $cad="MEDICAMENTO REGISTRADO SATISFACTORIAMENTE";
+            $objResponse->assign("mensaje","innerHTML",$cad);
+            $objResponse->call("VentanaClose");
+        }
+        else
+        {
+            $cad=$consultar->Error['MensajeError'];
+            $aguja="duplicate key violates unique";
+            $pos=strpos($cad, $aguja);
+            if($pos!=false)
+            {
+                $cadena="ESTE MEDICAMENTO YA SE ENCUENTRA FORMULADO PARA ESTE PACIENTE";
+                $objResponse->assign("errorMed","innerHTML",$cadena);
+            }
+            elseif($pos===false)
+            {
+                $objResponse->assign("errorMed","innerHTML",$cad.$resultado);
+            }
+            
+            
+        }
+        return $objResponse;
+    
+    
+    
+    }
+
+
+
+
+    /**
+    * Funcion que sirve pata colocar los datos de un medicamento nuevo no formualdo por el medico
+    * @param string $tipo_id_paciente codigo de medicamento
+    * @param string $paciente_id nombre del medicamento
+    * @param string $codigo_medicamento 
+    * @param string $evolucion_id evolucion en la que se encuntra el paciente
+    * @return string con la forma para crear el nuevo medicamento
+    **/
+
+    function datos_medicamentoUp($tipo_id_paciente,$paciente_id,$codigo_medicamento,$evolucion_id)
+    {
+    
+        $path = SessionGetVar("rutaImagenes");
+        $objResponse=new xajaxResponse();
+        $consultar = new LogicaAF();
+    
+        //$vector=$consultar->ConsultarNombreMedicamentos($codigo);
+        
+        global $_ROOT;
+        global $VISTA;
+        $datos_extraidos=$consultar->DatosExtraidos($tipo_id_paciente,$paciente_id,$codigo_medicamento,$evolucion_id);
+        //VAR_DUMP($datos_extraidos);
+        $salida = "                 <div id=\"tabelas\">";
+        $salida .= "                 <div id=\"erro\" class='label_error' style=\"text-transform: uppercase; text-align:center; font-size:11px;\">\n";
+        $salida .= "                 </div>\n";
+        $salida .= "                 <form name=\"up_med\" id=\"up_med\">\n";
+        $salida .= "                   <table width=\"100%\" align=\"center\" class=\"modulo_table_list\">\n";
+        $salida .= "                     <tr class=\"modulo_table_list_title\">\n";
+        $salida .= "                       <td align=\"center\" colspan='3'>\n";
+        $salida .= "                         DATOS DEL MEDICAMENTO";
+        $salida .= "                       </td>\n";
+        $salida .= "                     </tr>\n";
+        $salida .= "                     <tr class=\"modulo_table_list_title\">\n";
+        $salida .= "                       <td align=\"center\"width=\"35%\">\n";
+        $salida .= "                         NOMBRE DEL MEDICAMENTO";
+        $salida .= "                       </td>\n";
+
+
+//         array(16) {
+//     ["tipo_id_paciente"]=>
+//     string(2) "CC"
+//     ["paciente_id"]=>
+//     string(8) "29018138"
+//     ["codigo_medicamento"]=>
+//     string(10) "0101010258"
+//     ["fecha_registro"]=>
+//     string(10) "2008-03-18"
+//     ["fecha_finalizacion"]=>
+//     string(10) "2008-04-01"
+//     ["medico_id"]=>
+//     string(4) "1942"
+//     ["dosis"]=>
+//     string(5) "12.00"
+//     ["unidad_dosificacion"]=>
+//     string(11) "AMPOLLA (S)"
+//     ["frecuencia"]=>
+//     string(0) ""
+//     ["sw_permanente"]=>
+//     string(1) "1"
+//     ["sw_formulado"]=>
+//     string(1) "1"
+//     ["tiempo_total"]=>
+//     string(11) "2 semana(s)"
+//     ["perioricidad_entrega"]=>
+//     string(20) "12 ()  cada 1 dia(s)"
+//     ["descripcion"]=>
+//     string(12) "INVANZ 1 GMO"
+//     ["evolucion_id"]=>
+//     string(7) "1023928"
+//     ["nombre"]=>
+//     string(30) "BELTRAN MANRIQUE JAIME ALFONSO"
+//   }
+//echo $datos_extraidos[0]['frecuencia'];
+
+        if(empty($datos_extraidos[0]['nombre_medicamento']))
+        {
+            $salida .= "                       <td align='left' colspan='2' class='modulo_list_claro'>\n";
+            $salida.="                           <input type='hidden' name=\"cod_med\"  id=\"cod_med\" value = '".$datos_extraidos[0]['codigo_medicamento']."'>";
+            $salida .= "                         ".$datos_extraidos[0]['codigo_medicamento'];
+            $salida .= "                       </td>\n";
+        }
+        elseif(!empty($datos_extraidos[0]['nombre_medicamento']))
+        {
+            $salida .= "                       <td align='left' colspan='2' class='modulo_list_claro'>\n";
+            $salida.="                           <input type='hidden' name=\"cod_med\"  id=\"cod_med\" value = '".$datos_extraidos[0]['codigo_medicamento']."'>";
+            $salida .= "                         ".$datos_extraidos[0]['nombre_medicamento'];
+            $salida .= "                       </td>\n";
+        }
+    
+        $salida .= "                     </tr>\n";
+        $salida .= "                     <tr class=\"modulo_table_list_title\">\n";
+        $salida .= "                       <td align=\"center\" width=\"25%\">\n";
+        $salida .= "                         <a title='FECHA EN LA CUAL EL PACIENTE DEJ&#211; DE USAR EL PRODUCTO'>FECHA DE FINALIZACION</a>";
+        $salida .= "                       </td>\n";
+        $salida .= "                       <td class=\"normal_10AN\"  align=\"left\" >\n";
+        $salida .= "                         <select name=\"tipo\" id=\"tipo\" class=\"select\" onchange=\"Vercalendario(this.value);\">";
+        if(empty($datos_extraidos[0]['fecha_finalizacion']))
+        {
+            $salida .= "                           <option value=\"1\" selected>ACTIVO (EN USO)</option> \n";
+            $salida .= "                           <option value=\"2\">FINALIZADO</option> \n";
+        }
+        elseif(!empty($datos_extraidos[0]['fecha_finalizacion']))
+        {
+           $hoy=strtotime(date("Y-m-d"));
+           $futuro=strtotime($datos_extraidos[0]['fecha_finalizacion']);
+           if($futuro > $hoy)
+           {
+                $salida .= "                           <option value=\"1\"selected >ACTIVO (EN USO)</option> \n";
+                $salida .= "                           <option value=\"2\">FINALIZADO</option> \n";
+           }
+           else
+           {    
+                $salida .= "                           <option value=\"1\">ACTIVO (EN USO)</option> \n";
+                $salida .= "                           <option value=\"2\" selected>FINALIZADO</option> \n";    
+           }
+
+        }
+        $salida .= "                         </select>";
+        if(!empty($datos_extraidos[0]['fecha_finalizacion']))
+        {
+            $salida .= "                         &nbsp;<input type=\"text\" class=\"input-text\" name=\"fecha_finalizacion\" id=\"fecha_finalizacion\" size=\"12\" OnFocus=\"this.blur()\" onclick=\"\" value=\"".$datos_extraidos[0]['fecha_finalizacion']."\">\n";
+        }
+        else
+        {
+            $salida .= "                         &nbsp;<input type=\"text\" class=\"input-text\" name=\"fecha_finalizacion\" id=\"fecha_finalizacion\" size=\"12\" OnFocus=\"this.blur()\" onclick=\"\" value=\"\">\n";
+        }
+        $salida .= "                       </td>";
+        $salida .= "                       <td align=\"left\">\n";
+        if($datos_extraidos[0]['sw_permanente']=='1')
+        {
+            $salida .= "                         <a title='MEDICAMENTO PERMANENTE'>PERMANENTE <input type=\"checkbox\" class=\"checkbox\" name=\"sw_permanente\" id=\"sw_permanente\" onclick=\"\" value=\"1\" checked></a>\n";
+        }
+        elseif($datos_extraidos[0]['sw_permanente']=='0')
+        {
+            $salida .= "                         <a title='MEDICAMENTO PERMANENTE'>PERMANENTE <input type=\"checkbox\" class=\"checkbox\" name=\"sw_permanente\" id=\"sw_permanente\" onclick=\"\" value=\"1\"></a>\n";
+        }
+        $salida .= "                       </td>\n";
+        $salida .= "                     </tr>\n";
+        $salida .= "                     <tr class=\"modulo_table_list_title\">\n";
+        $salida .= "                       <td align=\"center\" width=\"25%\">\n";
+        $salida .= "                         DOSIS";
+        $salida .= "                       </td>\n";
+        $salida .= "                       <td colspan='2' class=\"normal_10AN\"  align=\"left\" >\n";
+        if($datos_extraidos[0]['sw_formulado']=='0')
+        {
+            $salida .= "                         <input type=\"text\" class=\"input-text\" name=\"dosis\" id=\"dosis\" size=\"10\" onclick=\"\" onkeypress=\"return acceptNum(event)\" value=\"".$datos_extraidos[0]['dosis']."\">\n";
+        }
+        else
+        {
+            $salida .= "                         <input type=\"text\" class=\"input-text\" name=\"dosis\" id=\"dosis\" size=\"10\" onclick=\"\" onkeypress=\"return acceptNum(event)\" value=\"".$datos_extraidos[0]['dosis']."\" disabled>\n";
+        }
+        $salida.="                           <input type='hidden' name=\"evolucion_id\"  id=\"evolucion_id\" value = '".$datos_extraidos[0]['evolucion_id']."'>";
+        
+        $unidades_dosificacion=$consultar->ObtenerUnidadesDosificacion();
+        if(!empty($unidades_dosificacion))
+        {
+            if($datos_extraidos[0]['sw_formulado']=='0')
+            {
+                $salida .= "                         <select name=\"unidad_dosificacion\" id=\"unidad_dosificacion\" class=\"select\" onchange=\"\">";
+            }
+            else
+            {
+                $salida .= "                         <select name=\"unidad_dosificacion\" id=\"unidad_dosificacion\" class=\"select\" onchange=\"\" disabled>";
+            }    
+            $salida .= "                           <option value=\"--\">SELECCIONAR</option> \n";
+                for($i=0;$i<count($unidades_dosificacion);$i++)
+                {
+                    if($datos_extraidos[0]['unidad_dosificacion']==$unidades_dosificacion[$i]['unidad_dosificacion'])
+                    {
+                        $salida .= "                           <option value=\"".$unidades_dosificacion[$i]['unidad_dosificacion']."\" selected>".$unidades_dosificacion[$i]['unidad_dosificacion']."</option> \n";
+                    }
+                    else
+                    {
+                        $salida .= "                           <option value=\"".$unidades_dosificacion[$i]['unidad_dosificacion']."\">".$unidades_dosificacion[$i]['unidad_dosificacion']."</option> \n";
+                    }
+                    
+                }
+            $salida .= "                         </select>";
+        }
+        $salida .= "                       </td>";
+        $salida .= "                     </tr>\n";
+        $salida .= "                     <tr class=\"modulo_table_list_title\">\n";
+        $salida .= "                       <td align=\"center\" width=\"25%\">\n";
+        $salida .= "                         <a title='FRECUENCIA DE TIEMPO CON LA CUAL SE APLICA EL MEDICAMENTO'>FRECUENCIA</a>";
+        $salida .= "                       </td>\n";
+        $salida .= "                       <td colspan='2' class=\"normal_10AN\"  align=\"left\" >\n";
+        $salida .= "                         <input type=\"text\" class=\"input-text\" name=\"frecuencia\" id=\"frecuencia\" size=\"50\" onclick=\"\" value=\"".$datos_extraidos[0]['frecuencia']."\">\n";
+        $salida .= "                       </td>";
+        $salida .= "                     </tr>\n";
+        $salida .= "                     <tr class=\"modulo_table_list_title\">\n";
+        $salida .= "                       <td align=\"center\" width=\"25%\">\n";
+        $salida .= "                         OBSERVACIONES";
+        $salida .= "                       </td>\n";
+        $salida .= "                       <td colspan='2' class=\"normal_10AN\"  align=\"left\" >\n";
+        $salida .= "                        <TEXTAREA class=\"normal_10AN\" NAME='descripcion' id='descripcion' ROWS='2' style=\"width:80%\" OnFocus=\"\">".$datos_extraidos[0]['descripcion']."</TEXTAREA>\n";
+        $salida .= "                       </td>";
+        $salida .= "                     </tr>\n";
+        $salida .= "                     <tr class=\"modulo_list_claro\">\n";
+        $salida .= "                       <td colspan='3' class=\"normal_10AN\"  align=\"center\" >\n";
+        $salida .= "                         <input type=\"button\" class=\"input-submit\" value=\"Modificar Medicamento\" onclick=\"xajax_ModMedNoformu(xajax.getFormValues('up_med'));\">\n";
+        $salida .= "                       </td>";
+        $salida .= "                     </tr>\n";
+        $salida .= "                   </table>\n";
+        $salida .= "                 </form>\n";
+        $objResponse->assign("ContenidoMed","innerHTML",$salida);
+        return $objResponse;
+    
+    }
+
+
+
+    /**
+    * Funcion que sirve pata colocar los datos de un medicamento nuevo no formualdo por el medico
+    * @param string $codigo codigo de medicamento
+    * @param string $nombre nombre del medicamento
+    * @return string con la forma para crear el nuevo medicamento
+    **/
+    
+    function datos_medicamento($codigo='',$nombre='')
+    {
+    
+        $path = SessionGetVar("rutaImagenes");
+        $objResponse=new xajaxResponse();
+        $consultar = new LogicaAF();
+    
+        //$vector=$consultar->ConsultarNombreMedicamentos($codigo);
+        
+        global $_ROOT;
+        global $VISTA;
+    
+    
+        $salida = "                 <div id=\"tabelas\">";
+        $salida .= "                 <div id=\"erro\" class='label_error' style=\"text-transform: uppercase; text-align:center; font-size:11px;\">\n";
+        $salida .= "                 </div>\n";
+        $salida .= "                 <form name=\"adicionar_med\" id=\"adicionar_med\">\n";
+        $salida .= "                   <table width=\"100%\" align=\"center\" class=\"modulo_table_list\">\n";
+        $salida .= "                     <tr class=\"modulo_table_list_title\">\n";
+        $salida .= "                       <td align=\"center\" colspan='3'>\n";
+        $salida .= "                         DATOS DEL MEDICAMENTO";
+        $salida .= "                       </td>\n";
+        $salida .= "                     </tr>\n";
+        $salida .= "                     <tr class=\"modulo_table_list_title\">\n";
+        $salida .= "                       <td align=\"center\"width=\"35%\">\n";
+        $salida .= "                         NOMBRE DEL MEDICAMENTO";
+        $salida .= "                       </td>\n";
+        if(empty($nombre))
+        {
+            $salida .= "                       <td align='left' colspan='2' class='modulo_list_claro'>\n";
+            $salida .= "                         <input type=\"text\" class=\"input-text\" name=\"cod_med\" id=\"cod_med\" size=\"50\" onclick=\"\" onKeyUp=\"javascript:todoMay(event,this)\" value=\"\">\n";
+            $salida .= "                       </td>\n";
+        }
+        else
+        {
+            $salida .= "                       <td align='left' colspan='2' class='modulo_list_claro'>\n";
+            $salida.="                           <input type='hidden' name=\"cod_med\"  id=\"cod_med\" value = '".$codigo."'>";
+            $salida .= "                         ".$nombre;
+            $salida .= "                       </td>\n";
+        }
+    
+        $salida .= "                     </tr>\n";
+        $salida .= "                     <tr class=\"modulo_table_list_title\">\n";
+        $salida .= "                       <td align=\"center\" width=\"25%\">\n";
+        $salida .= "                         <a title='FECHA EN LA CUAL EL PACIENTE DEJ&#211; DE USAR EL PRODUCTO'>FECHA DE FINALIZACION</a>";
+        $salida .= "                       </td>\n";
+        $salida .= "                       <td class=\"normal_10AN\"  align=\"left\" >\n";
+        $salida .= "                         <select name=\"tipo\" id=\"tipo\" class=\"select\" onchange=\"Vercalendario(this.value);\">";
+        $salida .= "                           <option value=\"1\" selected>ACTIVO (EN USO)</option> \n";
+        $salida .= "                           <option value=\"2\">FINALIZADO</option> \n";
+        $salida .= "                         </select>";
+        $salida .= "                         &nbsp;<input type=\"text\" class=\"input-text\" name=\"fecha_finalizacion\" id=\"fecha_finalizacion\" size=\"12\" OnFocus=\"this.blur()\" onclick=\"\" value=\"\">\n";
+        $salida .= "                       </td>";
+        $salida .= "                       <td align=\"left\">\n";
+        $salida .= "                         <a title='MEDICAMENTO PERMANENTE'>PERMANENTE <input type=\"checkbox\" class=\"checkbox\" name=\"sw_permanente\" id=\"sw_permanente\" onclick=\"\" value=\"1\"></a>\n";
+        $salida .= "                       </td>\n";
+        $salida .= "                     </tr>\n";
+        $salida .= "                     <tr class=\"modulo_table_list_title\">\n";
+        $salida .= "                       <td align=\"center\" width=\"25%\">\n";
+        $salida .= "                         DOSIS";
+        $salida .= "                       </td>\n";
+        $salida .= "                       <td colspan='2' class=\"normal_10AN\"  align=\"left\" >\n";
+        $salida .= "                         <input type=\"text\" class=\"input-text\" name=\"dosis\" id=\"dosis\" size=\"10\" onclick=\"\" onkeypress=\"return acceptNum(event)\" value=\"\">\n";
+        $unidades_dosificacion=$consultar->ObtenerUnidadesDosificacion();
+        if(!empty($unidades_dosificacion))
+        {
+            $salida .= "                         <select name=\"unidad_dosificacion\" id=\"unidad_dosificacion\" class=\"select\" onchange=\"\">";
+            $salida .= "                           <option value=\"--\" selected>SELECCIONAR</option> \n";
+                for($i=0;$i<count($unidades_dosificacion);$i++)
+                {
+                    $salida .= "                           <option value=\"".$unidades_dosificacion[$i]['unidad_dosificacion']."\">".$unidades_dosificacion[$i]['unidad_dosificacion']."</option> \n";
+                }
+            $salida .= "                         </select>";
+        }
+        $salida .= "                       </td>";
+        $salida .= "                     </tr>\n";
+        $salida .= "                     <tr class=\"modulo_table_list_title\">\n";
+        $salida .= "                       <td align=\"center\" width=\"25%\">\n";
+        $salida .= "                         <a title='FRECUENCIA DE TIEMPO CON LA CUAL SE APLICA EL MEDICAMENTO'>FRECUENCIA</a>";
+        $salida .= "                       </td>\n";
+        $salida .= "                       <td colspan='2' class=\"normal_10AN\"  align=\"left\" >\n";
+        $salida .= "                         <input type=\"text\" class=\"input-text\" name=\"frecuencia\" id=\"frecuencia\" size=\"50\" onclick=\"\" value=\"\">\n";
+        $salida .= "                       </td>";
+        $salida .= "                     </tr>\n";
+        $salida .= "                     <tr class=\"modulo_table_list_title\">\n";
+        $salida .= "                       <td align=\"center\" width=\"25%\">\n";
+        $salida .= "                         OBSERVACIONES";
+        $salida .= "                       </td>\n";
+        $salida .= "                       <td colspan='2' class=\"normal_10AN\"  align=\"left\" >\n";
+        $salida .= "                        <TEXTAREA class=\"normal_10AN\" NAME='descripcion' id='descripcion' ROWS='2' style=\"width:80%\" OnFocus=\"\"></TEXTAREA>\n";
+        $salida .= "                       </td>";
+        $salida .= "                     </tr>\n";
+        $salida .= "                     <tr class=\"modulo_list_claro\">\n";
+        $salida .= "                       <td colspan='3' class=\"normal_10AN\"  align=\"center\" >\n";
+        $salida .= "                         <input type=\"button\" class=\"input-submit\" value=\"Guardar Medicamento\" onclick=\"xajax_GuardarMedNoformu(xajax.getFormValues('adicionar_med'));\">\n";
+        $salida .= "                       </td>";
+        $salida .= "                     </tr>\n";
+        $salida .= "                   </table>\n";
+        $salida .= "                 </form>\n";
+        $objResponse->assign("ContenidoMed","innerHTML",$salida);
+        return $objResponse;
+    
+    }
+
+    
+
+function buscar_medicamento($opcion,$producto,$principio_activo,$ban,$offset)
+{
+
+    $path = SessionGetVar("rutaImagenes");
+    $objResponse=new xajaxResponse();
+    $registrar = new LogicaAF();
+    $salida .= "<script language='javascript' src='hc_modules/UV_FormulacionAntecedentes/RemoteXajax/FornulacionAntecedentes.js'></script>";
+    $vector=$registrar->Busqueda_Avanzada_Medicamentos($opcion,$producto,$principio_activo,$ban,$offset);
+    //var_dump($vector);
+
+
+    $salida .= "                 <div id=\"tabelas\">";
+       if(!empty($vector['MEDICAMENTOS']))
+       {    
+                $salida .= "                 <div id=\"erro\" class='label_error' style=\"text-transform: uppercase; text-align:center; font-size:11px;\">\n";
+                $salida .= "                 </div>\n";
+                $salida .= "                 <form name=\"adicionar\">\n";
+                $salida .= "                   <table width=\"100%\" align=\"center\" class=\"modulo_table_list\">\n";
+                $salida .= "                     <tr class=\"modulo_table_list_title\">\n";
+                $salida .= "                       <td align=\"center\" width=\"10%\">\n";
+                $salida .= "                         CODIGO";
+                $salida .= "                       </td>\n";
+                $salida .= "                       <td align=\"center\"width=\"35%\">\n";
+                $salida .= "                         PRODUCTO";
+                $salida .= "                       </td>\n";
+                $salida .= "                       <td align=\"center\" width=\"25%\">\n";
+                $salida .= "                         <a title='PRINCIPIO ACTIVO'>PRINCIPIO ACTIVO<a> ";
+                $salida .= "                       </td>\n";
+                $salida .= "                       <td align=\"center\" width=\"25%\">\n";
+                $salida .= "                         <a title='FORMA'>FORMA<a>";
+                $salida .= "                       </td>\n";
+                $salida .= "                       <td align=\"center\" width=\"5%\">\n";
+                $salida .= "                         <a title='SELECCIONAR'>SL<a>";
+                $salida .= "                       </td>\n";
+                $salida .= "                     </tr>\n";         
+                for($i=0;$i<count($vector['MEDICAMENTOS']);$i++)
+                {
+//                  ["item"]=>
+//                     string(6) "NO POS"
+//                     ["codigo_producto"]=>
+//                     string(10) "0101020022"
+//                     ["producto"]=>
+//                     string(16) "KLARICID 500 MGS"
+//                     ["principio_activo"]=>
+//                     string(14) "CLARITROMICINA"
+//                     ["forma"]=>
+//                     string(7) "TABLETA"
+//                     ["unidad_dosificacion"]=>
+//                     NULL
+//                     ["concentracion_forma_farmacologica"]=>
+//                     string(1) "0"
+//                     ["unidad_medida_medicamento_id"]=>
+//                     string(2) "TA"
+//                     ["factor_conversion"]=>
+//                     string(4) "0.00"
+//                     ["factor_equivalente_mg"]=>
+//                     string(4) "0.00"
+//                     ["cod_forma_farmacologica"]=>
+//                     string(2) "01"
+                    $salida .= "                    <tr class=\"modulo_list_claro\" onclick=\"mOvr(this,'#ffffff'); \" onMouseOver=\"mOvr(this,'#ffffff');\" onMouseOut=\"mOut(this,'#DDDDDD');\" >\n";
+                    $salida .= "                      <td align=\"left\">\n";
+                    $salida .= "                     ".$vector['MEDICAMENTOS'][$i]['codigo_producto']."";
+                    $salida .= "                      </td>\n";
+                    $salida .= "                      <td align=\"left\">\n";
+                    $salida .= "                        ".$vector['MEDICAMENTOS'][$i]['producto'];
+                    $salida .= "                      </td>\n";
+                    $salida .= "                      <td align=\"left\">\n";
+                    $salida .= "                        ".$vector['MEDICAMENTOS'][$i]['principio_activo'];
+                    $salida .= "                      </td>\n";
+                    $salida .= "                      <td align=\"left\">\n";
+                    $salida .= "                        ".$vector['MEDICAMENTOS'][$i]['forma'];
+                    $salida .= "                      </td>\n";
+                    $javadx = "javascript:MostrarCapa('ContenedorMed');AsignarMedicamento('".$vector['MEDICAMENTOS'][$i]['codigo_producto']."','".$vector['MEDICAMENTOS'][$i]['producto']."');Iniciar('ASIGNAR MEDICAMENTO');";
+                    $salida .= "                      <td align=\"center\" onclick=\"".$javadx."\">\n";
+                    $salida .= "                         <a title='SELECCIONAR'>\n";
+                    $salida .= "                          <sub><img src=\"".$path."/images/checkno.png\" border=\"0\" width=\"14\" height=\"14\"></sub>\n";
+                    $salida .= "                         </a>\n";
+                    $salida .= "                      </td>\n";
+                    $salida .= "                    </tr>\n";
+                    }   
+              $salida .= "</table>\n";
+        }  
+        else
+        {
+            
+          $salida .= "<table align='center'>\n";
+          $salida .= "<tr>\n";
+          $salida .= "<td>\n";
+          $salida .= "    <label class='label_error' style=\"text-transform: uppercase; text-align:center;\">NO SE ENCONTRARON RESULTADOS</label>\n"; 
+          $salida .= "</td>\n";
+          $salida .= "</tr>\n";
+          $salida .= "</table>\n";
+          $salida .= "                 <table width=\"100%\" align=\"center\" >\n";
+          $salida .= "                   <tr>\n";
+          $salida .= "                     <td align=\"center\" class='label_mark'>\n";
+          $salida .= "                       <a href=\"javascript:AsignarNuevoMedicamento();\" class=\"label_error\">ADICIONAR MEDICAMENTOS NO FORMULADOS</a>\n";
+          $salida .= "                     </td>\n";
+          $salida .= "                   </tr>\n";
+          $salida .= "                 </table>\n";
+        }
+        $salida .="                     </div>";
+        $Cont=SessionGetVar("CUANTOS_HAY");
+        $salida .= "".ObtenerPaginadoMed($offset,$path,$Cont,$opcion,$producto,$principio,$ban);
+        //$salida .= "".ObtenerPaginadoCuenta($offset,$path,$Cont,$opcion,$cuenta,$path,$Cont,'1',$tip_bus);
+        $objResponse->assign("tabelos","innerHTML",$salida);  
+        return $objResponse;
+
+}
+
+
+
+
+    function GuardarFR($ingreso,$tip_pac,$id_pac,$cvi,$fr)
+    {
+        $path = SessionGetVar("rutaImagenes");
+        $objResponse=new xajaxResponse();
+        $registrar = new LogicaCF();
+
+        $encontrar_registro_FR=$registrar->ConsultaCiclosFR($ingreso,$tip_pac,$id_pac);
+
+        if(!empty($encontrar_registro_FR))
+        {
+           $resultado=$registrar->EliminarFR($ingreso,$tip_pac,$id_pac);
+        }
+
+        if($resultado==true || empty($encontrar_registro))
+        {
+           $resultado1 = $registrar->InsertarFR($ingreso,$tip_pac,$id_pac,$cvi,$fr);
+        }
+        else
+        {
+           $resultado1="INSERCION ESTA MAL";
+        }
+        
+        $objResponse->assign("mensaje","innerHTML",$resultado1);
+        
+        return $objResponse;
+
+
+
+
+    }
+
+
+    function GuardarObsCvf($ingreso,$tip_pac,$id_pac,$observaciones)
+    {
+        $path = SessionGetVar("rutaImagenes");
+        $objResponse=new xajaxResponse();
+        $registrar = new LogicaCF();
+
+        $encontrar_registro=$registrar->ConsultaCiclosObservaciones($ingreso,$tip_pac,$id_pac);
+
+        if(!empty($encontrar_registro))
+        {
+           $resultado=$registrar->EliminarCFO($ingreso,$tip_pac,$id_pac);
+        }
+
+        if($resultado==true  || empty($encontrar_registro))
+        {
+           $resultado1=$registrar->InsertarCicloFamiliaresObservaciones($ingreso,$tip_pac,$id_pac,$observaciones);
+        }
+        else
+        {
+            $resultado1="INSERCION ESTA MAL";
+        }
+        
+        $objResponse->assign("mensaje","innerHTML",$resultado1);
+        
+        return $objResponse;
+
+    }
+
+
+
+    function Prueba($td_id,$ingreso,$tip_id,$paciente_id,$cvf,$descripcion)
+	{
+        $path = SessionGetVar("rutaImagenes");
+        $objResponse=new xajaxResponse();
+        $consulta = new LogicaCF();
+        $CCFS=$consulta->ConsultaCiclosFamiliaresPacienteSeleccionado($ingreso,$tip_id,$paciente_id,$cvf,$descripcion);
+        if(!empty($CCFS))
+        {
+            $objResponse->alert('SSIIII');
+            $java = "javascript:SeleccionarCicloFamiliar('".$td_id."','".$ingreso."','".$tip_id."','".$paciente_id."','".$cvf."','".$descripcion."');\"";
+            $salida = "<a title='SELECCIONAR ".$descripcion."' class=\"Normal_10AN\" href=\"".$java."\">\n";
+            $salida .= "  <sub><img src=\"".$path."/images/checkno.png\" border=\"0\" width=\"17\" height=\"17\"> ".$descripcion."</sub>\n";
+            $salida .= "</a>\n";
+            $resultado=$consulta->EliminarCicloFamiliar($ingreso,$tip_id,$paciente_id,$cvf);
+        }
+        else
+        {
+            $objResponse->alert('NOOOOOOO'.$td_id);
+            $java = "javascript:SeleccionarCicloFamiliar('".$td_id."','".$ingreso."','".$tip_id."','".$paciente_id."','".$cvf."','".$descripcion."');\"";
+            $salida = "<a title='SELECCIONAR ".$descripcion."' class=\"Normal_10AN\" href=\"".$java."\">\n";
+            $salida .= "  <sub><img src=\"".$path."/images/checksi.png\" border=\"0\" width=\"17\" height=\"17\"> ".$descripcion."</sub>\n";
+            $salida .= "</a>\n";
+            $resultado=$consulta->InsertarCiclosFamiliares($ingreso,$tip_id,$paciente_id,$cvf);
+        }
+
+//      $objResponse->alert("solo es un mensaje de prueba");
+        $objResponse->assign($td_id,"innerHTML",$salida);
+        $objResponse->assign("mensaje","innerHTML",$resultado);
+		
+		return $objResponse;
+	}
+
+/**
+*FUNCION PARA MOSTRAR EL PAGINADOR DE MEDICAMENTOS
+**/
+
+    
+    function ObtenerPaginadoMed($pagina,$path,$slc,$op,$producto,$principio,$ban)
+    {
+      
+      //echo "ioAAAAAAAAAAAAAAAAAAA".$slc;
+      $TotalRegistros = $slc;
+      $TablaPaginado = "";
+        
+      if($limite == null)
+      {
+        $uid = UserGetUID();
+         $LimitRow = intval(GetLimitBrowser());
+      }
+      else
+      {
+        $LimitRow = $limite;
+      }
+      if ($TotalRegistros > 0)
+      {
+        $columnas = 1;
+        $NumeroPaginas = intval($TotalRegistros/$LimitRow);
+        
+         if($TotalRegistros%$LimitRow > 0)
+        {
+          $NumeroPaginas++;
+        }
+            
+        $Inicio = $pagina;
+        if($NumeroPaginas - $pagina < 9 )
+        {
+          $Inicio = $NumeroPaginas - 9;
+        }
+        elseif($pagina > 1)
+        {
+          $Inicio = $pagina - 1;
+        }
+        
+        if($Inicio <= 0)
+        {
+          $Inicio = 1;
+        }
+          
+        $estilo = " style=\"font-family: sans_serif, Verdana, helvetica, Arial; font-weight:bold;font-size:11pt;\" "; 
+
+        $TablaPaginado .= "<tr>\n";
+        if($NumeroPaginas > 1)
+        {
+          $TablaPaginado .= "   <td class=\"label\" bgcolor=\"#D3DCE3\">P�inas:</td>\n";
+          if($pagina > 1)
+          {
+            $TablaPaginado .= "   <td class=\"label\" bgcolor=\"#D3DCE3\">\n";
+                                                                        //     Buscar_Med(tipo,producto,principio_act,ban,offset)
+            $TablaPaginado .= "     <a class=\"label_error\" href=\"javascript:Buscar_Med('".$op."','".$producto."','".$principio."','1','1')\" title=\"primero\"><img src=\"".$path."/images/primero.png\" border=\"0\" width=\"15\" height=\"15\"></a>\n";
+            $TablaPaginado .= "   </td><td bgcolor=\"#D3DCE3\">\n";
+            $TablaPaginado .= "     <a class=\"label_error\" href=\"javascript:Buscar_Med('".$op."','".$producto."','".$principio."','1','".($pagina-1)."')\" title=\"anterior\"><img src=\"".$path."/images/anterior.png\" border=\"0\" width=\"15\" height=\"15\"></a>\n";
+            $TablaPaginado .= "   </td>\n";
+            $columnas +=2;
+          }
+          $Fin = $NumeroPaginas + 1;
+          if($NumeroPaginas > 10)
+          {
+            $Fin = 10 + $Inicio;
+          }
+            
+          for($i=$Inicio; $i< $Fin ; $i++)
+          {
+            if ($i == $pagina )
+            {
+              $TablaPaginado .="    <td class=\"modulo_list_oscuro\" $estilo align=\"center\"><b>".$i."</b></td>\n";
+            }
+            else
+        {                                                                                                      
+              $TablaPaginado .="    <td class=\"modulo_list_claro\" $estilo align=\"center\"><a href=\"javascript:Buscar_Med('".$op."','".$producto."','".$principio."','1','".$i."')\">".$i."</a></td>\n";
+            }
+            $columnas++;
+          }
+        }
+        if($pagina <  $NumeroPaginas )
+        {
+          $TablaPaginado .= "   <td class=\"label\" bgcolor=\"#D3DCE3\">\n";//Buscar_Med('".$op."','".$producto."','".$principio."','1','".($pagina-1)."')
+          $TablaPaginado .= "     <a class=\"label_error\" href=\"javascript:Buscar_Med('".$op."','".$producto."','".$principio."','1','".($pagina+1)."')\" title=\"siguiente\"><img src=\"".$path."/images/siguiente.png\" border=\"0\" width=\"15\" height=\"15\"></a>\n";
+          $TablaPaginado .= "   </td><td bgcolor=\"#D3DCE3\">\n";
+          $TablaPaginado .= "     <a class=\"label_error\"  href=\"javascript:Buscar_Med('".$op."','".$producto."','".$principio."','1','".$NumeroPaginas."')\" title=\"ultimo\"><img src=\"".$path."/images/ultimo.png\" border=\"0\" width=\"15\" height=\"15\"></a>\n";
+          $TablaPaginado .= "   </td>\n";
+          $columnas +=2;
+        }
+        $aviso .= "   <tr><td class=\"label\"  colspan=".$columnas." align=\"center\">\n";
+        $aviso .= "     P�ina&nbsp;".$pagina." de ".$NumeroPaginas."</td>\n";
+        $aviso .= "   </tr>\n";
+        
+        if($op == 2)
+        {
+          $TablaPaginado .= $aviso;
+        }
+        else
+        {
+          $TablaPaginado = $aviso.$TablaPaginado;
+        }
+      }
+      
+      $Tabla .= "<table align=\"center\" cellspacing=\"3\" >\n";
+      $Tabla .= $TablaPaginado;
+      $Tabla .= "</table>";
+      //  VAR_DUMP($Tabla);
+      return $Tabla;
+    }
+?>

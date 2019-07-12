@@ -1,0 +1,73 @@
+
+ALTER TABLE "tmp_cirugias" DROP CONSTRAINT "$6";
+
+DROP TABLE tmp_cuentas_detalle;
+
+CREATE TABLE tmp_cuentas_detalle (
+    transaccion serial NOT NULL,
+    empresa_id character(2) NOT NULL,
+    centro_utilidad character(2) NOT NULL,
+    numerodecuenta integer NOT NULL,
+    departamento character varying(6) NOT NULL,
+    tarifario_id character varying(4) NOT NULL,
+    cargo character varying(10) NOT NULL,
+    cantidad numeric(9,2) DEFAULT 0 NOT NULL,
+    precio numeric(12,2) DEFAULT 0 NOT NULL,
+    porcentaje_descuento_empresa numeric(9,2) DEFAULT 0 NOT NULL,
+    valor_cargo numeric(12,2) DEFAULT 0 NOT NULL,
+    valor_nocubierto numeric(12,2) DEFAULT 0 NOT NULL,
+    valor_cubierto numeric(12,2) DEFAULT 0 NOT NULL,
+    facturado character(1) DEFAULT 1 NOT NULL,
+    fecha_cargo timestamp without time zone NOT NULL,
+    usuario_id integer NOT NULL,
+    fecha_registro timestamp without time zone NOT NULL,
+    sw_liq_manual character(1) DEFAULT 0 NOT NULL,
+    valor_descuento_empresa numeric(9,2) DEFAULT 0,
+    valor_descuento_paciente numeric(9,2) DEFAULT 0,
+    porcentaje_descuento_paciente numeric(9,2) DEFAULT 0,
+    servicio_cargo character varying(2) NOT NULL,
+    autorizacion_int integer,
+    autorizacion_ext integer,
+    porcentaje_gravamen numeric(9,2) DEFAULT 0 NOT NULL,
+    sw_cuota_paciente character(1) DEFAULT 0 NOT NULL,
+    sw_cuota_moderadora character(1) DEFAULT 0 NOT NULL,
+    codigo_agrupamiento_id character varying(10),
+    secuencia_agrupamiento integer,
+    CONSTRAINT "$7" CHECK (((servicio_cargo)::text <> '0'::text))
+);
+
+ALTER TABLE ONLY tmp_cuentas_detalle
+    ADD CONSTRAINT tmp_cuentas_detalle_pkey PRIMARY KEY (transaccion);
+
+
+ALTER TABLE ONLY tmp_cuentas_detalle
+    ADD CONSTRAINT "$1" FOREIGN KEY (numerodecuenta) REFERENCES cuentas(numerodecuenta) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+
+
+
+ALTER TABLE ONLY tmp_cuentas_detalle
+    ADD CONSTRAINT "$2" FOREIGN KEY (tarifario_id, cargo) REFERENCES tarifarios_detalle(tarifario_id, cargo) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+ALTER TABLE ONLY tmp_cuentas_detalle
+    ADD CONSTRAINT "$3" FOREIGN KEY (departamento) REFERENCES departamentos(departamento) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+ALTER TABLE ONLY tmp_cuentas_detalle
+    ADD CONSTRAINT "$4" FOREIGN KEY (servicio_cargo) REFERENCES servicios(servicio) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+ALTER TABLE ONLY tmp_cuentas_detalle
+    ADD CONSTRAINT "$5" FOREIGN KEY (autorizacion_int) REFERENCES autorizaciones(autorizacion) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+ALTER TABLE ONLY tmp_cuentas_detalle
+    ADD CONSTRAINT "$6" FOREIGN KEY (autorizacion_ext) REFERENCES autorizaciones(autorizacion) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+
+ALTER TABLE ONLY tmp_cirugias ADD FOREIGN KEY (transaccion) REFERENCES tmp_cuentas_detalle(transaccion) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+--subido 21 de septiembre de 2004

@@ -1,0 +1,13 @@
+
+
+INSERT INTO system_modulos_variables VALUES ('Pacientes', 'app', 'NombreComuna', 'LOCALIDAD');
+INSERT INTO system_modulos_variables VALUES ('Pacientes', 'app', 'BarrioObligatorio', '1');
+
+
+ALTER TABLE "hc_tipos_componentes" ADD COLUMN "sw_cruze" character(1);
+UPDATE hc_tipos_componentes SET sw_cruze=0;
+ALTER TABLE "hc_tipos_componentes" ALTER COLUMN "sw_cruze" SET NOT NULL;
+ALTER TABLE "hc_tipos_componentes" ALTER COLUMN "sw_cruze" SET DEFAULT 0;
+ALTER TABLE "inv_solicitudes_devolucion_d" DROP COLUMN "empresa_id" CASCADE;
+ALTER TABLE "inv_solicitudes_devolucion_d" DROP COLUMN "centro_utilidad" CASCADE;
+ALTER TABLE "inv_solicitudes_devolucion_d" DROP COLUMN "bodega" CASCADE;

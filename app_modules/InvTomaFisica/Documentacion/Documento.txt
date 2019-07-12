@@ -1,0 +1,6 @@
+PARAMETRIZACION
+1. En la tabla inventarios_productos se debe tener parametrizado esta columna sw_ajusteautomatico.
+2. Crear una variable de modulo en InvTomaFisica con el nombre CuadrarConteo_idempresa
+ Posible valores:
+1- Todos los conteos, 2 - Conteo 1, 3 - Conteo 2, 4 - Conteo 3, 5 - Conteo 1 y 2, 6 - Conteo 2 y 3 
+Esto sirve para realizar el cuadre manual.

@@ -1,0 +1,21 @@
+-- Table: public.repositorio_detalle
+
+-- DROP TABLE public.repositorio_detalle;
+
+CREATE TABLE public.repositorio_detalle (
+ detalle_repositorio_id serial NOT NULL,
+ repositorio_id integer,
+ codigo_producto varchar(50),
+ descripcion      varchar(50),
+ fecha_registro  timestamp WITHOUT TIME ZONE DEFAULT now(),
+   /* Keys */
+  CONSTRAINT repositorio_detalle_pkey
+    PRIMARY KEY (detalle_repositorio_id)
+) WITH (
+    OIDS = FALSE
+  );
+ALTER TABLE public.repositorio_detalle
+  OWNER TO "admin";
+
+COMMENT ON TABLE public.repositorio_detalle
+  IS 'Tabla q almacena los productos relacionados a un documento almacenado en el repositorio';

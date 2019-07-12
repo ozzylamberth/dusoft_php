@@ -1,0 +1,20 @@
+
+S (Tabla del sistema Implementada con anterioridad en otro modulos.)
+M (Tabla de Movimiento, cuando la instalacion es nueva debera estar vacia)
+T (Tabla maestra de tipos)
+
+
+M cuentas_descuentos
+M auditoria_inactivar_cuentas
+M tmp_cuentas_detalle
+M audit_cuentas_detalle
+M tmp_cuenta_insumos
+M ingresos_soat
+M cambio_responsable
+M cambio_responsable_detalle_actual
+M cuentas_detalle
+M tmp_division_cuenta
+M cuentas
+M cuentas_detalle
+M ingresos
+

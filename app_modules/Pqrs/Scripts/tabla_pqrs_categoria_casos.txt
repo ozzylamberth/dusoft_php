@@ -1,0 +1,29 @@
+-- Table: public.pqrs_categoria_casos
+
+-- DROP TABLE public.pqrs_categoria_casos;
+
+CREATE TABLE public.pqrs_categoria_casos (
+  categoria_id    serial NOT NULL,
+  tipo_categoria  varchar(40),
+  descripcion     varchar(60),
+  /* Keys */
+  CONSTRAINT pqrs_categoria_casos_pkey
+    PRIMARY KEY (categoria_id)
+) WITH (
+    OIDS = FALSE
+  );
+
+ALTER TABLE public.pqrs_categoria_casos
+  OWNER TO "admin";
+
+COMMENT ON TABLE public.pqrs_categoria_casos
+  IS 'Clasificación de los casos pqrs reportados en atención al cliente';
+
+COMMENT ON COLUMN public.pqrs_categoria_casos.categoria_id
+  IS 'PK tabla';
+
+COMMENT ON COLUMN public.pqrs_categoria_casos.tipo_categoria
+  IS 'Tipo categoria caso pqrs';
+
+COMMENT ON COLUMN public.pqrs_categoria_casos.descripcion
+  IS 'Descripción categoria';

@@ -1,0 +1,41 @@
+DROP TABLE banco_sangre_bolsas;
+CREATE TABLE banco_sangre_bolsas(
+    ingreso_bolsa_id SERIAL,
+    bolsa_id character varying(32) NOT NULL,
+    sello_calidad character varying(32) NOT NULL,
+    grupo_sanguineo character varying(2) NOT NULL,
+    rh character(1) NOT NULL,
+    entidad_origen character varying(6) NOT NULL,
+    fecha_vencimiento date NOT NULL,
+    tipo_componente integer NOT NULL,
+    fecha_extraccion date,
+    estado character(1) NOT NULL DEFAULT 1,
+        usuario_id integer NOT NULL,
+    fecha_registro timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY banco_sangre_bolsas ADD CONSTRAINT banco_sangre_bolsas_pkey PRIMARY KEY (ingreso_bolsa_id);
+ALTER TABLE ONLY banco_sangre_bolsas ADD CONSTRAINT "$1" FOREIGN KEY (grupo_sanguineo, rh) REFERENCES hc_tipos_sanguineos(grupo_sanguineo, rh) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY banco_sangre_bolsas ADD CONSTRAINT "$2" FOREIGN KEY (entidad_origen) REFERENCES terceros_sgsss(codigo_sgsss) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY banco_sangre_bolsas ADD CONSTRAINT "$3" FOREIGN KEY (tipo_componente) REFERENCES hc_tipos_componentes(hc_tipo_componente) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY banco_sangre_bolsas ADD CONSTRAINT "$4" FOREIGN KEY (usuario_id) REFERENCES system_usuarios(usuario_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+CREATE TABLE banco_sangre_bolsas_incineradas(
+    ingreso_bolsa_id integer,
+    motivo_id character varying(2)
+);
+ALTER TABLE ONLY banco_sangre_bolsas_incineradas ADD CONSTRAINT banco_sangre_bolsas_incineradas_pkey PRIMARY KEY (ingreso_bolsa_id,motivo_id);
+ALTER TABLE ONLY banco_sangre_bolsas_incineradas ADD CONSTRAINT "$1" FOREIGN KEY (ingreso_bolsa_id) REFERENCES banco_sangre_bolsas(ingreso_bolsa_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY banco_sangre_bolsas_incineradas ADD CONSTRAINT "$2" FOREIGN KEY (motivo_id) REFERENCES banco_sangre_motivos_incineraciones(motivo_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+CREATE TABLE banco_sangre_motivos_incineraciones(
+    motivo_id character varying(2),
+    descripcion character varying(60)
+);
+ALTER TABLE ONLY banco_sangre_motivos_incineraciones ADD CONSTRAINT banco_sangre_motivos_incineraciones_pkey PRIMARY KEY (motivo_id);
+ALTER TABLE "hc_tipos_componentes" ADD COLUMN "dias_previos_vencimiento" smallint;
+
+
+--cambios alex para la atencion de urgencias
+
+ALTER TABLE "estaciones_enfermeria" ADD COLUMN "hc_modulo_consulta_urgencias" character varying(64);
+ALTER TABLE "estaciones_enfermeria" ADD FOREIGN KEY ("hc_modulo_consulta_urgencias") REFERENCES "public"."system_hc_modulos"("hc_modulo")  ON UPDATE CASCADE ON DELETE RESTRICT;

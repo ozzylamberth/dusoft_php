@@ -1,0 +1,125 @@
+
+CREATE TABLE tipos_estratos (
+    tipo_estrato_id character(2) NOT NULL,
+    descripcion character varying(30) DEFAULT ''::character varying NOT NULL
+);
+ALTER TABLE ONLY tipos_estratos
+    ADD CONSTRAINT tipos_estratos_pkey PRIMARY KEY (tipo_estrato_id);
+
+	INSERT INTO tipos_estratos VALUES('1','ESTRATO 1');
+	INSERT INTO tipos_estratos VALUES('2','ESTRATO 2');
+	INSERT INTO tipos_estratos VALUES('3','ESTRATO 3');
+	INSERT INTO tipos_estratos VALUES('4','ESTRATO 4');
+	INSERT INTO tipos_estratos VALUES('5','ESTRATO 5');
+	INSERT INTO tipos_estratos VALUES('6','ESTRATO 6');
+
+CREATE TABLE tipo_comunas (
+    tipo_pais_id character varying(4) NOT NULL,
+    tipo_dpto_id character varying(4) NOT NULL,
+    tipo_mpio_id character varying(4) NOT NULL,
+    tipo_comuna_id character varying(4) NOT NULL,
+    comuna character varying(30) DEFAULT ''::character varying NOT NULL
+);
+
+ALTER TABLE ONLY tipo_comunas
+    ADD CONSTRAINT tipo_comunas_pkey PRIMARY KEY (tipo_pais_id, tipo_dpto_id, tipo_mpio_id, tipo_comuna_id);
+
+
+ALTER TABLE ONLY tipo_comunas
+    ADD FOREIGN KEY (tipo_pais_id, tipo_dpto_id, tipo_mpio_id) REFERENCES tipo_mpios(tipo_pais_id, tipo_dpto_id, tipo_mpio_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+COMMENT ON TABLE tipo_comunas IS 'Catalogo de Comunas de un Municipio';
+COMMENT ON COLUMN tipo_comunas.tipo_pais_id IS 'Codigo de Pais FKEY tipo_dptos (tipo_pais_id)';
+COMMENT ON COLUMN tipo_comunas.tipo_dpto_id IS 'Codigo de Dpto FKEY tipo_dptos (tipo_dpto_id)';
+COMMENT ON COLUMN tipo_comunas.tipo_mpio_id IS 'Codigo del Municipio/Ciudad';
+COMMENT ON COLUMN tipo_comunas.comuna IS 'Nombre de la Comuna';
+
+
+
+CREATE TABLE tipo_barrios (
+    tipo_pais_id character varying(4) NOT NULL,
+    tipo_dpto_id character varying(4) NOT NULL,
+    tipo_mpio_id character varying(4) NOT NULL,
+    tipo_comuna_id character varying(4) NOT NULL,
+    tipo_barrio_id character varying(4) NOT NULL,
+    barrio character varying(30) DEFAULT ''::character varying NOT NULL,
+    tipo_estrato_id character(2)
+);
+
+ALTER TABLE ONLY tipo_barrios
+    ADD CONSTRAINT tipo_barrios_pkey PRIMARY KEY (tipo_pais_id, tipo_dpto_id, tipo_mpio_id, tipo_comuna_id, tipo_barrio_id);
+
+
+ALTER TABLE ONLY tipo_barrios
+    ADD FOREIGN KEY (tipo_pais_id, tipo_dpto_id, tipo_mpio_id, tipo_comuna_id) REFERENCES tipo_comunas(tipo_pais_id, tipo_dpto_id, tipo_mpio_id, tipo_comuna_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE ONLY tipo_barrios
+    ADD FOREIGN KEY (tipo_estrato_id) REFERENCES tipos_estratos(tipo_estrato_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+COMMENT ON TABLE tipo_barrios IS 'Catalogo de los barrios de una comuna';
+COMMENT ON COLUMN tipo_barrios.tipo_pais_id IS 'Codigo de Pais FKEY tipo_dptos (tipo_pais_id)';
+COMMENT ON COLUMN tipo_barrios.tipo_dpto_id IS 'Codigo de Dpto FKEY tipo_dptos (tipo_dpto_id)';
+COMMENT ON COLUMN tipo_barrios.tipo_mpio_id IS 'Codigo del Municipio/Ciudad';
+COMMENT ON COLUMN tipo_barrios.barrio IS 'Nombre del barrio';
+
+
+ALTER TABLE pacientes ADD COLUMN tipo_comuna_id character varying(4);
+ALTER TABLE pacientes ADD COLUMN tipo_barrio_id character varying(4);
+--como hago las referencias
+ALTER TABLE pacientes ADD COLUMN tipo_estrato_id character varying(2);
+ALTER TABLE ONLY pacientes
+    ADD FOREIGN KEY (tipo_estrato_id) REFERENCES tipos_estratos(tipo_estrato_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+
+INSERT INTO system_modulos VALUES ('SolicitudManualAmbulatoria', 'app', 'Para la solicitud manual ambulatoria', 1.00, '', '1', '1', '1');
+
+INSERT INTO "system_menus" ("menu_id", "menu_nombre", "descripcion", "sw_system") VALUES (58, 'SOLICITUD MANUAL AMBULATORIA', ''::character varying, 0)
+INSERT INTO "system_menus_items" ("menu_item_id", "menu_id", "titulo", "modulo_tipo", "modulo", "tipo", "metodo", "descripcion", "indice_de_orden") VALUES (88, '58', 'SOLICITUD MANUAL AMBULATORIA', 'app', 'SolicitudManualAmbulatoria', 'user', 'main', 'Solicitud de apoyos ambulatorios'::character varying, 0);
+
+INSERT INTO system_usuarios_menus VALUES (58, 2);
+
+
+CREATE TABLE puntos_solicitud_manual (
+    punto_solicitud_manual_id serial NOT NULL,
+    descripcion character varying(40) NOT NULL,
+    departamento character varying(6) NOT NULL
+);
+
+
+ALTER TABLE ONLY puntos_solicitud_manual
+    ADD CONSTRAINT puntos_solicitud_manual_pkey PRIMARY KEY (punto_solicitud_manual_id);
+
+ALTER TABLE ONLY puntos_solicitud_manual
+    ADD FOREIGN KEY (departamento) REFERENCES departamentos(departamento) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+CREATE TABLE userpermisos_solicitud_manual (
+    punto_solicitud_manual_id integer NOT NULL,
+    usuario_id integer NOT NULL,
+    plan_id integer NOT NULL,
+    sw_todos_planes character(1) NOT NULL,
+    nivel_autorizador_id character(1) NOT NULL
+);
+
+
+ALTER TABLE ONLY userpermisos_solicitud_manual
+    ADD CONSTRAINT userpermisos_solicitud_manual_pkey PRIMARY KEY (punto_solicitud_manual_id,usuario_id);
+
+ALTER TABLE ONLY userpermisos_solicitud_manual
+    ADD FOREIGN KEY (punto_solicitud_manual_id) REFERENCES puntos_solicitud_manual(punto_solicitud_manual_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE ONLY userpermisos_solicitud_manual
+    ADD FOREIGN KEY (plan_id) REFERENCES planes(plan_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE ONLY userpermisos_solicitud_manual
+    ADD FOREIGN KEY (usuario_id) REFERENCES system_usuarios(usuario_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE ONLY userpermisos_solicitud_manual
+    ADD  FOREIGN KEY (nivel_autorizador_id) REFERENCES autorizaciones_niveles_autorizador(nivel_autorizador_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+
+

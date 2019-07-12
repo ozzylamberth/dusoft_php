@@ -1,0 +1,62 @@
+-- Table: public.ventas_ordenes_pedidos_estado
+
+-- DROP TABLE public.ventas_ordenes_pedidos_estado;
+
+CREATE TABLE public.ventas_ordenes_pedidos_estado (
+  venta_orden_pedido_estado_id     	   serial NOT NULL,
+  pedido_cliente_id            		   integer NOT NULL,
+  estado                			   character(1) NOT NULL,
+  responsable_id					   integer NULL,
+  fecha             				   timestamp WITHOUT TIME ZONE,
+  usuario_id            			   integer NOT NULL,
+  fecha_registro        			   timestamp WITHOUT TIME ZONE DEFAULT now(),
+  
+  /* Keys */
+  CONSTRAINT ventas_ordenes_pedidos_estado_pkey
+    PRIMARY KEY (venta_orden_pedido_estado_id),
+  /* Foreign keys */
+  CONSTRAINT ventas_ordenes_pedidos_estado_pedido_cliente_id_fkey
+    FOREIGN KEY (pedido_cliente_id)
+    REFERENCES public.ventas_ordenes_pedidos(pedido_cliente_id)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE,
+  CONSTRAINT ventas_ordenes_pedidos_estado_operario_bodega_id_fkey
+    FOREIGN KEY (responsable_id)
+    REFERENCES public.operarios_bodega(operario_id)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE, 
+  CONSTRAINT ventas_ordenes_pedidos_estado_usuario_id_fkey
+    FOREIGN KEY (usuario_id)
+    REFERENCES public.system_usuarios(usuario_id)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE
+) WITH (
+    OIDS = FALSE
+  );
+
+ALTER TABLE public.ventas_ordenes_pedidos_estado
+  OWNER TO "admin";
+
+COMMENT ON TABLE public.ventas_ordenes_pedidos_estado
+  IS 'Tabla que almacena la información de los estados de los pedidos de los clientes con sus respectivos responsables';
+  
+COMMENT ON COLUMN public.ventas_ordenes_pedidos_estado.venta_orden_pedido_estado_id
+  IS 'PK tabla, número único de estado del pedido';
+
+COMMENT ON COLUMN public.ventas_ordenes_pedidos_estado.pedido_cliente_id
+  IS 'Id del pedido al que pertenece el estado';
+
+COMMENT ON COLUMN public.ventas_ordenes_pedidos_estado.estado
+  IS 'Estado del pedido, 0 => Está Registrado, 1 => Está Separado, 2 => Está Auditado, 3 => Está En Despacho';
+
+COMMENT ON COLUMN public.ventas_ordenes_pedidos_estado.responsable_id
+  IS 'Usuario responsable del pedido en el respectivo estado';
+
+COMMENT ON COLUMN public.ventas_ordenes_pedidos_estado.fecha
+  IS 'Fecha en la cual el pedido es puesto en el respectivo estado';
+
+COMMENT ON COLUMN public.ventas_ordenes_pedidos_estado.usuario_id
+  IS 'Usuario que registra';
+
+COMMENT ON COLUMN public.ventas_ordenes_pedidos_estado.fecha_registro
+  IS 'Fecha de registro';

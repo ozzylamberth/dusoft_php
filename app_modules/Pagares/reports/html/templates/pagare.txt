@@ -1,0 +1,36 @@
+
+
+VARIABLES DEL PAGARE:
+
+las variables debe ser llamadas asi {$nombre variable}
+
+NumeroPagare: numero del pagare con el prefijo y el numero
+ValorPagare: el valor total del pagare
+VencimientoPagare: la fencha en que se vence
+DedudoresPagare: traer los nombres y apellidos con la identificacion, pone en la linea nombre e identificacion: aqui los valores
+FirmaDedudoresPagare: van las firma de los deudores, van de tres en tres
+FormaPagoPagare: descripcion de la forma de pago
+DedudoresDatosPagare: traer el nombre e identificacion y direccion telefono del trabajo
+FechaFirmaPagare: lugar y fecha de firma, el mes va en letras
+ValorLetrasPagare: el valor en letras (todavia no esta)
+
+NombrePaciente:
+IdentificacionPaciente:
+DireccionResidenciaPaciente:
+TelefonoResidenciaPaciente:
+DireccionTrabajoPaciente:
+TelefonoTrabajoPaciente:
+
+CuentaPagare: el numero de la cuenta
+ObservacionPagare: la observacion
+
+Empresa: es el nombre de la clinica, hospital, etc...
+CiudadPagare: descripcion de la ciudad
+MesPagare: descripion del mes
+DiaPagare: dia (numero)			
+AnoPagare: año (numero)
+
+DiaLetrasPagare: dia (descripcion)			
+AnoLetrasPagare: año(descripcion)			
+
+

@@ -1,0 +1,280 @@
+<XMLDiagram version="1.0">
+<TDBADiagramController Locked="0">
+<Elements>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.centros_utilidad">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="10" top="549" width="200" height="209"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.empresas">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="122" top="10" width="200" height="489"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.centros_utilidad.$1">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="48" top="48" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="110" y="650"/>
+<Point x="220" y="250"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.esm_ips_esm">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="1034" top="1011" width="200" height="94"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.esm_ips_profesionales">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="1258" top="1011" width="200" height="94"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.esm_ips_terceros">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="1069" top="837" width="200" height="66"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.esm_ips_esm.foreign_key01">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="112" top="112" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="1130" y="1060"/>
+<Point x="1170" y="870"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.esm_ips_profesionales.foreign_key01">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="128" top="128" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="1360" y="1060"/>
+<Point x="1170" y="870"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.esm_tipos_eventos">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="458" top="598" width="200" height="111"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.esm_tipos_formulas">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="682" top="591" width="200" height="125"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.esm_tipos_fuerzas">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="1007" top="591" width="200" height="125"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.esm_tipos_ordenes_requisicion">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="1231" top="591" width="200" height="125"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.esm_topes_dispensacion">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="707" top="807" width="200" height="125"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.esm_topes_dispensacion.foreign_key01">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="224" top="224" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="810" y="870"/>
+<Point x="110" y="650"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.esm_topes_dispensacion.foreign_key02">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="240" top="240" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="810" y="870"/>
+<Point x="780" y="650"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.esm_topes_dispensacion_mensual">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="820" top="990" width="200" height="153"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.esm_topes_dispensacion_mensual.foreign_key01">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="272" top="272" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="925" y="1069"/>
+<Point x="810" y="870"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.system_usuarios">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="819" top="122" width="200" height="265"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.esm_tipos_eventos.foreign_key01">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="304" top="304" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="560" y="650"/>
+<Point x="920" y="250"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.esm_tipos_formulas.foreign_key01">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="320" top="320" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="780" y="650"/>
+<Point x="920" y="250"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.esm_tipos_fuerzas.foreign_key01">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="336" top="336" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="1110" y="650"/>
+<Point x="920" y="250"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.esm_tipos_ordenes_requisicion.foreign_key01">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="352" top="352" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="1330" y="650"/>
+<Point x="920" y="250"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.esm_topes_dispensacion.foreign_key03">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="368" top="368" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="810" y="870"/>
+<Point x="920" y="250"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.esm_topes_dispensacion_mensual.foreign_key02">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="384" top="384" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="925" y="1069"/>
+<Point x="920" y="250"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.userpermisos_esm_parametros_iniciales">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="234" top="621" width="200" height="66"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.userpermisos_esm_parametros_iniciales.foreign_key01">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="416" top="416" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="330" y="650"/>
+<Point x="220" y="250"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.userpermisos_esm_parametros_iniciales.foreign_key02">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="432" top="432" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="330" y="650"/>
+<Point x="920" y="250"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+</Elements>
+<Surface zoom="72" scrollx="0" scrolly="0"/>
+</TDBADiagramController>
+</XMLDiagram>

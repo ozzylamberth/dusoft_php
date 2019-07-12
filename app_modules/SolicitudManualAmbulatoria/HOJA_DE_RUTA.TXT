@@ -1,0 +1,47 @@
+
+S (Tabla del sistema Implementada con anterioridad en otro modulos.)
+M (Tabla de Movimiento, cuando la instalacion es nueva debera estar vacia)
+T (Tabla maestra de tipos)
+
+
+M userpermisos_solicitud_manual
+M puntos_solicitud_manual
+S departamentos
+S empresas
+S planes
+S historias_clinicas
+T servicios
+S tarifarios_detalle
+S os_ordenes_servicios
+M os_maestro
+M hc_os_solicitudes
+S os_internas
+S os_maestro_cargos
+S departamentos_cargos_citas
+S os_imagenes_tipo_equipos
+S pacientes
+S terceros
+T tipos_planes
+S cups
+T tipos_afiliado
+M os_cumplimientos_detalle
+M os_cumplimientos
+T tipos_os_listas_trabajo_detalle
+S tipos_os_listas_trabajo
+T apoyod_tipos
+S departamentos_cargos
+S apoyod_solicitud_frecuencia
+M tmp_solicitud_manual
+M tmp_solicitud_manual_detalle
+S plan_tarifario
+T subgrupos_tarifarios
+S tarifarios_equivalencias
+S excepciones
+S os_tipos_periodos_planes
+S os_tipos_periodos_tramites
+S pacientes_campos_obligatorios
+T tipos_id_pacientes
+S profesionales
+S diagnosticos
+
+

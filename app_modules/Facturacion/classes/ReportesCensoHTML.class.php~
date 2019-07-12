@@ -1,0 +1,404 @@
+<?php
+  /******************************************************************************
+  * $Id: ListadoPacientesconSalidaHTML.class.php,v 1.4 2006/12/20 21:45:17 carlos Exp $
+  * @copyright (C) 2005 IPSOFT - SA (www.ipsoft-sa.com)
+  * @package IPSOFT-SIIS
+  *
+	* $Revision: 1.4 $ 
+	* 
+	* @autor Lorena Aragon Galindo
+  ********************************************************************************/
+  IncludeClass('ListadoPacientesconSalida','','app','Facturacion');
+  
+	class ListadoPacientesconSalidaHTML
+	{
+		function ListadoPacientesconSalidaHTML(){}
+		function FrmGeneracionReportes()
+		{
+			$accion1=ModuloGetURL('app','Cuentas','user','LlamaFrmMenuCenso');
+			$accion2=ModuloGetURL('app','Cuentas','user','LlamaFrmListadoCenso',array('opcion'=>1,'enlace'=>2));
+			$accion3=ModuloGetURL('app','Cuentas','user','LlamaFrmListadoCenso',array('opcion'=>2,'enlace'=>2));
+			$accion4=ModuloGetURL('app','Cuentas','user','LlamaFrmListadoCenso',array('opcion'=>3,'enlace'=>2));
+			$accion5=ModuloGetURL('app','Cuentas','user','LlamaFrmConsultaPacientesTP');
+			$accion6=ModuloGetURL('app','Cuentas','user','LlamaFrmTotalFacturaCredito');
+			
+			$html .= ThemeAbrirTabla("REPORTES");
+			$html .= "<table width=\"50%\" align=\"center\" class=\"modulo_table_list\">";
+			$html .= "	<tr class=\"modulo_table_list_title\">";
+			$html .= "		<td  align=\"center\">REPORTES</td>";
+			$html .= "	</tr>";
+			$html .= "	<tr class=\"modulo_list_claro\">";
+			$html .= "		<td class=\"label\" align=\"center\"><label class=\"label\"><a href=\"$accion1\">REPORTE CENSO</a></label></td>";
+			$html .= "	</tr>";
+			$html .= "	<tr class=\"modulo_list_oscuro\">";
+			$html .= "		<td class=\"label\" align=\"center\"><label class=\"label\"><a href=\"$accion5\">REPORTE PACIENTES - CUENTAS</a></label></td>";
+			$html .= "	</tr>";
+			$html .= "	<tr class=\"modulo_list_claro\">";
+			$html .= "		<td class=\"label\" align=\"center\"><label class=\"label\"><a href=\"$accion2\">REPORTE CUENTAS ACTIVAS</a></label></td>";
+			$html .= "	</tr>";
+			$html .= "	<tr class=\"modulo_list_oscuro\">";
+			$html .= "		<td class=\"label\" align=\"center\"><label class=\"label\"><a href=\"$accion3\">REPORTE CUENTAS INACTIVAS</a></label></td>";
+			$html .= "	</tr>";
+			$html .= "	<tr class=\"modulo_list_claro\">";
+			$html .= "		<td class=\"label\" align=\"center\"><label class=\"label\"><a href=\"$accion4\">REPORTE CUENTAS ACTIVAS E INACTIVAS</a></label></td>";
+			$html .= "	</tr>";
+			$html .= "	<tr class=\"modulo_list_oscuro\">";
+			$html .= "		<td class=\"label\" align=\"center\"><label 		class=\"label\"><a href=\"$accion6\">REPORTE TOTAL FACTURAS CREDITO</a></label></td>";
+			$html .= "	</tr>";
+			$html .= "</table>";
+			
+	
+			
+			$accionV = ModuloGetURL('app','Facturacion','user','FormaMenus');
+			$html .= "<form name=\"formavolver\" action=\"$accionV\" method=\"post\">";
+			$html .= "<br><p align=\"center\"><input class=\"input-submit\" type=\"submit\" name=\"volver\" value=\"VOLVER\"></p>";
+			$html .= "</form>";
+			$html .= ThemeCerrarTabla();
+			
+			return $html;
+		}
+
+		function FrmMenuCenso()
+		{
+			$accion1=ModuloGetURL('app','Cuentas','user','FrmListadoCenso',array('opcion'=>0,'enlace'=>1));
+			$accion2=ModuloGetURL('app','Cuentas','user','FrmListadoCenso',array('opcion'=>1,'enlace'=>1));
+			
+			$this->salida .= ThemeAbrirTabla("REPORTES MENU CENSO");
+			$this->salida .= "<table width=\"50%\" align=\"center\" class=\"modulo_table_list\">";
+			$this->salida .= "	<tr class=\"modulo_table_list_title\">";
+			$this->salida .= "		<td  align=\"center\">REPORTES CENSO</td>";
+			$this->salida .= "	</tr>";
+			$this->salida .= "	<tr class=\"modulo_list_claro\">";
+			$this->salida .= "		<td class=\"label\" align=\"center\"><label class=\"label\"><a href=\"$accion1\">LISTADO DE PACIENTES HOSPITALIZADOS</a></label></td>";
+			$this->salida .= "	</tr>";
+			$this->salida .= "	<tr class=\"modulo_list_oscuro\">";
+			$this->salida .= "		<td class=\"label\" align=\"center\"><label class=\"label\"><a href=\"$accion2\">LISTADO DE PACIENTES EN OBSERVACION DE URGENCIAS</a></label></td>";
+			$this->salida .= "	</tr>";
+			$this->salida .= "</table>";
+			
+			$accionV = ModuloGetURL('app','Facturacion','user','FrmGeneracionReportes');
+			$this->salida .= "<form name=\"formavolver\" action=\"$accionV\" method=\"post\">";
+			$this->salida .= "<br><p align=\"center\"><input class=\"input-submit\" type=\"submit\" name=\"volver\" value=\"VOLVER\"></p>";
+			$this->salida .= "</form>";
+			
+			$this->salida .= ThemeCerrarTabla();
+			
+			return true;
+		}
+
+		function FrmListadoCenso()
+		{
+			if($_REQUEST['enlace']==1)
+			{
+				if(!$_REQUEST['opcion'])
+				{
+					$pacientes=$this->ListadoHospitalizados();
+					$titulo="LISTADO DE PACIENTES HOSPITALIZADOS";
+				}
+				else
+				{
+					$pacientes=$this->ListadoObservacionUrgencias();
+					$titulo="LISTADO DE PACIENTES EN OBSERVACION URGENCIAS";
+				}
+				$accionV = ModuloGetURL('app','Facturacion','user','FrmMenuCenso');
+			}
+			if($_REQUEST['enlace']==2)
+			{
+				switch($_REQUEST['opcion'])
+				{
+					case 1:
+						$titulo="REPORTES CUENTAS ACTIVAS";
+					break;
+					case 2:
+						$titulo="REPORTES CUENTAS INACTIVAS";
+					break;
+					case 3:
+						$titulo="REPORTES CUENTAS ACTIVAS E INACTIVAS";
+					break;
+				}
+				
+				$pacientes=$this->ReportesCuentas($_REQUEST['opcion']);
+				$accionV = ModuloGetURL('app','Facturacion','user','FrmGeneracionReportes');
+			}
+			
+			$this->salida .= ThemeAbrirTabla($titulo);
+			$cont=0;
+			$entidad=array();
+			$this->salida .= "<table align=\"center\" width=\"100%\" border=\"0\" class=\"modulo_table_list\">\n";
+			foreach($pacientes as $key=>$valor)
+			{
+				$this->salida .= "	<tr class=\"modulo_table_list_title\" align=\"center\">\n";
+				$this->salida .= "		<td align =\"center\" colspan=\"4\">DEPARTAMENTO  -  $key</td>";
+				$this->salida .= "	</tr>\n";
+				foreach($valor as $key1=>$valor1)
+				{
+					$this->salida .= "	<tr class=\"modulo_table_title\" align=\"center\">\n";
+					$this->salida .= "		<td align =\"center\" colspan=\"4\">ESTACION  -  $key1</td>";
+					$this->salida .= "	</tr>\n";
+					$this->salida .= "	<tr>\n";
+					$this->salida .= "		<td colspan=\"4\">\n";
+					$this->salida .= "			<table align=\"center\" width=\"100%\" border=\"0\" class=\"modulo_table_list\">\n";
+					$this->salida .= "				<tr class=\"modulo_table_list_title\" align=\"center\">\n";
+					$this->salida .= "					<td width=\"5%\">CUENTA</td>\n";
+					$this->salida .= "					<td width=\"10%\">ID</td>\n";
+					$this->salida .= "					<td width=\"15%\">PACIENTE</td>\n";
+					$this->salida .= "					<td width=\"10%\">AFILIACION</td>\n";
+					$this->salida .= "					<td width=\"5%\">RANGO</td>\n";
+					$this->salida .= "					<td width=\"5%\">HAB.</td>\n";
+					$this->salida .= "					<td width=\"5%\">CAMA</td>\n";
+					$this->salida .= "					<td width=\"10%\">FECHA INGRESO</td>\n";
+					$this->salida .= "					<td width=\"5%\">TIEMPO<BR>HOSP (DIAS)</td>\n";
+					$this->salida .= "					<td width=\"10%\">TERCERO</td>\n";
+					$this->salida .= "					<td width=\"10%\">PLAN</td>\n";
+					if($_REQUEST['enlace']==2 AND $_REQUEST['opcion']==3)
+						$this->salida .= "					<td>ESTADO CUENTA</td>\n";
+					$this->salida .= "					<td width=\"15%\">VALOR CUBIERTO + HAB</td>\n";
+					$this->salida .= "				</tr>\n";
+					
+					$k=0;
+					foreach($valor1 as $key2=>$valor2)
+					{
+						if($k%2==0)
+						{
+							$estilo="modulo_list_oscuro";
+						}
+						else
+						{
+							$estilo="modulo_list_claro";
+						}
+	
+						$vc_pac=$valor2['valor_cubierto'];
+						$vnc_pac=$this->GetEstancia($valor2['numerodecuenta']);
+						
+						$entidad[$valor2['nombre_tercero']]['valor_cuenta']+=$vc_pac+$vnc_pac;
+						$entidad[$valor2['nombre_tercero']]['contador']+=1;
+						
+						$pacientes[$key][$key1][$key2]['t_vc_apc']=$vc_pac;
+						$pacientes[$key][$key1][$key2]['t_vnc_apc']=$vnc_pac;
+	
+						$this->salida .= "				<tr class=\"$estilo\" align=\"center\">\n";
+						$this->salida .= "					<td>".$valor2['numerodecuenta']."</td>\n";
+						$this->salida .= "					<td>".$valor2['tipo_id_paciente']." - ".$valor2['paciente_id']."</td>\n";
+						$this->salida .= "					<td>".$valor2['nombre_completo']."</td>\n";
+						$this->salida .= "					<td>".strtoupper($valor2['tipo_afiliado_nombre'])."</td>\n";
+						$this->salida .= "					<td>".$valor2['rango']."</td>\n";
+						$this->salida .= "					<td>".$valor2['pieza']."</td>\n";
+						$this->salida .= "					<td>".$valor2['cama']."</td>\n";
+						$this->salida .= "					<td>".date('Y-m-d g:i a',strtotime($valor2['fecha_ingreso']))."</td>\n";
+						$this->salida .= "					<td>".$this->GetDiasHospitalizacion($valor2['fecha_ingreso'])."</td>\n";
+						$this->salida .= "					<td>".$valor2['nombre_tercero']."</td>\n";
+						$this->salida .= "					<td>".$valor2['plan_descripcion']."</td>\n";
+						if($_REQUEST['enlace']==2 AND $_REQUEST['opcion']==3)
+							$this->salida .= "					<td>".$valor2['estado_cuenta']."</td>\n";
+						$this->salida .= "					<td> $ ".FormatoValor($vc_pac+$vnc_pac)."</td>\n";
+						$this->salida .= "				</tr>\n";
+						$sum+=$vc_pac+$vnc_pac;
+						$cont++;
+						$k++;
+					}
+					if($_REQUEST['enlace']==1)
+					{
+						$co=$this->GetCamas($valor[$key1][$key2]['estacion_id'],'0');
+						$cd=$this->GetCamas($valor[$key1][$key2]['estacion_id'],'1');
+						
+						$this->salida .= "				<tr class=\"hc_table_submodulo_list_title\">\n";
+						$this->salida .= "					<td  colspan=\"12\" align=\"right\">CAMAS DISPONIBLES : &nbsp;&nbsp;&nbsp; <label class=\"label_error\">$cd</label> &nbsp;&nbsp;&nbsp; CAMAS OCUPADAS : &nbsp;&nbsp;&nbsp; <label class=\"label_error\">$co</label> &nbsp;&nbsp;&nbsp; CANTIDAD : &nbsp;&nbsp;&nbsp; <label class=\"label_error\">$k</label> </td>\n";
+						$this->salida .= "				</tr>\n";
+					}
+					$this->salida .= "			</table>\n";
+					$this->salida .= "		</td>\n";
+					$this->salida .= "	</tr>\n";
+				}
+			}
+			
+			$this->salida .= "	<tr class=\"modulo_list_oscuro\" align=\"center\">\n";
+			$this->salida .= "		<td class=\"label\">ENTIDAD</td>\n";
+			$this->salida .= "		<td class=\"label\">CANTIDAD</td>\n";
+			$this->salida .= "		<td class=\"label\">VALOR CUENTA</td>\n";
+			$this->salida .= "	</tr>\n";
+			foreach($entidad as $key=>$valor_ent)
+			{
+				$this->salida .= "	<tr class=\"modulo_list_claro\">\n";
+				$this->salida .= "		<td align=\"right\" class=\"label\">$key</td>\n";
+				$this->salida .= "		<td align=\"right\" class=\"label\">".$valor_ent['contador']."</td>\n";
+				$this->salida .= "		<td align=\"right\" class=\"label\"> $ ".FormatoValor($valor_ent['valor_cuenta'])."</td>\n";
+				$this->salida .= "	</tr>\n";
+			}
+			
+			$this->salida .= "	<tr class=\"hc_table_submodulo_list_title\">\n";
+			$this->salida .= "		<td align=\"right\" class=\"label\">TOTAL : </td>\n";
+			$this->salida .= "		<td align=\"right\" class=\"label\">$cont</td>";
+			$this->salida .= "		<td align=\"right\" class=\"label\"> $ ".FormatoValor($sum)."</td>\n";
+			$this->salida .= "	</tr>\n";
+			
+			$this->salida .= "</table>\n";
+			
+			$_SESSION['listado']=$pacientes;
+			
+			/*$reporte=new GetReports();
+			$mostrarT=$reporte->GetJavaReport('app','Facturacion','ReporteImpCuentas',array('enlace'=>$_REQUEST['enlace'],'opcion'=>$_REQUEST['opcion'],'titulo'=>$titulo),array('rpt_name'=>'ReporteCuentas','rpt_dir'=>'cache','rpt_rewrite'=>TRUE));
+			$funcionT=$reporte->GetJavaFunction();
+	
+			$this->salida.="		<br><center><img src=\"".GetThemePath()."/images/imprimir.png\"><label class=\"label\"><a href=\"javascript:$funcionT\"> IMPRIMIR </a></label></center>";	
+	
+			$this->salida .= "$mostrarT";
+			*/
+			$direccion="app_modules/Facturacion/reports/html/ReporteImpCuentas.php?";
+			$this->salida.="		<br><center><img src=\"".GetThemePath()."/images/imprimir.png\"><label class=\"label\"><a href=\"javascript:reportecuentas('$direccion','".$_REQUEST['enlace']."','".$_REQUEST['opcion']."','$titulo');\"> IMPRIMIR </a></label></center>";	
+			
+			$this->salida .= "<form name=\"formavolver\" action=\"$accionV\" method=\"post\">";
+			$this->salida .= "<br><p align=\"center\"><input class=\"input-submit\" type=\"submit\" name=\"volver\" value=\"VOLVER\"></p>";
+			$this->salida .= "</form>";
+			
+			$this->salida .= "<script>\n";
+			$this->salida .= "	function reportecuentas(dir,enl,op,tit)\n";
+			$this->salida .= "	{\n";
+			$this->salida .= "		var url=dir+'enlace='+enl+'&opcion='+op+'&titulo='+tit;\n";
+			$this->salida .= "		window.open(url,'REPORTE CUENTAS','screen.width,screen.height,resizable=no,location=yes,toolbar=1,status=no,scrollbars=yes');\n";
+			$this->salida .= "	}\n";
+			$this->salida .= "</script>\n";
+			
+			$this->salida .= ThemeCerrarTabla();
+			
+			return true;
+		}
+
+		function FrmConsultaPacientesTP() 
+		{
+			$accionR=ModuloGetURL('app','Facturacion','user','FrmListadoPacientesUHA');
+			$accionV=ModuloGetURL('app','Facturacion','user','FrmGeneracionReportes');
+			
+			$planes=$this->GetPlanes();
+			
+			if(!$_REQUEST['estado_plan'])
+			{
+				$check1="checked";
+				$_REQUEST['estado_plan']=1;
+			}
+			else
+			{
+				switch($_REQUEST['estado_plan'])
+				{
+					case 1:
+						$check1="checked";
+					break;
+					
+					case 2:
+						$check2="checked";
+					break;
+					
+					case 3:
+						$check3="checked";
+					break;
+				}
+			
+			}
+			
+			$this->SetXajax(array("GetEstadoPlanes"),"app_modules/Facturacion/RemoteXajax/CuentasPlanes.php");
+	
+			$this->salida .= "				<script>\n";
+			$this->salida .= "					xajax_GetEstadoPlanes('".$_REQUEST['estado_plan']."');";
+			$this->salida .= "				</script>\n";
+			
+			$this->salida .= ThemeAbrirTabla('BUSQUEDA PACIENTES - CUENTAS');
+			$this->salida .= "<form name=\"forma_reporte\" action=\"$accionR\" method=\"post\">\n";
+			$this->salida .= "	<table align=\"center\" width=\"70%\" border=\"0\" class=\"modulo_table_list\">\n";
+			$this->salida .= "		<tr align=\"center\">\n";
+			$this->salida .= "			<td align=\"center\" width=\"30%\" class=\"modulo_table_list_title\">FECHAS : </td>";
+			$this->salida .= "			<td align=\"left\" colspan=\"3\" class=\"modulo_list_claro\">";
+			$this->salida .= "				DE <input type=\"text\" name=\"fecha_ini\" size=\"10\" readonly value=\"".$_REQUEST['fecha_ini']."\" class=\"input-text\">";
+			$this->salida .= "				<sub>".ReturnOpenCalendario("forma_reporte","fecha_ini","-")."</sub>";
+			$this->salida .= "				A <input type=\"text\" name=\"fecha_fin\" size=\"10\" readonly value=\"".$_REQUEST['fecha_fin']."\" class=\"input-text\">";
+			$this->salida .= "				<sub>".ReturnOpenCalendario("forma_reporte","fecha_fin","-")."</sub>";
+			$this->salida .= "			</td>";
+			$this->salida .= "		</tr>\n";
+			$this->salida .= "		<tr align=\"center\">\n";
+			$this->salida .= "			<td align=\"center\" class=\"modulo_table_list_title\" width=\"30%\">ESTADO PLAN : </td>";
+			$this->salida .= "			<td align=\"center\" class=\"modulo_list_claro\" width=\"25%\"><input type=\"radio\" name=\"estado_plan\" value=\"1\" $check1 onclick=\"xajax_GetEstadoPlanes('1');\"> ACTIVOS </td>";
+			$this->salida .= "			<td align=\"center\" class=\"modulo_list_claro\" width=\"25%\"><input type=\"radio\" name=\"estado_plan\" value=\"2\" $check2 onclick=\"xajax_GetEstadoPlanes('2');\"> INACTIVOS</td>";
+			$this->salida .= "			<td align=\"center\" class=\"modulo_list_claro\" width=\"20%\"><input type=\"radio\" name=\"estado_plan\" value=\"3\" $check3 onclick=\"xajax_GetEstadoPlanes('3');\"> TODOS</td>";
+			$this->salida .= "		</tr>\n";
+			$this->salida .= "		<tr class=\"modulo_table_list_title\" align=\"center\">\n";
+			$this->salida .= "			<td align=\"center\" width=\"30%\">PLAN : </td>";
+			$this->salida .= "			<td align=\"left\" colspan=\"3\" class=\"modulo_list_claro\" id=\"capa_plan\">";
+	
+			$this->salida .= "			</td>\n";
+			$this->salida .= "		</tr>\n";
+			$this->salida .= "		<tr class=\"modulo_list_claro\" align=\"center\">\n";
+			$this->salida .= "			<td align=\"center\" colspan=\"5\"><input class=\"input-submit\" type=\"submit\" name=\"filtrar\" value=\"FILTRAR\">";
+			$this->salida .= "			&nbsp;&nbsp;&nbsp;&nbsp;<input class=\"input-submit\" type=\"button\" name=\"limpiar\" value=\"LIMPIAR\" onclick=\"this.form.fecha_ini.value='';this.form.fecha_fin.value='';this.form.planes.value='';this.form.estado_plan[0].checked=true;this.form.estado_plan[1].checked=false;this.form.estado_plan[2].checked=false;xajax_GetEstadoPlanes('1');\"></td>";
+			$this->salida .= "		</tr>\n";
+			$this->salida .= "	</table>\n";
+			$this->salida .= "</form>\n";
+			
+			$this->salida .= "<form name=\"formavolver\" action=\"$accionV\" method=\"post\">";
+			$this->salida .= "<br><p align=\"center\"><input class=\"input-submit\" type=\"submit\" name=\"volver\" value=\"VOLVER\"></p>";
+			$this->salida .= "</form>";
+		
+			$this->salida .= ThemeCerrarTabla();
+			
+			return true;
+		}
+
+		function FrmTotalFacturaCredito ()
+		{
+			$accion1= ModuloGetURL('app','Facturacion','user','FrmReporteFC');
+			$accion2=ModuloGetURL('app','Facturacion','user','FrmGeneracionReportes');
+			$planes=$this->GetPlanes();
+			$this->salida .= ThemeAbrirTabla("REPORTES TOTAL FACTURAS CREDITO");
+			$this->salida .= "            <form name=\"BUSCAR1\" action=\"".$accion1."\" method=\"post\">\n";
+			$this->salida .= "                 <table width=\"60%\" align=\"center\" class=\"modulo_table_list\">\n";         
+			$this->salida .= "			<tr align=\"left\" class=\"modulo_list_claro\">\n";
+			$this->salida .= "                       <td>";
+			$this->salida .= "                         DIGITE EL PLAN A BUSCAR ";
+			$this->salida .= "                       </td>\n";
+			$this->salida .= "			<td>";
+			$this->salida .= "		            <select width=\"40%\" name=\"planes\" class=\"select\">";
+			$this->salida .= "			    <option value=\"\">--PLAN--</option>\n";
+			foreach($planes as $plan)
+			{
+				$sel="";
+				if($plan['plan_id']==$_REQUEST['planes'])
+				$sel="selected";
+				$this->salida .= "					<option value=\"".$plan['plan_id']."\" $sel>".$plan['plan_descripcion']."</option>\n";
+			}
+			$this->salida .= "			    </select>\n";
+			$this->salida .= "			</td>\n";
+			$this->salida .= "			</tr>\n";
+					
+			$this->salida .= "			<tr align=\"center\" class=\"modulo_list_claro\">\n";
+			if(!empty($_REQUEST['FechaI']))
+			{
+				$f=explode('-',$_REQUEST['FechaI']);
+				$i=$f[2].'/'.$f[1].'/'.$f[0];
+			}
+			$this->salida .= "                    <td class=\"".$this->SetStyle("FechaI")."\">DESDE: </td>";
+			$this->salida .= "                    <td <input type=\"text\" class=\"input-text\" name=\"FechaI\" value=\"".$i."\">".ReturnOpenCalendario('BUSCAR1','FechaI','/')."</td>";
+			$this->salida .= "			</tr>";	
+			
+			$this->salida .= "			<tr align=\"center\" class=\"modulo_list_claro\">\n";
+			if(!empty($_REQUEST['FechaF']))
+			{
+				$f=explode('-',$_REQUEST['FechaF']);
+				$fi=$f[2].'/'.$f[1].'/'.$f[0];
+			}
+			$this->salida .= "                    <td class=\"".$this->SetStyle("FechaF")."\">HASTA: </td>";
+			$this->salida .= "                    <td <input type=\"text\" class=\"input-text\" name=\"FechaF\" value=\"".$fi."\">".ReturnOpenCalendario('BUSCAR1','FechaF','/')."</td>";
+			$this->salida .= "			</tr>\n";
+			$this->salida .= "                       <tr colspan=\"11\" class=\"modulo_list_claro\" align=\"center\">\n";
+			$this->salida .= "                       <td>";
+			$this->salida .= "                          <input type=\"submit\" class=\"input-submit\" value=\"BUSCAR\">\n";
+			$this->salida .= "                       </td>";
+			$this->salida .= "		</form>\n";
+			$this->salida .= "		<form name=\"VOLVER\" action=\"".$accion2."\" method=\"post\">\n";
+			$this->salida .= "                       <td>";
+			$this->salida .= "                          <input type=\"submit\" class=\"input-submit\" value=\"VOLVER\">\n";
+			$this->salida .= "                       </td>\n";
+			$this->salida .= "                     </tr>\n";
+			$this->salida .= "                 </table>\n";         
+			$this->salida .= "		</form>\n";
+			$this->salida .= ThemeCerrarTabla();
+			return true;
+		}
+	}
+?>

@@ -1,0 +1,39 @@
+-- Table: public.userpermisos_repositorio
+
+-- DROP TABLE public.userpermisos_repositorio;
+
+CREATE TABLE public.userpermisos_repositorio (
+  repositorio_id  serial NOT NULL,
+  empresa_id      varchar(2) NOT NULL,
+  usuario_id      integer NOT NULL,
+  bodega          varchar(2) NOT NULL,
+  download        varchar(1) DEFAULT 0,
+  /* Keys */
+  CONSTRAINT userpermisos_repositorio_pkey
+    PRIMARY KEY (empresa_id, usuario_id, bodega), 
+  CONSTRAINT userpermisos_repositorio_repositorio_id_key
+    UNIQUE (repositorio_id)
+) WITH (
+    OIDS = FALSE
+  );
+
+ALTER TABLE public.userpermisos_repositorio
+  OWNER TO "admin";
+
+COMMENT ON TABLE public.userpermisos_repositorio
+  IS 'Tabla de permisos para el acceso a modulo de repositorio ';
+
+COMMENT ON COLUMN public.userpermisos_repositorio.repositorio_id
+  IS 'PK tabla';
+
+COMMENT ON COLUMN public.userpermisos_repositorio.empresa_id
+  IS 'Empresa';
+
+COMMENT ON COLUMN public.userpermisos_repositorio.usuario_id
+  IS 'Usuario Id';
+
+COMMENT ON COLUMN public.userpermisos_repositorio.bodega
+  IS 'Bodega a la que tiene permiso';
+
+COMMENT ON COLUMN public.userpermisos_repositorio.download
+  IS 'Permiso de descarga';

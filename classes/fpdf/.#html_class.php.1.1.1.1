@@ -1,0 +1,2118 @@
+<?php
+//Based on HTML2PDF by Clément Lavoillotte
+require('fpdf.php');
+
+//function hex2dec
+//returns an associative array (keys: R,G,B) from
+//a hex html code (e.g. #3FE5AA)
+function hex2dec($couleur = "#000000"){
+    $R = substr($couleur, 1, 2);
+    $rouge = hexdec($R);
+    $V = substr($couleur, 3, 2);
+    $vert = hexdec($V);
+    $B = substr($couleur, 5, 2);
+    $bleu = hexdec($B);
+    $tbl_couleur = array();
+    $tbl_couleur['R']=$rouge;
+    $tbl_couleur['G']=$vert;
+    $tbl_couleur['B']=$bleu;
+    return $tbl_couleur;
+}
+//conversion pixel -> millimeter in 72 dpi
+function px2mm($px){
+    return $px*25.4/72;
+}
+
+function txtentities($html){
+    $trans = get_html_translation_table(HTML_ENTITIES);
+    $trans = array_flip($trans);
+    return strtr($html, $trans);
+}
+////////////////////////////////////
+
+class PDF extends FPDF
+{
+//variables of html parser
+var $B;
+var $I;
+var $U;
+var $HREF;
+var $fontList;
+var $issetfont;
+var $issetcolor;
+var $tmpFiles = array();
+
+function PDF($orientation='P',$unit='mm',$format='A4')
+{
+    //Call parent constructor
+    $this->FPDF($orientation,$unit,$format);
+    //Initialization
+    $this->B=0;
+    $this->I=0;
+    $this->U=0;
+    $this->HREF='';
+
+    $this->tableborder=0;
+    $this->tdbegin=false;
+    $this->tdwidth=0;
+    $this->tdheight=0;
+    $this->tdalign="L";
+    $this->tdbgcolor=false;
+
+    $this->oldx=0;
+    $this->oldy=0;
+
+    $this->fontlist=array("arial","times","courier","helvetica","symbol");
+    $this->issetfont=false;
+    $this->issetcolor=false;
+}
+
+//////////////////////////////////////
+//html parser
+
+function WriteHTML($html)
+{
+    $html=strip_tags($html,"<b><u><i><a><img><p><br><strong><em><font><tr><blockquote><hr><td><tr><table><sup><ubicacion><salto>"); //remove all unsupported tags
+    $html=str_replace("\n",'',$html); //replace carriage returns by spaces
+    $html=str_replace("\t",'',$html); //replace carriage returns by spaces
+    $a=preg_split('/<(.*)>/U',$html,-1,PREG_SPLIT_DELIM_CAPTURE); //explodes the string
+    foreach($a as $i=>$e)
+    {
+        if($i%2==0)
+        {
+            //Text
+            if($this->HREF)
+                $this->PutLink($this->HREF,$e);
+            elseif($this->tdbegin) {
+                if(trim($e)!='' and $e!="&nbsp;") {
+                    $this->Cell($this->tdwidth,$this->tdheight,$e,$this->tableborder,'',$this->tdalign,$this->tdbgcolor);
+                }
+                elseif($e=="&nbsp;") {
+                    $this->Cell($this->tdwidth,$this->tdheight,'',$this->tableborder,'',$this->tdalign,$this->tdbgcolor);
+                }
+            }
+            else
+                $this->Write(5,stripslashes(txtentities($e)));
+        }
+        else
+        {
+            //Tag
+            if($e{0}=='/')
+                $this->CloseTag(strtoupper(substr($e,1)));
+            else
+            {
+                //Extract attributes
+                $a2=explode(' ',$e);
+                $tag=strtoupper(array_shift($a2));
+                $attr=array();
+                foreach($a2 as $v)
+                    if(ereg('^([^=]*)=["\']?([^"\']*)["\']?$',$v,$a3))
+                        $attr[strtoupper($a3[1])]=$a3[2];
+                $this->OpenTag($tag,$attr);
+            }
+        }
+    }
+}
+
+
+function OpenTag($tag,$attr)
+{
+    //Opening tag
+    switch($tag){
+
+        case 'SUP':
+            if($attr['SUP'] != '') {    
+                //Set current font to: Bold, 6pt     
+                $this->SetFont('','',6);
+                //Start 125cm plus width of cell to the right of left margin         
+                //Superscript "1"
+                $this->Cell(2,2,$attr['SUP'],0,0,'L');
+            }
+            break;
+        case 'TABLE': // TABLE-BEGIN
+            if( $attr['BORDER'] != '' ) $this->tableborder=$attr['BORDER'];
+            else $this->tableborder=0;
+            break;
+        case 'TR': //TR-BEGIN
+            break;
+        case 'TD': // TD-BEGIN
+            if( $attr['WIDTH'] != '' ) $this->tdwidth=($attr['WIDTH']/4);
+            else $this->tdwidth=40; // SET to your own width if you need bigger fixed cells
+            if( $attr['HEIGHT'] != '') $this->tdheight=($attr['HEIGHT']/6);
+            else $this->tdheight=6; // SET to your own height if you need bigger fixed cells
+            if( $attr['ALIGN'] != '' ) {
+                $align=$attr['ALIGN'];
+                if($align=="LEFT") $this->tdalign="L";
+                if($align=="CENTER") $this->tdalign="C";
+                if($align=="RIGHT") $this->tdalign="R";
+            }
+            else $this->tdalign="L"; // SET to your own
+            if( $attr['BGCOLOR'] != '' ) {
+                $coul=hex2dec($attr['BGCOLOR']);
+                    $this->SetFillColor($coul['R'],$coul['G'],$coul['B']);
+                    $this->tdbgcolor=true;
+                }
+            $this->tdbegin=true;
+            break;
+
+        case 'HR':
+            if( $attr['WIDTH'] != '' )
+                $Width = $attr['WIDTH'];
+            else
+                $Width = $this->w - $this->lMargin-$this->rMargin;
+            $x = $this->GetX();
+            $y = $this->GetY();
+            $this->SetLineWidth(0.2);
+            $this->Line($x,$y,$x+$Width,$y);
+            $this->SetLineWidth(0.2);
+            $this->Ln(1);
+						break;
+        case 'STRONG':
+            $this->SetStyle('B',true);
+            break;
+        case 'EM':
+            $this->SetStyle('I',true);
+            break;
+        case 'B':
+        case 'I':
+        case 'U':
+            $this->SetStyle($tag,true);
+            break;
+        case 'A':
+            $this->HREF=$attr['HREF'];
+            break;
+        case 'IMG':
+            if(isset($attr['SRC']) and (isset($attr['WIDTH']) or isset($attr['HEIGHT']))) {
+                if(!isset($attr['WIDTH']))
+                    $attr['WIDTH'] = 0;
+                if(!isset($attr['HEIGHT']))
+                    $attr['HEIGHT'] = 0;
+                $this->Image($attr['SRC'], $this->GetX(), $this->GetY(), px2mm($attr['WIDTH']), px2mm($attr['HEIGHT']));
+            }
+            break;
+				case 'UBICACION':
+							$this->SetXY($attr['X'],$attr['Y']);
+							break;
+				case 'SALTO':
+							$this->AddPage();
+							break;
+        //case 'TR':
+        case 'BLOCKQUOTE':
+        case 'BR':
+            $this->Ln(5);
+            break;
+        case 'P':
+            $this->Ln(10);
+            break;
+        case 'FONT':
+            if (isset($attr['COLOR']) and $attr['COLOR']!='') {
+                $coul=hex2dec($attr['COLOR']);
+                $this->SetTextColor($coul['R'],$coul['G'],$coul['B']);
+                $this->issetcolor=true;
+            }
+            if (isset($attr['FACE']) and in_array(strtolower($attr['FACE']), $this->fontlist)) {
+                $this->SetFont(strtolower($attr['FACE']));
+                $this->issetfont=true;
+            }
+            if (isset($attr['FACE']) and in_array(strtolower($attr['FACE']), $this->fontlist) and isset($attr['SIZE']) and $attr['SIZE']!='') {
+                $this->SetFont(strtolower($attr['FACE']),'',$attr['SIZE']);
+                $this->issetfont=true;
+            }
+            break;
+    }
+}
+
+
+function CloseTag($tag)
+{
+    //Closing tag
+    if($tag=='SUP') {
+    }
+
+    if($tag=='TD') { // TD-END
+        $this->tdbegin=false;
+        $this->tdwidth=0;
+        $this->tdheight=0;
+        $this->tdalign="L";
+        $this->tdbgcolor=false;
+    }
+    if($tag=='TR') { // TR-END
+        $this->Ln();
+    }
+    if($tag=='TABLE') { // TABLE-END
+        //$this->Ln();
+        $this->tableborder=0;
+    }
+
+    if($tag=='STRONG')
+        $tag='B';
+    if($tag=='EM')
+        $tag='I';
+    if($tag=='B' or $tag=='I' or $tag=='U')
+        $this->SetStyle($tag,false);
+    if($tag=='A')
+        $this->HREF='';
+    if($tag=='FONT'){
+        if ($this->issetcolor==true) {
+            $this->SetTextColor(0);
+        }
+        if ($this->issetfont) {
+            $this->issetfont=false;
+            $this->SetFont('arial');
+        }
+    }
+}
+
+
+function SetStyle($tag,$enable)
+{
+    //Modify style and select corresponding font
+    $this->$tag+=($enable ? 1 : -1);
+    $style='';
+    foreach(array('B','I','U') as $s)
+        if($this->$s>0)
+            $style.=$s;
+    $this->SetFont('',$style);
+}
+
+function PutLink($URL,$txt)
+{
+    //Put a hyperlink
+    $this->SetTextColor(0,0,255);
+    $this->SetStyle('U',true);
+    $this->Write(5,$txt,$URL);
+    $this->SetStyle('U',false);
+    $this->SetTextColor(0);
+}
+
+/*******************************************************************************
+*                                                                              *
+*                               Public methods                                 *
+*                                                                              *
+*******************************************************************************/
+function Image($file,$x,$y,$w=0,$h=0,$type='',$link='', $isMask=false, $maskImg=0)
+{
+  //Put an image on the page
+	if(!isset($this->images[$file]))
+	{
+		//First use of image, get info
+		if($type=='')
+		{
+			$pos=strrpos($file,'.');
+			if(!$pos)
+				$this->Error('Image file has no extension and no type was specified: '.$file);
+			$type=substr($file,$pos+1);
+		}
+		$type=strtolower($type);
+		$mqr=get_magic_quotes_runtime();
+		set_magic_quotes_runtime(0);
+		if($type=='jpg' || $type=='jpeg')
+			$info=$this->_parsejpg($file);
+		elseif($type=='png')
+    {
+			$info=$this->_parsepng($file);
+			if ($info=='alpha') 
+      {
+        $this->ImagePngWithAlpha($file,$x,$y,$w,$h,$link);
+        return true;
+      }
+		}
+		else
+		{
+			//Allow for additional formats
+			$mtd='_parse'.$type;
+			if(!method_exists($this,$mtd))
+				$this->Error('Unsupported image type: '.$type);
+			$info=$this->$mtd($file);
+		}
+		set_magic_quotes_runtime($mqr);
+		
+		if ($isMask){
+      $info['cs']="DeviceGray"; // try to force grayscale (instead of indexed)
+    }
+		$info['i']=count($this->images)+1;
+		if ($maskImg>0) $info['masked'] = $maskImg;###
+    $this->images[$file]=$info;
+	}
+	else
+		$info=$this->images[$file];
+	//Automatic width and height calculation if needed
+	if($w==0 && $h==0)
+	{
+		//Put image at 72 dpi
+		$w=$info['w']/$this->k;
+		$h=$info['h']/$this->k;
+	}
+	if($w==0)
+		$w=$h*$info['w']/$info['h'];
+	if($h==0)
+		$h=$w*$info['h']/$info['w'];
+	
+	if ($isMask) $x = ($this->CurOrientation=='P'?$this->CurPageFormat[0]:$this->CurPageFormat[1]) + 10; // embed hidden, ouside the canvas
+  
+  $this->_out(sprintf('q %.2f 0 0 %.2f %.2f %.2f cm /I%d Do Q',$w*$this->k,$h*$this->k,$x*$this->k,($this->h-($y+$h))*$this->k,$info['i']));
+
+  if($link)
+		$this->Link($x,$y,$w,$h,$link);
+		
+	return $info['i'];
+}
+
+// needs GD 2.x extension
+// pixel-wise operation, not very fast
+function ImagePngWithAlpha($file,$x,$y,$w=0,$h=0,$link='')
+{
+	$tmp_alpha = tempnam('.', 'mska');
+	$this->tmpFiles[] = $tmp_alpha;
+	$tmp_plain = tempnam('.', 'mskp');
+	$this->tmpFiles[] = $tmp_plain;
+	
+	list($wpx, $hpx) = getimagesize($file);
+	$img = imagecreatefrompng($file);
+	$alpha_img = imagecreate( $wpx, $hpx );
+	
+	// generate gray scale pallete
+	for($c=0;$c<256;$c++) ImageColorAllocate($alpha_img, $c, $c, $c);
+	
+	// extract alpha channel
+	$xpx=0;
+	while ($xpx<$wpx){
+		$ypx = 0;
+		while ($ypx<$hpx){
+			$color_index = imagecolorat($img, $xpx, $ypx);
+			$alpha = 255-($color_index>>24)*255/127; // GD alpha component: 7 bit only, 0..127!
+			imagesetpixel($alpha_img, $xpx, $ypx, $alpha);
+	    ++$ypx;
+		}
+		++$xpx;
+	}
+
+	imagepng($alpha_img, $tmp_alpha);
+	imagedestroy($alpha_img);
+	
+	// extract image without alpha channel
+	$plain_img = imagecreatetruecolor ( $wpx, $hpx );
+	imagecopy ($plain_img, $img, 0, 0, 0, 0, $wpx, $hpx );
+	imagepng($plain_img, $tmp_plain);
+	imagedestroy($plain_img);
+	
+	//first embed mask image (w, h, x, will be ignored)
+	$maskImg = $this->Image($tmp_alpha, 0,0,0,0, 'PNG', '', true); 
+	
+	//embed image, masked with previously embedded mask
+	$this->Image($tmp_plain,$x,$y,$w,$h,'PNG',$link, false, $maskImg);
+}
+
+function Close()
+{
+	parent::Close();
+	// clean up tmp files
+	foreach($this->tmpFiles as $tmp) @unlink($tmp);
+}
+
+/*******************************************************************************
+*                                                                              *
+*                               Private methods                                *
+*                                                                              *
+*******************************************************************************/
+function _putimages()
+{
+	$filter=($this->compress) ? '/Filter /FlateDecode ' : '';
+	reset($this->images);
+	while(list($file,$info)=each($this->images))
+	{
+		$this->_newobj();
+		$this->images[$file]['n']=$this->n;
+		$this->_out('<</Type /XObject');
+		$this->_out('/Subtype /Image');
+		$this->_out('/Width '.$info['w']);
+		$this->_out('/Height '.$info['h']);
+		
+		if (isset($info["masked"])) $this->_out('/SMask '.($this->n-1).' 0 R'); ###
+		
+		if($info['cs']=='Indexed')
+			$this->_out('/ColorSpace [/Indexed /DeviceRGB '.(strlen($info['pal'])/3-1).' '.($this->n+1).' 0 R]');
+		else
+		{
+			$this->_out('/ColorSpace /'.$info['cs']);
+			if($info['cs']=='DeviceCMYK')
+				$this->_out('/Decode [1 0 1 0 1 0 1 0]');
+		}
+		$this->_out('/BitsPerComponent '.$info['bpc']);
+		if(isset($info['f']))
+			$this->_out('/Filter /'.$info['f']);
+		if(isset($info['parms']))
+			$this->_out($info['parms']);
+		if(isset($info['trns']) && is_array($info['trns']))
+		{
+			$trns='';
+			for($i=0;$i<count($info['trns']);$i++)
+				$trns.=$info['trns'][$i].' '.$info['trns'][$i].' ';
+			$this->_out('/Mask ['.$trns.']');
+		}
+		$this->_out('/Length '.strlen($info['data']).'>>');
+		$this->_putstream($info['data']);
+		unset($this->images[$file]['data']);
+		$this->_out('endobj');
+		//Palette
+		if($info['cs']=='Indexed')
+		{
+			$this->_newobj();
+			$pal=($this->compress) ? gzcompress($info['pal']) : $info['pal'];
+			$this->_out('<<'.$filter.'/Length '.strlen($pal).'>>');
+			$this->_putstream($pal);
+			$this->_out('endobj');
+		}
+	}
+}
+
+// this method overwriing the original version is only needed to make the Image method support PNGs with alpha channels.
+// if you only use the ImagePngWithAlpha method for such PNGs, you can remove it from this script.
+function _parsepng($file)
+{
+	//Extract info from a PNG file
+	$f=fopen($file,'rb');
+	if(!$f)
+		$this->Error('Can\'t open image file: '.$file);
+	//Check signature
+	if(fread($f,8)!=chr(137).'PNG'.chr(13).chr(10).chr(26).chr(10))
+		$this->Error('Not a PNG file: '.$file);
+	//Read header chunk
+	fread($f,4);
+	if(fread($f,4)!='IHDR')
+		$this->Error('Incorrect PNG file: '.$file);
+	$w=$this->_readint($f);
+	$h=$this->_readint($f);
+	$bpc=ord(fread($f,1));
+	if($bpc>8)
+		$this->Error('16-bit depth not supported: '.$file);
+	$ct=ord(fread($f,1));
+	if($ct==0)
+		$colspace='DeviceGray';
+	elseif($ct==2)
+		$colspace='DeviceRGB';
+	elseif($ct==3)
+		$colspace='Indexed';
+	else {
+		fclose($f);      // the only changes are 
+		return 'alpha';  // made in those 2 lines
+	}
+	if(ord(fread($f,1))!=0)
+		$this->Error('Unknown compression method: '.$file);
+	if(ord(fread($f,1))!=0)
+		$this->Error('Unknown filter method: '.$file);
+	if(ord(fread($f,1))!=0)
+		$this->Error('Interlacing not supported: '.$file);
+	fread($f,4);
+	$parms='/DecodeParms <</Predictor 15 /Colors '.($ct==2 ? 3 : 1).' /BitsPerComponent '.$bpc.' /Columns '.$w.'>>';
+	//Scan chunks looking for palette, transparency and image data
+	$pal='';
+	$trns='';
+	$data='';
+	do
+	{
+		$n=$this->_readint($f);
+		$type=fread($f,4);
+		if($type=='PLTE')
+		{
+			//Read palette
+			$pal=fread($f,$n);
+			fread($f,4);
+		}
+		elseif($type=='tRNS')
+		{
+			//Read transparency info
+			$t=fread($f,$n);
+			if($ct==0)
+				$trns=array(ord(substr($t,1,1)));
+			elseif($ct==2)
+				$trns=array(ord(substr($t,1,1)),ord(substr($t,3,1)),ord(substr($t,5,1)));
+			else
+			{
+				$pos=strpos($t,chr(0));
+				if($pos!==false)
+					$trns=array($pos);
+			}
+			fread($f,4);
+		}
+		elseif($type=='IDAT')
+		{
+			//Read image data block
+			$data.=fread($f,$n);
+			fread($f,4);
+		}
+		elseif($type=='IEND')
+			break;
+		else
+			fread($f,$n+4);
+	}
+	while($n);
+	if($colspace=='Indexed' && empty($pal))
+		$this->Error('Missing palette in '.$file);
+	fclose($f);
+	return array('w'=>$w,'h'=>$h,'cs'=>$colspace,'bpc'=>$bpc,'f'=>'FlateDecode','parms'=>$parms,'pal'=>$pal,'trns'=>$trns,'data'=>$data);
+}
+
+function Header()
+{
+        //darling envios
+        if($_SESSION['REPORTES']['VARIABLE']=='envios')
+        {
+                $arr=$_SESSION['REPORTES']['HOJACARGOS']['ARREGLO'];
+                $this->SetFont('Arial','',7);
+                $this->Cell(4,12,date('Y-m-d h:m'));
+                $this->Cell(2,2,'Pagina No '.$this->PageNo());
+                $html="".$this->Image('images/logocliente.png',170,9,18)."";
+                $html.="<table border=0 width=100 align='center'>";
+                $html.="<tr><td width=760><BR><BR></td></tr>";
+                $html .= "          <tr>";
+                $html .= "              <td align=\"CENTER\" width=760>ENVIO No. ".$arr[0][envio_id]."</td>";
+                $html .= "          </tr>";
+                $html .= "          <tr>";
+                $html .= "              <td align=\"CENTER\" width=760>".$arr[0][nombre_tercero]."   ".$arr[0][tipo_tercero_id]." ".$arr[0][tercero_id]."</td>";
+                $html .= "          </tr>";
+                $html .= "          <tr>";
+                $html .= "              <td align=\"CENTER\" width=760>DEBE A:</td>";
+                $html .= "          </tr>";
+                $html .= "          <tr width=760>";
+                $html .= "              <td align=\"CENTER\" width=760>".NombreEmpresa($arr[0][empresa_id])."</td>";
+                $html .= "          </tr>";
+                $html .= "          <tr width=760>";
+                $html .= "              <td align=\"CENTER\" width=760>POR SERVICIOS PRESTADOS EN: </td>";
+                $html .= "          </tr>";
+                $html .= "          <tr>";
+                IF(empty($arr[0][departamento]))
+                {  $dpto='TODOS'; }
+                else
+                {
+                        list($dbconn) = GetDBconn();
+                        $query = "select descripcion from departamentos
+                                            where departamento='$dpto'";
+                        $result=$dbconn->Execute($query);
+                        if ($dbconn->ErrorNo() != 0) {
+                                        $this->error = "Error al Guardar en la Tabal autorizaiones";
+                                        $this->mensajeDeError = "Error DB : " . $dbconn->ErrorMsg();
+                                        return false;
+                        }
+                        $result->Close();
+                        $dpto=$result->fields[0];
+                }
+                $html .= "              <td align=\"CENTER\" width=760> - ".$dpto."</td>";
+                $html .= "          </tr>";
+                $html .= "          <tr align=\"CENTER\">";
+                $html .= "              <td width=\"110\" align=\"CENTER\">FACTURA</td>";
+                $html .= "              <td width=\"100\" align=\"CENTER\">VALOR</td>";
+                $html .= "              <td width=\"130\" align=\"CENTER\">IDENTIFICACION</td>";
+                $html .= "              <td width=\"215\" align=\"CENTER\">PACIENTE</td>";
+                $html .= "              <td width=\"205\" align=\"CENTER\">PLAN</td>";
+                $html .= "          </tr>";
+                $html .="<tr><td width=760>--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------</td></tr>";
+                $html .= "  </table>";
+                $this->Ln(1);
+                $this->WriteHTML($html);
+        }
+        //darling facturas
+        if($_SESSION['REPORTES']['VARIABLE']=='factura')
+        {
+                $datos=$_SESSION['REPORTES']['HOJACARGOS']['ARREGLO'];
+								//print_r($datos);
+                $this->SetFont('Arial','',8);
+                $this->Cell(0,2,'Pagina No '.$this->PageNo());
+                if($this->PageNo() <> 1)
+                {
+                  $html.="<table border=0 width=100 align='center' CELLSPACING=\"1\" CELLPADDING=\"1\">";
+                  $html.="<tr><td width=760>&nbsp;</td></tr>";
+                  if(!empty($datos[prefijo]) AND !empty($datos[factura_fiscal]))
+                  {
+                        list($dbconn) = GetDBconn();
+                        $query = "SELECT count(numerodecuenta) FROM fac_facturas_cuentas
+                                            WHERE factura_fiscal=".$datos[factura_fiscal]."
+                                            and prefijo='".$datos[prefijo]."'
+                                            LIMIT 2 OFFSET 0";
+                        $result = $dbconn->Execute($query);
+                        if ($dbconn->ErrorNo() != 0) {
+                                        $this->error = "Error al Cargar el Modulo";
+                                        $this->mensajeDeError = "Error DB : " . $dbconn->ErrorMsg();
+                                        return false;
+                        }
+                        $result->Close();
+                        if($result->fields[0] > 1)
+                        {
+                                $datos[prefijo]='';
+                                $datos[factura_fiscal]='';
+                        }
+                  }
+                  $factura_fiscal=str_pad($datos[factura_fiscal], $datos[numero_digitos], "0", STR_PAD_LEFT);
+                  $html.="<tr><td width=300>PACIENTE: ".$datos[nombre]."</td><td width=280>HIS/CLI: ".$datos[tipo_id_paciente]." ".$datos[paciente_id]."</td><td width=180>FACT No. ".$datos[prefijo]."".$factura_fiscal."</td></tr>";
+                  $html.="<tr><td width=760>-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------</td></tr>";
+                  $html.="</table>";
+                }
+                else
+                {
+                  $html="".$this->image('images/logocliente.png',180,4,18)."";//$pdf->image('classes/fpdf/clinicaoccidente.gif'
+                  //$html.="<br><br><br>"; 
+                  $html.="<table border=0 width=100 align='center' border=0>";
+                  $html.="<tr><td width=760><BR><BR></td></tr>";
+
+                  if(!empty($datos[prefijo]) AND !empty($datos[factura_fiscal]))
+                  {
+                        list($dbconn) = GetDBconn();
+                        $query = "SELECT count(numerodecuenta) FROM fac_facturas_cuentas
+                                            WHERE factura_fiscal=".$datos[factura_fiscal]."
+                                            and prefijo='".$datos[prefijo]."'
+                                            LIMIT 2 OFFSET 0";
+                        $result = $dbconn->Execute($query);
+                        if ($dbconn->ErrorNo() != 0) {
+                                        $this->error = "Error al Cargar el Modulo";
+                                        $this->mensajeDeError = "Error DB : " . $dbconn->ErrorMsg();
+                                        return false;
+                        }
+                        $result->Close();
+                        /*if($result->fields[0] > 1)
+                        {
+                                $datos[prefijo]='';
+                                $datos[factura_fiscal]='';
+                        }*/
+                  }
+                  $factura_fiscal=str_pad($datos[factura_fiscal], $datos[numero_digitos], "0", STR_PAD_LEFT);
+                  $html.="<tr><td width=260><B>".$datos[razon_social]."</B></td><td width=120 align=\"left\">".$datos[tipoid].": ".$datos[id]."</td><td width=280 align='center'>FACTURA DE VENTA</td><td width=100>No. ".$datos[prefijo]."".$factura_fiscal."</td></tr>";
+                  //$html.="<tr><td width=460>".$datos[tipoid].": ".$datos[id]."</td><td width=300>No. ".$datos[prefijo]."".$factura_fiscal."</td></tr>";
+                  $html.="<tr><td width=380>DIRECCION: ".$datos[direccion]."</td><td width=210> TELEFONOS: ".$datos[telefonos]."</td><td width=170>".$datos[municipio]."-".$datos[departamento]."</td></tr>";
+                  $html.="<tr><td width=760 colspan=\"2\">".substr("$datos[texto1]",0,90)."</td></tr>";
+                  $html.="<tr><td width=760 colspan=\"2\" align='center'>".substr("$datos[texto1]",91,256)."</td></tr>";
+                  $html.="<tr><td width=760>--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------</td></tr>";
+                  $html.="<tr><td width=760><B>CLIENTE: ".$datos[nombre_tercero]." ".$datos[tipo_id_tercero].": ".$datos[tercero_id]."</B></td></tr>";
+                  $html.="<td width=380>DIRECCION: ".$datos[direccion_tercero]."</td><td width=380>TELEFONOS: ".$datos[telefono_tercero]."</td></tr>";
+									//$tmp_dir_tercero = substr("$datos[direccion_tercero]",17,45);
+                  $html.="<tr><td width=580>PLAN: ".substr("$datos[plan_descripcion]",0,75)."</td><td width=180>DPTO: ".substr("$datos[descripcion]",0,17)."</td></tr>";
+                  //$html.="<tr><td width=460>".$datos[tipo_id_tercero].": ".$datos[tercero_id]."</td></tr>";
+                  //$html.="<tr><td width=460>DIRECCION: ".$datos[direccion_tercero]."</td><td width=300>TELEFONOS: ".$datos[telefono_tercero]."</td></tr>";
+                  //$html.="<tr><td width=300>TELEFONOS: ".$datos[telefono_tercero]."</td><td width=280>PLAN: ".$datos[plan_descripcion]."</td><td width=180>DPTO: ".substr("$datos[descripcion]",0,17)."</td></tr>";
+									$tmp_plandescripcion = substr("$datos[plan_descripcion]",34,75);
+									$tmp_dpto = substr("$datos[descripcion]",17,45);
+									/*if(!empty($tmp_plandescripcion) OR !empty($tmp_dpto))
+									{
+												$html.="<tr><td width=300>&nbsp;</td><td width=280>".$tmp_plandescripcion."</td><td width=180>".$tmp_dpto."</td></tr>";
+									}*/
+                  $html.="<tr><td width=580>PACIENTE: ".$datos[nombre]."</td><td width=180>HIS/CLI: ".$datos[tipo_id_paciente]." ".$datos[paciente_id]."</td></tr>";
+                  $fecha=explode("-",$datos[fechafac]);
+                  $nueva = mktime(0,0,0, $fecha[1],$fecha[2],$fecha[0]) + 30 * 24 * 60 * 60;
+                  $nuevafecha=date("d/m/Y",$nueva);
+                  $fechaElab=date("d/m/Y",mktime(0,0,0, $fecha[1],$fecha[2],$fecha[0]));
+                  if($datos[fecha_cierre]){
+                    (list($date,$hour)=explode(' ',$datos[fecha_cierre]));
+                    (list($anoFC,$mesFC,$diaFC)=explode('-',$date));                
+                    $fechaEgreso=date("d/m/Y",mktime(0,0,0, $mesFC,$diaFC,$anoFC));
+                  }
+                  elseif($datos[fecha_cierre_movimientos_habitacion]){
+                    (list($date,$hour)=explode(' ',$datos[fecha_cierre_movimientos_habitacion]));
+                    (list($anoFC,$mesFC,$diaFC)=explode('-',$date));                
+                    $fechaEgreso=date("d/m/Y",mktime(0,0,0, $mesFC,$diaFC,$anoFC));
+                  }
+                  else
+                  {
+                    $fechaEgreso=FechaStamp($datos[fecha_registro]);
+                  }
+                  $html.="<tr><td width=190>FECHA INGR.: ".FechaStamp($datos[fecha_registro])."</td><td width=190>FECHA EGRE.: ".$fechaEgreso."</td><td width=190>FECHA ELAB.: ".$fechaElab."</td><td width=190>FECHA VENC.: ".$nuevafecha."</td></tr>";
+                  //$html.="<tr><td width=230>DIRECCION: ".$datos[residencia_direccion]."</td><td width=230>TELEFONOS: ".$datos[residencia_telefono]."</td><td width=150>FECHA ELAB.: ".$fechaElab."</td><td width=150>FECHA VENC.: ".$nuevafecha."</td></tr>";
+                  $html.="</table>";
+                }
+                $this->Ln(1);
+                $this->WriteHTML($html);
+        }
+        if($_SESSION['REPORTES']['VARIABLE']=='facturapaciente')
+        {
+                $datos=$_SESSION['REPORTES']['HOJACARGOS']['ARREGLO'];
+                $this->SetFont('Arial','',8);
+                //$this->Cell(0,2,'Pagina No '.$this->PageNo());
+                $html="".$this->image('images/logocliente.png',180,10,20)."";//$pdf->image('classes/fpdf/clinicaoccidente.gif'
+                //$html.="<br><br><br>"; 
+                $html.="<table border=0 width=100 align='center' border=0>";
+                $html.="<tr><td width=760><BR><BR></td></tr>";
+                //$html.="<tr><td width=460><B>".$datos[razon_social]."</B></td><td width=300 align='center'>FACTURA DE VENTA</td></tr>";
+
+                if(!empty($datos[prefijo]) AND !empty($datos[factura_fiscal]))
+                {
+                        list($dbconn) = GetDBconn();
+                        $query = "SELECT count(numerodecuenta) FROM fac_facturas_cuentas
+                                            WHERE factura_fiscal=".$datos[factura_fiscal]."
+                                            and prefijo='".$datos[prefijo]."'
+                                            LIMIT 2 OFFSET 0";
+                        $result = $dbconn->Execute($query);
+                        if ($dbconn->ErrorNo() != 0) {
+                                        $this->error = "Error al Cargar el Modulo";
+                                        $this->mensajeDeError = "Error DB : " . $dbconn->ErrorMsg();
+                                        return false;
+                        }
+                        $result->Close();
+                        if($result->fields[0] > 1)
+                        {
+                                $datos[prefijo]='';
+                                $datos[factura_fiscal]='';
+                        }
+                }
+                $factura_fiscal=str_pad($datos[factura_fiscal], $datos[numero_digitos], "0", STR_PAD_LEFT);
+                $html.="<tr><td width=200><B>".$datos[razon_social]."</B></td><td width=180 align=\"left\">".$datos[tipoid].": ".$datos[id]."</td><td width=280 align='center'>FACTURA DE VENTA</td><td width=100>No. ".$datos[prefijo]."".$factura_fiscal."</td></tr>";
+                //$html.="<tr><td width=460>".$datos[tipoid].": ".$datos[id]."</td><td width=300>No. ".$datos[prefijo]."".$factura_fiscal."</td></tr>";
+                $html.="<tr><td width=230>DIRECCION: ".$datos[direccion]."</td><td width=230> TELEFONOS: ".$datos[telefonos]."</td><td width=300>".$datos[municipio]."-".$datos[departamento]."</td></tr>";
+                //$html.="<tr><td width=760 colspan=\"2\">".$datos[texto1]."</td></tr>";
+                $html.="<tr><td width=760 colspan=\"2\">".substr("$datos[texto1]",0,90)."</td></tr>";
+                $html.="<tr><td width=760 colspan=\"2\" align='center'>".substr("$datos[texto1]",91,256)."</td></tr>";
+                $html.="<tr><td width=760>--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------</td></tr>";
+                $html.="<tr><td width=270>PACIENTE: ".$datos[nombre]."</td></tr>";
+                if($datos[fecha_cierre]){
+                    (list($date,$hour)=explode(' ',$datos[fecha_cierre]));
+                    (list($anoFC,$mesFC,$diaFC)=explode('-',$date));                
+                    $fechaEgreso=date("d/m/Y",mktime(0,0,0, $mesFC,$diaFC,$anoFC));
+                }
+                $html.="<tr><td width=190>HIS/CLI: ".$datos[tipo_id_paciente]." ".$datos[paciente_id]."</td><td width=150>FECHA INGR.: ".FechaStamp($datos[fecha_registro])."</td><td width=150>FECHA EGRE.: ".$fechaEgreso."</td><td width=150>CUENTA: ".$datos[numerodecuenta]."</td></tr>";
+                $html.="<tr><td width=450><B>PLAN: ".$datos[plan_descripcion]."</B></td><td width=30>&nbsp;</td><td width=150>INGRESO: ".$datos[ingreso]."</td></tr>";
+                $html.="<tr><td width=450>DPTO: ".$datos[descripcion]."</td></tr>";
+                $fecha=explode("-",$datos[fechafac]);
+                $nueva = mktime(0,0,0, $fecha[1],$fecha[2],$fecha[0]) + 30 * 24 * 60 * 60;
+                $nuevafecha=date("d/m/Y",$nueva);
+                $fechaElab=date("d/m/Y",mktime(0,0,0, $fecha[1],$fecha[2],$fecha[0]));
+                //$html.="<tr><td width=450>DIRECCION: ".$datos[direccion_tercero]."</td></tr>";
+                $html.="<tr><td width=250>TELEFONOS: ".$datos[telefono_tercero]."</td><td width=150>FECHA ELAB.: ".$fechaElab."</td><td width=150>FECHA VENC.: ".$nuevafecha."</td></tr>";
+                $html.="</table>";
+                $this->Ln(1);
+                $this->WriteHTML($html);
+        }
+        if($_SESSION['REPORTES']['VARIABLE']=='facturaconcepto')
+        {
+                $datos=$_SESSION['REPORTES']['FACTURACONCEPTO']['ARREGLO'];
+
+                $this->SetFont('Arial','',7);
+                $this->Cell(0,2,'Pagina No '.$this->PageNo());
+                $html="".$this->image('images/logocliente.png',170,9,18)."";//$pdf->image('classes/fpdf/clinicaoccidente.gif'
+                $html.="<table border=0 width=100 align='center' border=0>";
+                $html.="<tr><td width=760><BR><BR></td></tr>";
+                $html.="<tr><td width=460><B>".$datos[0][razon_social]."</B></td><td width=300 align='center'>FACTURA DE VENTA</td></tr>";
+
+                $html.="<tr><td width=460>".$datos[0][tipoid].": ".$datos[0][id]."</td><td width=300>No. ".$datos[0][prefijo]."".$datos[0][factura_fiscal]."</td></tr>";
+                $html.="<tr><td width=230>DIRECCION: ".$datos[0][direccion]."</td><td width=230> TELEFONOS: ".$datos[0][telefonos]."</td><td width=300>".$datos[0][municipio]."-".$datos[0][departamento]."</td></tr>";
+                $html.="<tr><td width=760 colspan=\"2\">".$datos[0][texto1]."</td></tr>";
+                $html.="<tr><td width=760>--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------</td></tr>";
+                $html.="<tr><td width=500>CLIENTE: ".$datos[0][nombre_tercero]."</td></tr>";
+                $html.="<tr><td width=460>".$datos[0][tipo_id_tercero].": ".$datos[0][tercero_id]."</td></tr>";
+                $html.="<tr><td width=450>DPTO: ".$datos[0][centro_atencion]."</td></tr>";
+                $fecha=explode("-",$datos[0][fecha_registro]);
+                $nueva = mktime(0,0,0, $fecha[1],$fecha[2],$fecha[0]) + 30 * 24 * 60 * 60;
+                $nuevafecha=date("d/m/Y",$nueva);
+                $fechaElab=date("d/m/Y",mktime(0,0,0, $fecha[1],$fecha[2],$fecha[0]));
+                if($datos[fecha_cierre]){
+                    (list($date,$hour)=explode(' ',$datos[fecha_cierre]));
+                    (list($anoFC,$mesFC,$diaFC)=explode('-',$date));                
+                    $fechaEgreso=date("d/m/Y",mktime(0,0,0, $mesFC,$diaFC,$anoFC));
+                }
+                //$html.="<tr><td width=230>DIRECCION: ".$datos[residencia_direccion]."</td><td width=230>TELEFONOS: ".$datos[residencia_telefono]."</td><td width=150>FECHA ELAB.: ".$fechaElab."</td><td width=150>FECHA VENC.: ".$nuevafecha."</td></tr>";
+                $html.="<tr><td width=450>DIRECCION: ".$datos[0][direccion_tercero]."</td></tr>";
+                $html.="<tr><td width=250>TELEFONOS: ".$datos[0][telefono_tercero]."</td><td width=150>FECHA ELAB.: ".$fechaElab."</td><td width=150>FECHA VENC.: ".$nuevafecha."</td></tr>";
+                //$html.="<tr><td width=270>PACIENTE: ".$datos[nombre]."</td></tr>";
+                //$html.="<tr><td width=190>HIS/CLI: ".$datos[tipo_id_paciente]." ".$datos[paciente_id]."</td><td width=150>FECHA INGR.: ".FechaStamp($datos[fecha_registro])."</td><td width=150>FECHA EGRE.: ".$fechaEgreso."</td></tr>";
+                $html.="</table>";
+                $this->Ln(1);
+                $this->WriteHTML($html);
+        }
+        //darling hoja de cargos
+        if($_SESSION['REPORTES']['VARIABLE']=='hoja_cargos')
+        {
+                list($dbconn) = GetDBconn();
+                $querys = "select usuario
+                                        from system_usuarios
+                                        where usuario_id=".UserGetUID()."";
+                $result = $dbconn->Execute($querys);
+                if ($dbconn->ErrorNo() != 0) {
+                                $this->error = "Error al Cargar el Modulo";
+                                $this->mensajeDeError = "Error DB : " . $dbconn->ErrorMsg();
+                                return false;
+                }
+
+                $usu=$result->GetRowAssoc($ToUpper = false);
+                $datos=$_SESSION['REPORTES']['HOJACARGOS']['ARREGLO'];
+                $this->SetFont('Arial','',7);
+                $this->Cell(100,10,'Pagina No '.$this->PageNo());
+                if($this->PageNo() <> 1)
+                {
+                  $html.="<table border=0 width=100 align='center' CELLSPACING=\"1\" CELLPADDING=\"1\">";
+                  $html.="<tr><td width=760>&nbsp;</td></tr>";
+                  $html.="<tr><td width=250>CUENTA No.: ".$datos[numerodecuenta]."</td><td width=300>PACIENTE: ".$datos[nombre]."</td><td width=210>DOCUMENTOS: ".$datos[tipo_id_paciente].": ".$datos[paciente_id]."</td></tr>";
+                  $html.="<tr><td width=760>-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------</td></tr>";
+                  $html.="<tr><td width=60 align=\"CENTER\">F CARGO</td><td width=60 align=\"CENTER\">CARGO</td><td width=50 align=\"CENTER\">HAB</td><td width=50 align=\"CENTER\">DPTO</td><td width=200 align=\"CENTER\">DESCRIPCION DEL CARGO</td><td width=40 align=\"CENTER\">CANT</td><td width=60 align=\"CENTER\">VALOR</td><td width=60 align=\"CENTER\">VALOR TOT</td><td width=60 align=\"CENTER\">VLR RECO</td><td width=60 align=\"CENTER\">VLR NO CUB</td><td width=40 align=\"CENTER\">TRAN</td><td width=40 align=\"CENTER\">USUARIO</td></tr>";
+                  $html.="<tr><td width=760>-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------</td></tr>";
+                  $html.="</table>";
+                }
+                else
+                {
+                  $html="".$this->image('images/logocliente.png',170,9,18)."";//$pdf->image('classes/fpdf/clinicaoccidente.gif'
+                  $html.="<table border=0 width=100 align='center' CELLSPACING=\"1\" CELLPADDING=\"1\">";
+                  $html.="<tr><td width=760>&nbsp;</td></tr>";
+                  $html.="<tr><td width=760><B>".$datos[razon_social]."</B></td></tr>";
+                  $html.="<tr><td width=610>".$datos[tipoid].": ".$datos[id]."</td><td width=150>FECHA: ".date('d/m/Y')."</td></tr>";
+                  $html.="<tr><td width=610>&nbsp;</td><td width=150>HORA: ".date('H:m')."</td></tr>";
+                  $html.="<tr><td width=160>&nbsp;</td><td width=450 align='CENTER'>HOJA DE CARGOS</td><td width=150>USUARIO: ".$usu[usuario]."</td></tr>";
+                  $html.="<tr><td width=760>--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------</td></tr>";
+                  $html.="<tr><td width=250>CUENTA No.: ".$datos[numerodecuenta]."</td><td width=300>PACIENTE: ".$datos[nombre]."</td><td width=210>DOCUMENTOS: ".$datos[tipo_id_paciente].": ".$datos[paciente_id]."</td></tr>";
+                  $html.="<tr><td width=250>DIRECCION: ".$datos[direccion]."</td></td><td width=300>CIUDAD: ".$datos[municipio]."</td><td width=210>TELEFONOS: ".$datos[telefonos]."</td></tr>";
+                  //$html.="<tr><td width=300>TELEFONOS: ".$datos[telefonos]."</td><td width=460>DOCUMENTOS: ".$datos[tipo_id_paciente].": ".$datos[paciente_id]."</td></tr>";
+                  $fecha=explode("-",$datos[fecha_registro]);
+                  $fechaIng=date("d/m/Y",mktime(0,0,0, $fecha[1],$fecha[2],$fecha[0]));
+                  $html.="<tr><td width=250>MEDICO:</td><td width=300>HISTORIA: ".$datos[X]."</td><td width=210>FECHA INGRESO: ".$fechaIng."</td></tr>";
+                  $html.="<tr><td width=400>EMPRESA: ".$datos[nombre_tercero]."  ".$datos[tipo_id_tercero].": ".$datos[tercero_id]."</td></tr><tr><td width=430>PLAN: (".$datos[plan_id].")  ".  $datos[plan_descripcion]."</td></tr>";
+                  $html.="<tr><td width=760>-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------</td></tr>";
+                  $html.="<tr><td width=60 align=\"CENTER\">F CARGO</td><td width=60 align=\"CENTER\">CARGO</td><td width=50 align=\"CENTER\">HAB</td><td width=50 align=\"CENTER\">DPTO</td><td width=200 align=\"CENTER\">DESCRIPCION DEL CARGO</td><td width=40 align=\"CENTER\">CANT</td><td width=60 align=\"CENTER\">VALOR</td><td width=60 align=\"CENTER\">VALOR TOT</td><td width=60 align=\"CENTER\">VLR RECO</td><td width=60 align=\"CENTER\">VLR NO CUB</td><td width=40 align=\"CENTER\">TRAN</td><td width=40 align=\"CENTER\">USUARIO</td></tr>";
+                  $html.="<tr><td width=760>-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------</td></tr>";
+                  $html.="</table>";
+                }
+                $this->Ln(1);
+                $this->WriteHTML($html);
+        }
+    
+        if($_SESSION['REPORTES']['VARIABLE']=='facturacion_recepcion')
+        {
+							$datos=$_SESSION['REPORTES']['RECEPCION']['ARREGLO'];
+							if($datos[request][request][Estado] == 1)
+							{
+								$Estado = 'RECIBIDAS';
+							}
+							else
+							if($datos[request][request][Estado] == 0)
+							{
+								$Estado = 'NO RECIBIDAS';
+							}
+							else
+							if($datos[request][request][Estado] == 2)
+							{
+								$Estado = 'TODAS';
+							}
+
+							if(!empty($datos[request][request][fechaInicial])
+									AND !empty($datos[request][request][fechaFinal]))
+							{
+								$periodo = $datos[request][request][fechaInicial].' - '.$datos[request][request][fechaFinal];
+							}
+							else
+							{
+								$periodo = ' TODOS ';
+							}
+
+							if($datos[request][request][departamentos] <> -1)
+							{
+									$dep = explode(',',$datos[request][request][departamentos]);
+									list($dbconn) = GetDBconn();
+									$querys = "select *
+														from departamentos
+														where departamento = '".$dep[1]."'";
+									$result = $dbconn->Execute($querys);
+									if ($dbconn->ErrorNo() != 0) {
+																	$this->error = "Error al Cargar el Modulo";
+																	$this->mensajeDeError = "Error DB : " . $dbconn->ErrorMsg();
+																	return false;
+									}
+								$departamento = $result->GetRowAssoc($ToUpper = false);
+							}
+							else
+							{
+								$departamento[descripcion] = 'DEPARTAMENTO TODOS';
+							}
+							$this->SetFont('Arial','',7);
+							$html="".$this->image('images/logocliente.png',170,9,18)."";//$pdf->image('classes/fpdf/clinicaoccidente.gif'
+							$html.="<table border=0 width=100 align='center' CELLSPACING=\"1\" CELLPADDING=\"1\">";
+							$html.="<tr><td width=760>&nbsp;</td></tr>";
+							$html.="<tr><td width=760  align=\"CENTER\"><B>REPORTE DE FACTURAS CON ESTADO ".$Estado."</B></td></tr>";
+							$html.="<tr><td width=760  align=\"CENTER\"><B>PERIODO ".$periodo."</B></td></tr>";
+							$html.="<tr><td width=760  align=\"CENTER\"><B>".$departamento[descripcion]." - ".$departamento[departamento]."</B></td></tr>";
+							//$html.="<tr><td width=760>-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------</td></tr>";
+							$html.="</table>";
+							$this->Ln(1);
+							$this->WriteHTML($html);
+        }
+    
+    if($_SESSION['REPORTES']['VARIABLE']=='hoja_cargos_agrupada')
+    {
+        list($dbconn) = GetDBconn();
+        $querys = "select usuario
+                    from system_usuarios
+                    where usuario_id=".UserGetUID()."";
+        $result = $dbconn->Execute($querys);
+        if ($dbconn->ErrorNo() != 0) {
+                $this->error = "Error al Cargar el Modulo";
+                $this->mensajeDeError = "Error DB : " . $dbconn->ErrorMsg();
+                return false;
+        }
+
+        $usu=$result->GetRowAssoc($ToUpper = false);
+        $datos=$_SESSION['REPORTES']['HOJACARGOS']['ARREGLO'];
+        $this->SetFont('Arial','',9);
+//        $this->Cell(100,9,'Pagina No '.$this->PageNo());
+        $html="".$this->image('images/logocliente.png',130,9,30)."";//$pdf->image('classes/fpdf/clinicaoccidente.gif'
+        $html .="<table border=0 width=100 align='center' CELLSPACING=\"1\" CELLPADDING=\"1\">";
+        //$html.="<tr><td width=760 align='LEFT'>".$this->image('images/logocliente.png',170,9,18)."</td></tr>";//$pdf->image('classes/fpdf/clinicaoccidente.gif'
+        //$html.="<tr><td width=760>".$this->Cell(9,100,'Pagina No '.$this->PageNo())."</td></tr>";
+        $html.="<tr><td width=760>&nbsp;</td></tr>";
+        $html.="<tr><td width=760>&nbsp;</td></tr>";
+        $html.="<tr><td width=760>&nbsp;</td></tr>";
+        $html.="<tr><td width=760><B>".$datos[razon_social]."</B></td></tr>";
+        //$html.="<tr><td width=610>".$datos[tipoid].": ".$datos[id]."</td><td width=150>FECHA: ".date('d/m/Y')."</td></tr>";
+        $html.="<tr><td width=760>".$datos[tipoid].": ".$datos[id]."</td></tr>";
+                $html.="<td width=760>FECHA: ".date('d/m/Y')."</td></tr>";
+        //$html.="<tr><td width=610>&nbsp;</td><td width=150>HORA: ".date('H:m')."</td></tr>";
+        $html.="<tr><td width=760>HORA: ".date('H:m')."</td></tr>";
+        $html.="<tr><td width=760>USUARIO: ".$usu[usuario]."</td></tr>";
+        //$html.="<tr><td width=160>&nbsp;</td><td width=450 align='CENTER'>HOJA DE CARGOS</td><td width=150>USUARIO: ".$usu[usuario]."</td></tr>";
+        $html.="<tr><td width=760 align='CENTER'><B>ORDEN DE SERVICIO Nro: ".$datos[numerodecuenta]."</B></td></tr>";
+        $html.="<tr><td width=760>--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------</td></tr>";
+        //$html.="<tr><td width=250>CUENTA No.: ".$datos[numerodecuenta]."</td><td width=300>PACIENTE: ".$datos[nombre]."</td><td width=210>DOCUMENTOS: ".$datos[tipo_id_paciente].": ".$datos[paciente_id]."</td></tr>";
+        $html.="<tr><td width=550>PACIENTE: ".$datos[nombre]."</td><td width=210>DOCUMENTOS: ".$datos[tipo_id_paciente].": ".$datos[paciente_id]."</td></tr>";
+        $html.="<tr><td width=250>DIRECCION: ".$datos[direccion]."</td></td><td width=300>CIUDAD: ".$datos[municipio]."</td><td width=210>TELEFONOS: ".$datos[telefonos]."</td></tr>";
+        //$html.="<tr><td width=300>TELEFONOS: ".$datos[telefonos]."</td><td width=460>DOCUMENTOS: ".$datos[tipo_id_paciente].": ".$datos[paciente_id]."</td></tr>";
+        $fecha=explode("-",$datos[fecha_registro]);
+        $fechaIng=date("d/m/Y",mktime(0,0,0, $fecha[1],$fecha[2],$fecha[0]));
+        $html.="<tr><td width=250>MEDICO:</td><td width=300>HISTORIA: ".$datos[X]."</td><td width=210>FECHA INGRESO: ".$fechaIng."</td></tr>";
+        $html.="<tr><td width=400>EMPRESA: ".$datos[nombre_tercero]."  ".$datos[tipo_id_tercero].": ".$datos[tercero_id]."</td></tr><tr><td width=430>PLAN: (".$datos[plan_id].")  ".  $datos[plan_descripcion]."</td></tr>";
+        $html.="<tr><td width=760>-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------</td></tr>";
+        $html.="<tr><td width=70 align=\"CENTER\">CARGO</td><td width=400 align=\"CENTER\">DESCRIPCION DEL CARGO</td><td width=50 align=\"CENTER\">CANT</td><td width=20 align=\"CENTER\">&nbsp;</td><td width=50 align=\"CENTER\">V.UNT</td><td width=80 align=\"CENTER\">V.PACIENTE</td><td width=80 align=\"CENTER\">V.CLIENTE</td></tr>";
+        $html.="<tr><td width=760>-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------</td></tr>";
+        $html.="</table>";
+        $this->Ln(1);
+        $this->WriteHTML($html);
+    }
+    
+        //darling hoja de cargos por transaccion
+        if($_SESSION['REPORTES']['VARIABLE']=='hoja_transaccion')
+        {
+                list($dbconn) = GetDBconn();
+                $querys = "select usuario
+                                        from system_usuarios
+                                        where usuario_id=".UserGetUID()."";
+                $result = $dbconn->Execute($querys);
+                if ($dbconn->ErrorNo() != 0) {
+                                $this->error = "Error al Cargar el Modulo";
+                                $this->mensajeDeError = "Error DB : " . $dbconn->ErrorMsg();
+                                return false;
+                }
+
+                $usu=$result->GetRowAssoc($ToUpper = false);
+
+                $datos=$_SESSION['REPORTES']['HOJACARGOS']['ARREGLO'];
+                $this->SetFont('Arial','',7);
+                $this->Cell(100,10,'Pagina No '.$this->PageNo());
+                $html="".$this->image('images/logocliente.png',170,9,18)."";//$pdf->image('classes/fpdf/clinicaoccidente.gif'
+                $html.="<table border=0 width=100 align='center' CELLSPACING=\"1\" CELLPADDING=\"1\">";
+                $html.="<tr><td width=760>&nbsp;</td></tr>";
+                $html.="<tr><td width=760><B>".$datos[razon_social]."</B></td></tr>";
+                $html.="<tr><td width=610>".$datos[tipoid].": ".$datos[id]."</td><td width=150>FECHA: ".date('d/m/Y')."</td></tr>";
+                $html.="<tr><td width=610>&nbsp;</td><td width=150>HORA: ".date('h:m:s')."</td></tr>";
+                $html.="<tr><td width=160>&nbsp;</td><td width=450 align='CENTER'>HOJA DE CARGOS</td><td width=150>USUARIO: ".$usu[usuario]."</td></tr>";
+                $html.="<tr><td width=760>--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------</td></tr>";
+                $html.="<tr><td width=200>HOJA DE CARGOS No.: 123456</td><td width=150 align='center'>FACTURA: ".$datos[prefijo]."".$datos[factura_fiscal]."</td><td width=410>PACIENTE: ".$datos[nombre]."</td></tr>";
+                $html.="<tr><td width=300>DIRECCION: ".$datos[direccion]."</td></td><td width=460>CIUDAD: ".$datos[municipio]."</td></tr>";
+                $html.="<tr><td width=300>TELEFONOS: ".$datos[telefonos]."</td><td width=460>DOCUMENTOS: ".$datos[tipoid].": ".$datos[id]."</td></tr>";
+                $html.="<tr><td width=300>MEDICO:</td><td width=460>HISTORIA: ".$datos[X]."</td></tr>";
+                $html.="<tr><td width=300>FECHA INGRESO: ".FechaStamp($datos[fecha_registro])."</td><td width=460>EMPRESA: ".$datos[nombre_tercero]."</td></tr>";
+                $html.="<tr><td width=300>&nbsp;</td><td width=460>PLAN: (".$datos[plan_id].")  ".  $datos[plan_descripcion]."</td></tr>";
+                $html.="<tr><td width=760>--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------</td></tr>";
+                $html.="<tr><td width=70 align=\"CENTER\">F CARGO</td><td width=70 align=\"CENTER\">CARGO</td><td width=50 align=\"CENTER\">HAB</td><td width=50 align=\"CENTER\">DPTO</td><td width=160 align=\"CENTER\">DESCRIPCION DEL CARGO</td><td width=20 align=\"CENTER\">N</td><td width=40 align=\"CENTER\">CANT</td><td width=60 align=\"CENTER\">VALOR</td><td width=60 align=\"CENTER\">VALOR TOT</td><td width=60 align=\"CENTER\">VLR RECO</td><td width=60 align=\"CENTER\">VLR PACI</td><td width=60 align=\"CENTER\">TRAN2</td></tr>";
+                $html.="<tr><td width=760>--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------</td></tr>";
+                $html.="</table>";
+                $this->Ln(1);
+                $this->WriteHTML($html);
+        }
+        //darling facturas de un usuario
+        if($_SESSION['REPORTES']['VARIABLE']=='facturas_usuario')
+        {
+                $datos=$_SESSION['REPORTES']['FACUSUARIOS']['ARREGLO'];
+                $this->SetFont('Arial','',7);
+                $this->Cell(100,10,'Pagina No '.$this->PageNo());
+                $html="".$this->image('images/logocliente.png',170,9,18)."";//$pdf->image('classes/fpdf/clinicaoccidente.gif'
+                $html.="<table border=0 width=100 align='center' CELLSPACING=\"1\" CELLPADDING=\"1\">";
+                $html.="<tr><td width=760>&nbsp;</td></tr>";
+                $html.="<tr><td width=760><B>".$datos[0][razon_social]."</B></td></tr>";
+                $html.="<tr><td width=610>".$datos[0][tipoid].": ".$datos[0][id]."</td><td width=150>FECHA: ".date('d/m/Y')."</td></tr>";
+                $html.="<tr><td width=610>&nbsp;</td><td width=150>HORA: ".date('h:m:s')."</td></tr>";
+                $html.="<tr><td width=160>&nbsp;</td><td width=450 align='CENTER'>FACTURAS</td><td width=150>USUARIO: ".$datos[0][usuario]."</td></tr>";
+                $html.="<tr><td width=760>--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------</td></tr>";
+                $html.="</table>";
+                $this->Ln(1);
+                $this->WriteHTML($html);
+        }
+        //caso de duvan de la estacion de enfermeria.......
+        if($_SESSION['REPORTES']['VARIABLE']=='estacion_enf')
+        {
+            $this->SetFont('Arial','',7);
+            $this->Cell(10,2,'Pagina '.$this->PageNo());
+            $html="".$this->image('images/logocliente.png',10,4,15)."";//$pdf->image('classes/fpdf/clinicaoccidente.gif'
+            $html .= "      <br><TABLE WIDTH=\"100\" border=\"1\" align=\"center\" >";
+            $html .= "          <TR>";
+            $html.= "               <TD align='center' WIDTH=763 ><font color='black'><b>".$_SESSION['ESTACION_ENFERMERIA']['EMP']."</b></font></TD>";
+            $html.= "           </TR>";
+            $html .= "          <TR>";
+            $TITULO='REPORTE DE PACIENTES INTERNOS  DE LA ESTACION :'." ".$_SESSION['ESTACION_ENFERMERIA']['NOM'];
+            $html.= "               <TD WIDTH=763 ><font color='black' size=10><b>$TITULO</b></font></TD>";
+            $html.= "           </TR>";
+            $html.="<TABLE>";
+            $html .= "      <TABLE WIDTH=100% border=\"1\" align=\"center\" >";
+
+
+            $html.= "               <TR><TD  WIDTH='80' ><font color='white'><b>PIEZA</b></font></TD>";
+            $html.= "               <TD WIDTH='80' ><font color='white'><b>HAB</b></font></TD>";
+            $html.= "               <TD WIDTH='260'   ><font color='white'><b>PACIENTE</b></font></TD>";
+            $html.= "               <TD WIDTH='110' ><font color='white'><b>INGRESO</b></font></TD>";
+            $html.= "               <TD WIDTH='155' ><font color='white'><b>PLAN</b></font></TD>";
+            $html.= "               <TD WIDTH='78'><font color='white'><b>CUENTA</b></font></TD></TR>";
+            $html.="</TR>";
+            $this->Ln(1);
+            $this->WriteHTML($html);
+        }
+
+        //caso de duvan del censo de la estacion...
+        if($_SESSION['REPORTES']['VARIABLE']=='censo')
+        {
+                $this->SetFont('Arial','',7);
+                $this->Cell(0,2,'Pagina '.$this->PageNo());
+                $html="".$this->image('images/logocliente.png',10,4,15)."";
+                $html = "       <br><TABLE WIDTH=\"100\" border=\"1\" align=\"center\" >";
+                $html .= "          <TR>";
+                $html.= "               <TD align='center' WIDTH=765 ><font color='black'><b>".$_SESSION['ESTACION_ENFERMERIA']['EMP']."</b></font></TD>";
+                $html.= "           </TR>";
+                $html .= "          <TR>";
+                $TITULO='CENSO DIARIO DE PACIENTES INTERNOS - HOSPITALIZADOS DE LA ESTACION :'." ".$_SESSION['ESTACION_ENFERMERIA']['NOM'];
+                $html.= "               <TD WIDTH=765 ><font color='black' size=10><b>$TITULO</b></font></TD>";
+                $html.= "           </TR>";
+                $html.="<TABLE>";
+
+                $html .= "      <TABLE WIDTH=100% border=\"1\" align=\"center\" >";
+                $html.= "               <TR><TD  WIDTH='70' ><font color='white'><b>PIEZA</b></font></TD>";
+                $html.= "               <TD WIDTH='65' ><font color='white'><b>HAB</b></font></TD>";
+                $html.= "               <TD  WIDTH='250'   ><font color='white'><b>PACIENTE</b></font></TD>";
+                $html.= "               <TD WIDTH='100' ><font color='white'><b>INGRESO</b></font></TD>";
+                $html.= "               <TD WIDTH='169' ><font color='white'><b>PLAN</b></font></TD>";
+                $html.= "               <TD WIDTH='60'><font color='white'><b>CUENTA</b></font></TD>";
+                $html.= "               <TD WIDTH='51'><font color='white'><b>DIAS</b></font></TD></TR>";
+                $html.="</TR>";
+                $html.="<TR>";
+                $this->Ln(1);
+                $this->WriteHTML($html);
+        }
+
+
+    //caso de claudia liliana val
+        if($_SESSION['REPORTES']['VARIABLE']=='formula_hosp')
+        {
+                $html="<TABLE BORDER='0' WIDTH='1520'>";
+                $html.="<TR><TD ALIGN='CENTER'>rtret";
+                $html="".$this->image('images/logocliente.png',4,3,25)."";
+                $html.="</TD></TR></TABLE>";
+                $this->Ln(1);
+                $this->Ln(1);
+                $this->WriteHTML($html);
+        }
+
+
+        //caso de duvan del cierre de caja...
+        if($_SESSION['REPORTES']['VARIABLE']=='cierre_caja')
+        {
+                $this->SetFont('Arial','',7);
+                //$this->Cell(0,2,'Pagina '.$this->PageNo().'de {nb}',0,0,'C');
+                //$html="".$this->image('images/logocliente.png',85,3,22)."";//$pdf->image('classes/fpdf/clinicaoccidente.gif'
+                $html = "<br><br><br><br><table width=\"100\" border=\"1\" align=\"center\" >";
+                $html .= "<tr>";
+                $space=" ";
+                if(empty($_SESSION['TMP']['CONTROL_CIERRE']['DPTO'])
+                    AND $_SESSION['TMP']['CONTROL_CIERRE']['CUENTA']!='08'
+                    AND $_SESSION['TMP']['CONTROL_CIERRE']['CUENTA']!='04'
+                    AND $_SESSION['TMP']['CONTROL_CIERRE']['CUENTA']!='03')
+                {
+                    $datos=DatosEncabezadoEmpresaRecibo();
+                }
+                else
+                if($_SESSION['TMP']['CONTROL_CIERRE']['CUENTA']=='08')
+                {       $datos=DatosEncabezadoEmpresa();}
+                else
+                {       $datos=DatosEncabezadoEmpresa();}
+                $info=TraerDatoUsuario();
+                $datos_cierre=TraerDatoCierre($feha_confirmacion_cierre=true);
+                $_SESSION['observa']=$datos_cierre['observaciones'];
+                $_SESSION['login']=$info['usuario'];
+                $impresion="IMPRESION :";
+                $html.= "<td align='center' width=780 ><font color='black'><b>".$datos['razon_social']."$space $space $space".$datos['tipo_id_tercero']."$space".$datos['id']."$space $space $space $space $impresion $space".date("Y-m-d H:i")."</b></font></td>";
+                $html.= "</tr>";
+                $html.= "<tr>";
+                $html.= "<td align='center' width=780 ><font color='black'><b>".$datos['descripcion']."</b></font></td>";
+                $html.= "</tr>";
+                $html.= "<tr>";
+                $html.= "<td align='center' width=780 ><font color='black'><b>".$info['usuario_id']."$space $space".$info['nombre']."</b></font></td>";
+                $html.= "</tr>";
+                $html.= "<tr>";
+                $fech=explode(".",$datos_cierre[fecha_confirmacion]);
+                $TITULO='REPORTE DE CIERRE DE CAJA :'." ".strtoupper($datos['descuenta'])."";
+                $html.= "<td width=780 ><font color='black' size=10><b>$TITULO</b></font></td>";
+                $html.= "</tr>";
+                //esta parte es nueva de sos
+
+
+                $html.= "<tr>";
+                $TITULO='REPORTE DE CIERRE DE CAJA No :'." ".$datos_cierre[cierre_de_caja_id]."";
+                $html.= "<td width=780 ><font color='black' size=10><b>$TITULO</b></font></td>";
+                $html.= "</tr>";
+
+
+                $html.= "<tr>";
+                $TITULO='FECHA DE CIERRE DE CAJA :'."$fech[0]";
+                $html.= "<td width=780 ><font color='black' size=10><b>$TITULO</b></font></td>";
+                $html.= "</tr>";    
+                
+                $html.="<table>";
+                $html.= "<table width=100% border=\"1\" align=\"center\" >";
+                $html.= "<tr><td  width='68' ><font color='white'><b>RECIBO</b></font></td>";
+                $html.= "<td width='80' ><font color='white'><b>FECHA</b></font></td>";
+                $html.= "<td  width='310'><font color='white'><b>PACIENTE</b></font></td>";
+                $html.= "<td width='65' ><font color='white'><b>EFECTIVO</b></font></td>";
+                $html.= "<td width='65' ><font color='white'><b>CHEQUE</b></font></td>";
+                $html.= "<td width='65'><font color='white'><b>TARJETAS</b></font></td>";
+                $html.= "<td width='65'><font color='white'><b>BONOS</b></font></td>";
+
+                /*if(!empty($_SESSION['REF_DPTO']))
+                {
+                    $html.= "<td width='67'><font color='white'><b>DESCUENTO</b></font></td>";
+                }*/
+                $html.="<td width='60'><font color='white'><b>SUBTOTAL</b></font></td></tr>";
+                $html.="</tr>";
+                $html.="<tr>";
+                $this->Ln(1);
+                $this->WriteHTML($html);
+        }
+
+        //CUADRE DE CAJA
+        if($_SESSION['REPORTES']['VARIABLE']=='cuadre_caja')
+        {
+                $this->SetFont('Arial','',7);
+                //$this->Cell(0,2,'Pagina '.$this->PageNo().'de {nb}',0,0,'C');
+                //$html="".$this->image('images/logocliente.png',85,3,22)."";//$pdf->image('classes/fpdf/clinicaoccidente.gif'
+                $html = "<br><br><br><br><table width=\"100\" border=\"1\" align=\"center\" >";
+                $html.= "<tr>";
+                $space=" ";
+                if(empty($_SESSION['TMP']['CONTROL_CIERRE']['DPTO']) AND $_SESSION['CAJA']['TIPOCUENTA']!='08' AND $_SESSION['CAJA']['TIPOCUENTA']!='03')
+                {
+                    $datos=DatosEncabezadoEmpresaRecibo();
+                }
+                else
+                if($_SESSION['CAJA']['TIPOCUENTA']=='08' OR $_SESSION['CAJA']['TIPOCUENTA']=='03')
+                {       $datos=DatosEncabezadoEmpresaInventarios();}
+                else
+                {       $datos=DatosEncabezadoEmpresa();}
+                $info=TraerDatoUsuario();
+                $datos_cierre=TraerDatoCierre();
+                $_SESSION['observa']=$datos_cierre['observaciones'];
+                $_SESSION['login']=$info['usuario'];
+                $impresion="IMPRESION :";
+                $html.= "<td align='center' width=780 ><font color='black'><b>".$datos['razon_social']."$space $space $space".$datos['tipo_id_tercero']."$space".$datos['id']."$space $space $space $space $impresion $space".date("Y-m-d H:i")."</b></font></td>";
+                $html.= "</tr>";
+                $html.= "<tr>";
+                $html.= "<td align='center' width=780 ><font color='black'><b>".$datos['descripcion']."</b></font></td>";
+                $html.= "</tr>";
+                $html.= "<tr>";
+                $html.= "<td align='center' width=780 ><font color='black'><b>".$info['usuario_id']."$space $space".$info['nombre']."</b></font></td>";
+                $html.= "</tr>";
+                $html.= "<tr>";
+                $fech=explode(".",$datos_cierre[fecha_registro]);
+                $TITULO='REPORTE DE CUADRE DE CAJA :'." ".strtoupper($datos['descuenta'])."";
+                $html.= "<td width=780 ><font color='black' size=10><b>$TITULO</b></font></td>";
+                $html.= "</tr>";
+                //esta parte es nueva de sos
+
+
+                $html .= "<tr>";
+                $TITULO='REPORTE DE CUADRE DE CAJA No :'." ".$datos_cierre[cierre_caja_id]."";
+                $html.= "<td width=780 ><font color='black' size=10><b>$TITULO</b></font></td>";
+                $html.= "</tr>";
+
+
+                $html .= "<tr>";
+                $TITULO='FECHA DE CUADRE DE CAJA :'."$fech[0]";
+                $html.= "<td width=780 ><font color='black' size=10><b>$TITULO</b></font></td>";
+                $html.= "</tr>";    
+                
+                $html.="<table>";
+                $html.= "<table width=100% border=\"1\" align=\"center\" >";
+                $html.= "<tr><td  width='68' ><font color='white'><b>RECIBO</b></font></td>";
+                $html.= "<td width='80' ><font color='white'><b>FECHA</b></font></td>";
+                $html.= "<td  width='310'><font color='white'><b>PACIENTE</b></font></td>";
+                $html.= "<td width='65' ><font color='white'><b>EFECTIVO</b></font></td>";
+                $html.= "<td width='65' ><font color='white'><b>CHEQUE</b></font></td>";
+                $html.= "<td width='65'><font color='white'><b>TARJETAS</b></font></td>";
+                $html.= "<td width='65'><font color='white'><b>BONOS</b></font></td>";
+
+                /*if(!empty($_SESSION['REF_DPTO']))
+                {
+                    $html.= "<td width='67'><font color='white'><b>DESCUENTO</b></font></td>";
+                }*/
+                $html.= "<td width='60'><font color='white'><b>SUBTOTAL</b></font></td></tr>";
+                $html.="</tr>";
+                $html.="<tr>";
+                $this->Ln(1);
+                $this->WriteHTML($html);
+        }
+        //FIN CUADRE CAJA
+        
+        // cierre de caja TOTAL...
+        if($_SESSION['REPORTES']['VARIABLE']=='cierre_de_caja')
+        {
+                $this->SetFont('Arial','',7);
+                //$this->Cell(0,2,'Pagina '.$this->PageNo().'de {nb}',0,0,'C');
+                //$html="".$this->image('images/logocliente.png',85,3,22)."";//$pdf->image('classes/fpdf/clinicaoccidente.gif'
+                $html = "<br><br><br><br><table width=\"100\" border=\"1\" align=\"center\" >";
+                $html.= "<tr>";
+                $space=" ";
+                if(empty($_SESSION['TMP']['CONTROL_CIERRE']['DPTO'])
+                    AND $_SESSION['CAJA']['TIPOCUENTA']!='08'
+                    AND $_SESSION['CAJA']['TIPOCUENTA']!='03')
+                { 
+                    $datos=DatosEncabezadoEmpresaRecibo();
+                }
+                else
+                {$datos=DatosEncabezadoEmpresa();}
+                $info=TraerDatoUsuario();
+                $datos_cierre=TraerDatoCierreDeCaja();
+                $_SESSION['observa']=$datos_cierre['observaciones'];
+                $_SESSION['login']=$info['usuario'];
+                $impresion="IMPRESION :";
+                $html.= "<td align='center' width=780 ><font color='black'><b>".$datos['razon_social']."$space $space $space".$datos['tipo_id_tercero']."$space".$datos['id']."$space $space $space $space $impresion $space".date("Y-m-d H:i")."</b></font></td>";
+                $html.= "</tr>";
+                $html.= "<tr>";
+                $html.= "<td align='center' width=780 ><font color='black'><b>".$datos['descripcion']."</b></font></td>";
+                $html.= "</tr>";
+                $html.= "<tr>";
+                $html.= "<td align='center' width=780 ><font color='black'><b>".$info['usuario_id']."$space $space".$info['nombre']."</b></font></td>";
+                $html.= "</tr>";
+                $html.= "<tr>";
+                $fech=explode(".",$datos_cierre[fecha_registro]);
+                $TITULO='REPORTE DE CIERRE DE CAJA :'." ".$datos['caja_id']."-".strtoupper($datos['descuenta'])."";
+                $html.= "<td width=780 ><font color='black' size=10><b>$TITULO</b></font></td>";
+                $html.= "</tr>";
+                //esta parte es nueva de sos
+
+
+                $html.= "<tr>";
+                $TITULO='REPORTE DE CIERRE DE CAJA No :'." ".$datos_cierre[cierre_de_caja_id]."";
+                $html.= "<td width=780 ><font color='black' size=10><b>$TITULO</b></font></td>";
+                $html.= "</tr>";
+
+
+                $html.= "<tr>";
+                $TITULO='FECHA DE CIERRE DE CAJA :'."$fech[0]";
+                $html.= "<td width=780 ><font color='black' size=10><b>$TITULO</b></font></td>";
+                $html.= "</tr>";    
+                
+                $html.="<table>";
+                $html.= "<table width=100% border=\"1\" align=\"center\" >";
+                $html.= "<tr><td  width='68' ><font color='white'><b>RECIBO</b></font></td>";
+                $html.= "<td width='80' ><font color='white'><b>FECHA</b></font></td>";
+                if($_SESSION['CIERRE']['CIERRE_TOTAL']['cuenta']=='03' OR $_SESSION['CAJA']['TIPOCUENTA']=='03')
+                    $html.= "<td  width='310'   ><font color='white'><b>CLIENTE</b></font></td>";
+                else
+                    $html.= "<td  width='310'   ><font color='white'><b>PACIENTE</b></font></td>";
+                $html.= "<td width='65' ><font color='white'><b>EFECTIVO</b></font></td>";
+                $html.= "<td width='65' ><font color='white'><b>CHEQUE</b></font></td>";
+                $html.= "<td width='65'><font color='white'><b>TARJETAS</b></font></td>";
+                $html.= "<td width='65'><font color='white'><b>BONOS</b></font></td>";
+
+                /*if(!empty($_SESSION['REF_DPTO']))
+                {
+                    $html.= "<td width='67'><font color='white'><b>DESCUENTO</b></font></td>";
+                }*/
+                $html.= "<td width='60'><font color='white'><b>SUBTOTAL</b></font></td></tr>";
+                $html.="</tr>";
+                $html.="<tr>";
+                $this->Ln(1);
+                $this->WriteHTML($html);
+        }
+
+        // cierre de caja TOTAL CONTROL...
+        if($_SESSION['REPORTES']['VARIABLE']=='cierre_de_caja_control')
+        {
+                $this->SetFont('Arial','',7);
+                //$this->Cell(0,2,'Pagina '.$this->PageNo().'de {nb}',0,0,'C');
+                //$html="".$this->image('images/logocliente.png',85,3,22)."";//$pdf->image('classes/fpdf/clinicaoccidente.gif'
+                $html = "<br><br><br><br><table width=\"100\" border=\"1\" align=\"center\" >";
+                $html.= "<tr>";
+                $space=" ";
+/*              if(empty($_SESSION['TMP']['CONTROL_CIERRE']['DPTO']))
+                {
+                    $datos=DatosEncabezadoEmpresaRecibo();
+                }
+                else
+                {       $datos=DatosEncabezadoEmpresaControl();}*/
+                    $datos=DatosEncabezadoEmpresaControl();
+                $info=TraerDatoUsuario();
+                $datos_cierre=TraerDatoCierreDeCajaControl();
+                $_SESSION['observa']=$datos_cierre['observaciones'];
+                $_SESSION['login']=$info['usuario'];
+                $impresion="IMPRESION :";
+                $html.= "<td align='center' width=780 ><font color='black'><b>".$datos['razon_social']."$space $space $space".$datos['tipo_id_tercero']."$space".$datos['id']."$space $space $space $space $impresion $space".date("Y-m-d H:i")."</b></font></td>";
+                $html.= "</tr>";
+                $html.= "<tr>";
+                $html.= "<td align='center' width=780 ><font color='black'><b>".$datos['descripcion']."</b></font></td>";
+                $html.= "</tr>";
+                $html.= "<tr>";
+                $html.= "<td align='center' width=780 ><font color='black'><b>".$info['usuario_id']."$space $space".$info['nombre']."</b></font></td>";
+                $html.= "</tr>";
+                $html.= "<tr>";
+                $fech=explode(".",$datos_cierre[fecha_registro]);
+                $TITULO='REPORTE DE CIERRE DE CAJA :'." ".strtoupper($datos['descuenta'])."";
+                $html.= "<td width=780 ><font color='black' size=10><b>$TITULO</b></font></td>";
+                $html.= "</tr>";
+                //esta parte es nueva de sos
+
+
+                $html.= "<tr>";
+                $TITULO='REPORTE DE CIERRE DE CAJA No :'." ".$datos_cierre[cierre_de_caja_id]."";
+                $html.= "<td width=780 ><font color='black' size=10><b>$TITULO</b></font></td>";
+                $html.= "</tr>";
+
+
+                $html.= "<tr>";
+                $TITULO='FECHA DE CIERRE DE CAJA :'."$fech[0]";
+                $html.= "<td width=780 ><font color='black' size=10><b>$TITULO</b></font></td>";
+                $html.= "</tr>";    
+                
+                $html.="<table>";
+                $html.= "<table width=100% border=\"1\" align=\"center\" >";
+                $html.= "<tr><td  width='68' ><font color='white'><b>RECIBO</b></font></td>";
+                $html.= "<td width='80' ><font color='white'><b>FECHA</b></font></td>";
+                $html.= "<td  width='310'   ><font color='white'><b>PACIENTE</b></font></td>";
+                $html.= "<td width='65' ><font color='white'><b>EFECTIVO</b></font></td>";
+                $html.= "<td width='65' ><font color='white'><b>CHEQUE</b></font></td>";
+                $html.= "<td width='65'><font color='white'><b>TARJETAS</b></font></td>";
+                $html.= "<td width='65'><font color='white'><b>BONOS</b></font></td>";
+
+                /*if(!empty($_SESSION['REF_DPTO']))
+                {
+                    $html.= "<td width='67'><font color='white'><b>DESCUENTO</b></font></td>";
+                }*/
+                $html.="<td width='60'><font color='white'><b>SUBTOTAL</b></font></td></tr>";
+                $html.="</tr>";
+                $html.="<tr>";
+                $this->Ln(1);
+                $this->WriteHTML($html);
+        }
+
+        //caso de solicitudes
+
+        if($_SESSION['REPORTES']['VARIABLE']=='solicitudes')
+        {
+            $html="<TABLE BORDER='0' WIDTH='1520'>";
+            $html.="<TR>";
+            $html.="<TD ALIGN='CENTER'>";
+            $this->SetFont('Arial','',8);
+            if(is_file('images/logocliente.png'))
+            {
+                $html.="".$this->image('images/logocliente.png',10,6,18)."";
+            }
+            $datos[0]=$_SESSION['SOLICITUD']['DATOS'];
+            $dat=$_SESSION['SOLICITUD']['DAT'];
+            $fechaI=FechaStampJT($datos[0][fecha_nacimiento]);
+            $edad=CalcularEdad($fechaI,$fechaF);
+
+            $html.="</TD>";
+            $html.="<TD ALIGN='CENTER' WIDTH='760' HEIGHT=25>";
+            $html.="<b>".strtoupper($datos[0][razon_social])."</b>";
+            $html.="</TD>";
+            $html.="</TR>";
+            $html.="<TR>";
+            $html.="<TD ALIGN='CENTER' WIDTH='760' HEIGHT=25>";
+            $html.="<b>".$datos[0][tipo_id_tercero].' : '.$datos[0][id]."</b>";
+            $html.="</TD>";
+            $html.="</TR>";
+            $html.="<TR>";
+            $html.="<TD WIDTH='110' HEIGHT=25><br><br>FECHA: </TD>";
+            $html.="<TD WIDTH='270' HEIGHT=25>".date('d/m/Y h:m')."</TD>";
+            //$html.="<TD WIDTH='400' HEIGHT=25>ATENDIDO : ".$datos[0][usuario_id].' - '.$datos[0][usuario]."</TD>";
+            $html.="</TR>";
+            $html.="<TR>";
+            $html.="<TD WIDTH='110' HEIGHT=25>DOCUMENTO:</TD>";
+            $html.="<TD WIDTH='270' HEIGHT=25>".$datos[0][tipo_id_paciente].' '.$datos[0][paciente_id]."</TD>";
+            $html.="<TD WIDTH='110' HEIGHT=25>HC:</TD>";
+            $html.="<TD WIDTH='270' HEIGHT=25>";
+            if($datos[0]['historia_numero']!="")
+            {
+                if($datos[0]['historia_prefijo']!="")
+                {
+                    $html.= $datos[0]['historia_numero']." - ". $datos[0]['historia_prefijo'];
+                }
+                else
+                {
+                    $html.= $datos[0]['paciente_id']." - ".$datos[0]['historia_prefijo'];
+                }
+            }
+            else
+            {
+                $html.= $datos[0]['paciente_id']." - ".$datos[0]['tipo_id_paciente'];
+            }
+            $html.="</TD>";
+            $html.="</TR>";
+            $html.="<TR>";
+            $html.="<TD WIDTH='110' HEIGHT=25>NOMBRE:</TD>";
+            $nombre = $datos[0]['nombre'];
+            $nombre = substr("$nombre", 0, 38);
+            $html.="<TD WIDTH='270' HEIGHT=25><font size=5><b>".strtoupper($nombre).""."</b></font></TD>";
+            $html.="<TD WIDTH='40' HEIGHT=25>EDAD:</TD>";
+            $html.="<TD WIDTH='70' HEIGHT=25>".$edad['anos'].' Aï¿½S'."</TD>";
+            $html.="<TD WIDTH='40' HEIGHT=25>SEXO:</TD>";
+            $html.="<TD WIDTH='70' HEIGHT=25>".$datos[0]['sexo_id']."</TD>";
+            $html.="</TR>";
+            $html.="<TR>";
+            $html.="<TD WIDTH='110' HEIGHT=25>CLIENTE:</TD>";
+    //      $html.="<TD WIDTH='110' HEIGHT=25></TD>";
+            $cliente = $datos[0]['nombre_tercero'];
+            $cliente = substr("$cliente", 0, 30);
+            $html.="<TD WIDTH='270' HEIGHT=25>".strtoupper($cliente)."</TD>";
+            $html.="<TD WIDTH='110' HEIGHT=25>PLAN:</TD>";
+            $plan = $datos[0]['plan_descripcion'];
+            $plan = substr("$plan", 0, 30);
+            $html.="<TD WIDTH='270' HEIGHT=25>".strtoupper($plan)."."."</TD>";
+            $html.="</TR>";
+            $html.="<TR>";
+            $html.="<TD WIDTH='110' HEIGHT=25>TIPO DE AFILIADO:</TD>";
+            $html.="<TD WIDTH='270' HEIGHT=25>".strtoupper($datos[0]['tipo_afiliado_nombre'])."</TD>";
+            $html.="<TD WIDTH='110' HEIGHT=25>RANGO:</TD>";
+            $html.="<TD WIDTH='270' HEIGHT=25>".strtoupper($datos[0]['rango'])."</TD>";
+            $html.="</TR>";
+            $pro=Profesional($dat[0][evolucion_id]);
+            for($j=0; $j<sizeof($pro); $j++)
+            {
+                if($j==0)
+                {
+                    $espe.=$pro[$j][descripcion];
+                }
+                else
+                {
+                    $espe.="  -  ".$pro[$j][descripcion];
+                }
+            }
+            $html.="<TR>";
+            $html.="<TD WIDTH='110' HEIGHT=25>PROFESIONAL :</TD>";
+            $profesional = $pro[0][nombre_tercero];
+            $profesional = substr("$profesional", 0, 40);
+            $html.="<TD WIDTH='270' HEIGHT=25>".strtoupper($profesional)."."."</TD>";
+            //$html.="<TD WIDTH='2' HEIGHT=25>-</TD>";
+            $espe = substr("$espe", 0, 40);
+            $html.="<TD WIDTH='270' HEIGHT=25>".strtoupper($espe)."."."</TD>";
+            $html.="</TR>";
+            $html.="</TABLE><br>";
+            $this->Ln(1);
+            $this->WriteHTML($html);
+        }
+
+        //Para casos de incapacidad
+        if($_SESSION['REPORTES']['VARIABLE']=='incapacidad')
+        {
+            $html="<TABLE BORDER='0' WIDTH='1520'>";
+            $this->SetFont('Arial','',10);
+            if(is_file('images/logocliente.png'))
+            {
+                $html.="".$this->image('images/logocliente.png',10,6,18)."";
+            }
+            $datos[0]=$_SESSION['INCAPACIDAD']['DATOS'];
+            $fechaI=FechaStampJT($datos[0][fecha_nacimiento]);
+            $fechaF=FechaStampJT($datos[0][fecha_cierre]);
+            $fechaIngreso=FechaStampJ($datos[0][fecha_ingreso]);
+            $fechaEvolucion=FechaStampJ($datos[0][fecha_cierre]);
+            $edad=CalcularEdad($fechaI,$fechaF);
+
+            $html.="<TR>";
+            $html.="<TD ALIGN='CENTER' WIDTH='760' HEIGHT=25><b>SOLICITUD DE INCAPACIDADES Y/O LICENCIAS DE MATERNIDAD</b></TD>";
+            $html.="</TR>";
+            $this->WriteHTML($html);
+            $html='';
+            $this->SetFont('Arial','',8);
+            $html.="<TR>";
+            $html.="<TD ALIGN='LEFT' WIDTH='760' HEIGHT=25><BR><b>INFORMACION DEL COTIZANTE</b></BR></TD>";
+            $html.="</TR>";
+            $html.="<TR>";
+            $html.="<TD WIDTH='120' HEIGHT=25>Documento:</TD>";
+            $html.="<TD WIDTH='260' HEIGHT=25>".$datos[0]['tipo_id_paciente']." ".$datos[0]['paciente_id']."</TD>";
+            $html.="<TD WIDTH='110' HEIGHT=25>HC:</TD>";
+            $html.="<TD WIDTH='270' HEIGHT=25>";
+            if($datos[0]['historia_numero']!="")
+            {
+                if($datos[0]['historia_prefijo']!="")
+                {
+                    $html.= $datos[0]['historia_numero']." - ". $datos[0]['historia_prefijo'];
+                }
+                else
+                {
+                    $html.= $datos[0]['paciente_id']." - ".$datos[0]['historia_prefijo'];
+                }
+            }
+            else
+            {
+                $html.= $datos[0]['paciente_id']." - ".$datos[0]['tipo_id_paciente'];
+            }
+            $html.="</TD>";
+            $html.="</TR>";
+            $html.="<TR>";
+            $html.="<TD WIDTH='120' HEIGHT=25>Primer Nombre: </TD>";
+            $nombre = $datos[0]['primer_nombre'];
+            $html.="<TD WIDTH='260' HEIGHT=25><b>".strtoupper($nombre)."</b></TD>";
+            $html.="<TD WIDTH='130' HEIGHT=25>Segundo Nombre: </TD>";
+            if(empty($datos[0]['segundo_nombre']))
+            {  $html.="<TD WIDTH='270' HEIGHT=25>&nbsp;</TD>";  }
+            else
+            {  $html.="<TD WIDTH='270' HEIGHT=25><b>".$datos[0]['segundo_nombre']."</b></TD>";  }
+            $html.="</TR>";
+            $html.="<TR>";
+            $html.="<TD WIDTH='120' HEIGHT=25>Primer Apellido: </TD>";
+            $apellido = $datos[0]['primer_apellido'];
+            $html.="<TD WIDTH='260' HEIGHT=25><b>".strtoupper($apellido)."</b></TD>";
+            $html.="<TD WIDTH='130' HEIGHT=25>Segundo Apellido: </TD>";
+            if(empty($datos[0]['segundo_apellido']))
+            {  $html.="<TD WIDTH='260' HEIGHT=25>&nbsp;</TD>";  }
+            else
+            {  $html.="<TD WIDTH='260' HEIGHT=25><b>".$datos[0]['segundo_apellido']."</b></TD>";  }
+            $html.="</TR>";
+            
+            if($datos[0]['descripcion_dependencia'])
+            {
+              $html.="<TR>";
+              $html.="<TD WIDTH='120' HEIGHT=25>Dependencia:</TD>";
+              $html.="<TD WIDTH='260' HEIGHT=25>".$datos[0]['descripcion_dependencia']."</TD>";
+              $html.="<TD WIDTH='130' HEIGHT=25>Ciudad donde labora:</TD>";
+              $html.="<TD WIDTH='260' HEIGHT=25>".$datos[0]['ciudad_laboral']."</TD>";
+              $html.="</TR>";
+            }
+
+            $html.="<TR>";
+            $html.="<TD WIDTH='120' HEIGHT=25>No. Ingreso:</TD>";
+            $html.="<TD WIDTH='260' HEIGHT=25>".$datos[0]['ingreso']."</TD>";
+            /*$html.="<TD WIDTH='110' HEIGHT=25>FECHA INGRESO:</TD>";
+            $html.="<TD WIDTH='270' HEIGHT=25>".$fechaIngreso."</TD>";*/
+            $html.="<TD WIDTH='110' HEIGHT=25>Fecha Solicitud:</TD>";
+            $html.="<TD WIDTH='270' HEIGHT=25>".$fechaEvolucion."</TD>";
+            $html.="</TR>";
+            $html.="<TR>";
+            $html.="<TD WIDTH='120' HEIGHT=25>Ciudad:</TD>";
+            $html.="<TD WIDTH='260' HEIGHT=25>".$datos[0]['municipio']."</TD>";
+            $html.="</TR>";
+            $html.="</TABLE><BR>";
+            $this->Ln(1);
+            $this->WriteHTML($html);
+        }
+
+        //Para casos de impresion de ordenes de servicio
+        if ($_SESSION['REPORTES']['VARIABLE']=='orden_servicio')
+        {
+            IncludeLib("tarifario_cargos");
+            IncludeLib("funciones_facturacion");
+            IncludeLib("funciones_central_impresion");
+            IncludeLib("ordenservicio");
+
+            $datos[0]=$_SESSION['ORDENSERVICIO']['DATOS'];
+            $dat=$_SESSION['ORDENSERVICIO']['DAT'];
+            $vector=$_SESSION['ORDENSERVICIO']['VECTOR'];
+            $fechaI=FechaStampJT($datos[0][fecha_nacimiento]);
+            $fechaIngreso=FechaStampJ($datos[0][fechaingreso]);
+            $fechaSolicitud=FechaStampJ($datos[0][fechasolicitud]);
+            $edad=CalcularEdad($fechaI,$fechaF);
+            if(!empty($datos[0][ingreso]))
+            {
+                $cama=BuscarCamaActiva($datos[0][ingreso]);
+            }
+            else
+            {
+                $res=RevisarCama($vector['orden']);
+                $cama=$res[cama];
+            }
+
+            $html="<TABLE BORDER='0' WIDTH='1520'>";
+            $html.="<TR>";
+            $html.="<TD ALIGN='CENTER'>";
+            if(is_file('images/logocliente.png'))
+            {
+                $html.="".$this->image('images/logocliente.png',10,6,18)."";
+            }
+            $this->SetFont('Arial','',8);
+            $html.="</TD>";
+            $html.="<TD ALIGN='CENTER' WIDTH='760' HEIGHT=25>";
+            $html.="<b>".strtoupper($datos[0][razon_social])."</b>";
+            $html.="</TD>";
+            $html.="</TR>";
+            $html.="<TR>";
+            $html.="<TD ALIGN='CENTER' WIDTH='760' HEIGHT=25>";
+            $html.="<b>".$datos[0][tipo_id_tercero].' : '.$datos[0][id]."</b>";
+            $html.="</TD>";
+            $html.="</TR>";
+            $html.="<TR>";
+            $html.="<TD ALIGN='CENTER' WIDTH='760' HEIGHT=25>";
+            $html.="<b>ORDEN DE SERVICIO No. ".$dat[0][orden_servicio_id]."</b>";
+            $html.="</TD>";
+            $html.="</TR>";
+            $html.="<TR>";
+            $html.="<TD WIDTH='115' HEIGHT=25><br><br>DOCUMENTO:</TD>";
+            $html.="<TD WIDTH='275' HEIGHT=25>".$datos[0][tipo_id_paciente].' '.$datos[0][paciente_id]."</TD>";
+            $html.="<TD WIDTH='115' HEIGHT=25>HC:</TD>";
+            $html.="<TD WIDTH='275' HEIGHT=25>";
+            if($datos[0]['historia_numero']!="")
+            {
+                if($datos[0]['historia_prefijo']!="")
+                {
+                    $html.= $datos[0]['historia_numero']." - ". $datos[0]['historia_prefijo'];
+                }
+                else
+                {
+                    $html.= $datos[0]['paciente_id']." - ".$datos[0]['historia_prefijo'];
+                }
+            }
+            else
+            {
+                $html.= $datos[0]['paciente_id']." - ".$datos[0]['tipo_id_paciente'];
+            }
+            $html.="</TD>";
+            $html.="</TR>";
+            $html.="<TR>";
+            $html.="<TD WIDTH='115' HEIGHT=25>NOMBRE:</TD>";
+            $nombre = $datos[0]['nombre'];
+            $nombre = substr("$nombre", 0, 38);
+            $html.="<TD ALIGN='LEFT' WIDTH='275' HEIGHT=22>".strtoupper($nombre)."."."</TD>";
+            $html.="<TD WIDTH='115' HEIGHT=25>FECHA INGRESO: </TD>";
+            $html.="<TD WIDTH='275' HEIGHT=25>".$fechaIngreso."</TD>";
+            $html.="</TR>";
+            $html.="<TR>";
+            $html.="<TD WIDTH='40' HEIGHT=25>EDAD:</TD>";
+            $html.="<TD WIDTH='75' HEIGHT=25>".$edad['anos'].' Aï¿½S'."</TD>";
+            $html.="<TD WIDTH='40' HEIGHT=25>SEXO:</TD>";
+            $html.="<TD WIDTH='235' HEIGHT=25>".$datos[0]['sexo_id']."</TD>";
+            $html.="<TD WIDTH='265' HEIGHT=25>FECHA SOLICITUD:   ".$fechaSolicitud."</TD>";
+            $html.="</TR>";
+            $html.="<TR>";
+            $html.="<TD WIDTH='115' HEIGHT=25>TIPO DE AFILIADO:</TD>";
+            $html.="<TD WIDTH='275' HEIGHT=25>".strtoupper($datos[0]['tipo_afiliado_nombre'])."</TD>";
+            $html.="<TD WIDTH='115' HEIGHT=25>RANGO:</TD>";
+            $html.="<TD WIDTH='275' HEIGHT=25>".strtoupper($datos[0]['rango'])."</TD>";
+            $html.="</TR>";
+            $html.="<TR>";
+            $html.="<TD WIDTH='115' HEIGHT=25>CLIENTE:</TD>";
+            $cliente = $datos[0]['nombre_tercero'];
+            $cliente = substr("$cliente", 0, 42);
+            $html.="<TD WIDTH='275' HEIGHT=25>".strtoupper($cliente)."."."</TD>";
+            $html.="<TD WIDTH='115' HEIGHT=25>PLAN:</TD>";
+            $plan = $datos[0]['plan_descripcion'];
+            $plan = substr("$plan", 0, 42);
+            $html.="<TD WIDTH='275' HEIGHT=25>".strtoupper($plan)."."."</TD>";
+            $html.="</TR>";
+
+            $html.="<TR>";
+            $html.="<TD WIDTH='200' HEIGHT=25>CAMA: ".$cama."</TD>";
+            $html.="<TD WIDTH='300' HEIGHT=25>ATENDIDO : ".$datos[0][usuario_id].' - '.$datos[0][usuario]."</TD>";
+            $html.="</TR>";
+            $html.="</TABLE>";
+            $this->Ln(1);
+            $this->WriteHTML($html);
+        }
+
+        //Para casos de formulacion ambulatoria
+        if($_SESSION['REPORTES']['VARIABLE']=='formulacio_amb')
+        {
+            IncludeLib("tarifario");
+            $datos[0]=$_SESSION['FORMULA_AMB']['DATOS'];
+            $fechaI=FechaStampT($datos[0][fecha_nacimiento]);
+            $fechaF=FechaStampT($datos[0][fecha_cierre]);
+            $fechaEvolucion=FechaStampC($datos[0][fecha_cierre]);
+            $edad = CalcularEdad($fechaI,$fechaF);
+            switch($datos[0]['opcion_reporte'])
+            {
+              case '1':
+                $html.="<TABLE BORDER='0' WIDTH='1000' ALIGN='CENTER'>";
+                $html.="<TR>";
+                $html.="<TD  WIDTH='200' >";
+                $html.="".$this->Image('images/logocliente.png',11,3,25)."";
+                $html.="</TD>";
+                $this->SetFont('Arial','',8);
+                $html.="<TD ALIGN='LEFT' WIDTH='600'>";
+                $html.="<b>FORMULA MEDICA No. ".$datos[0]['numero_formula']."</b>";
+                $html.="</TD>";
+                $this->WriteHTML($html);
+                $html='';
+                $this->SetFont('Arial','',6);
+                $html.="<TD  WIDTH='300' >";
+                $html.="<TABLE  WIDTH='160' ALIGN='CENTER'>";
+                $html.="<TR><TD HEIGHT='22' WIDTH='160'><table BORDER='1'>".$datos[0]['centro']."</table></TD></TR>";
+                $html.="<TR><TD HEIGHT='22' WIDTH='600'>&nbsp;</TD>";
+                $html.="<TD HEIGHT='22' WIDTH='160'><table BORDER='1'>".$datos[0]['ubicacion']."</table></TD></TR>";
+                $html.="<TR><TD HEIGHT='22' WIDTH='600'>&nbsp;</TD>";
+                $html.="<TD HEIGHT='22' WIDTH='160'><table BORDER='1'>".$datos[0]['telefono']."</table></TD></TR>";
+                $html.="</TABLE>";
+                $html.="</TD>";
+                $html.="</TR>";
+                $html.="</TABLE>";
+                $this->WriteHTML($html);
+                $html='';
+                $this->SetFont('Arial','',6);
+                $html.="<TABLE  BORDER='1' WIDTH='1520'>";
+                $html.="<TR>";
+                $html.="<TD width='300' HEIGHT='90'>";
+                $html.="<TABLE >";
+                $nombre = $datos[0][paciente];
+                $nombre = substr("$nombre", 0, 38);
+                $html.="<TR>";
+                $html.="<TD ALIGN='LEFT' WIDTH='50'  HEIGHT=22>Paciente</TD>";
+                $html.="<TD ALIGN='LEFT' WIDTH='250' HEIGHT=22><B>".strtoupper($nombre)."</B></TD>";
+                $plan = $datos[0][plan_descripcion];
+                $plan = substr("$plan", 0, 38);
+                $html.="<TD ALIGN='LEFT' WIDTH='50'  HEIGHT=22>Plan</TD>";
+                $html.="<TD ALIGN='LEFT' WIDTH='200' HEIGHT=22><B>".strtoupper($plan)."</B></TD>";
+                $html.="<TD ALIGN='LEFT' WIDTH='30'  HEIGHT=22>Fecha</TD>";
+                $html.="<TD ALIGN='LEFT' WIDTH='180' HEIGHT=22><B>".$fechaEvolucion."</B></TD>";
+                $html.="</TR>";
+                $html.="<TR>";
+                $html.="<TD ALIGN='LEFT' HEIGHT=22 WIDTH='50'>Documento</TD>";
+                $html.="<TD ALIGN='LEFT' WIDTH='140' HEIGHT=22>".$datos[0][tipo_id_paciente]." : ".$datos[0][paciente_id]."</TD>";
+                $html.="<TD ALIGN='LEFT' WIDTH='110' HEIGHT=22>Edad ".$edad['anos']." A</TD>";
+                $html.="<TD ALIGN='LEFT' WIDTH='50'  HEIGHT=22>Tipo Usuario</TD>";
+                $html.="<TD ALIGN='LEFT' WIDTH='200' HEIGHT=22><B>".strtoupper($datos[0]['tipo_afiliado_nombre'])."</B></TD>";
+                $html.="</TR>";
+                $html.="<TR>";
+                $html.="<TD ALIGN='LEFT' HEIGHT=22 WIDTH='50'>Diagnóstico:</TD>";
+                $diagnostico_ingreso = '';
+                foreach ($datos[0][diagnostico_ingreso] as $k => $v)
+                {
+                  if($v['sw_principal'] == '1')
+                    $diagnostico_ingreso = substr($v['diagnostico_id']." ".$v['diagnostico_nombre'],0,40);
+                }
+                $html.="<TD ALIGN='LEFT' HEIGHT=22 WIDTH='250'>".(($diagnostico_ingreso)? $diagnostico_ingreso:"&nbsp;")."</TD>";
+                $html.="<TD ALIGN='LEFT' WIDTH='50'  HEIGHT=22>Estrato</TD>";
+                $html.="<TD ALIGN='LEFT' WIDTH='200' HEIGHT=22><B>".$datos[0]['rango']."</B></TD>";
+                $html.="<TD ALIGN='LEFT' HEIGHT=22 WIDTH='80'>Tipo Contingencia:</TD>";
+                $html.="<TD ALIGN='LEFT' WIDTH='110' HEIGHT=22>".strtoupper($datos[0][atencion])."</TD>";
+                $html.="</TR>";
+                $html.="<TR>";
+                $html.="<TD ALIGN='LEFT' HEIGHT=22 WIDTH='50'>Teléfono</TD>";
+                $html.="<TD ALIGN='LEFT' WIDTH='250' HEIGHT=22>".$datos[0]['residencia_telefono']."</TD>";
+                $html.="</TR>";
+                $html.="</TABLE>";
+                $html.="</TD>";
+                $html.="</TR>";
+                $html.="</TABLE>";
+              break;
+              default:
+                $html.="<TABLE BORDER='0' WIDTH='1000' ALIGN='CENTER'>";
+                $html.="<TR><TD  WIDTH='760>";
+                $html.="".$this->Image('images/logocliente.png',11,3,25)."";
+                $html.="</TD></TR></TABLE><BR>";
+
+                $html.="<TABLE BORDER='0' WIDTH='1000' ALIGN='CENTER'>";
+                $this->SetFont('Arial','',12);
+
+                $historia= '';
+                $titulo = 'FORMULA MEDICA';
+
+                if($datos[0][historia_numero]!="")
+                {
+                    if($datos[0][historia_prefijo]!="")
+                    {
+                        $historia=$datos[0][historia_numero]."-". $datos[0][historia_prefijo];
+                    }
+                    else
+                    {
+                        $historia=$datos[0][paciente_id]."-".$datos[0][historia_prefijo];
+                    }
+                }
+                else
+                {
+                    $historia=$datos[0][paciente_id]."-".$datos[0][tipo_id_paciente];
+                }
+
+                $html.="<TR>";
+                $html.="<TD ALIGN='LEFT' WIDTH='760' HEIGHT=25><b>FORMULA MEDICA</b></TD>";
+                $html.="</TR>";
+                $this->WriteHTML($html);
+                $html='';
+                $this->SetFont('Arial','',6);
+                $html.="<TR>";
+                $html.="<TD WIDTH='90' HEIGHT=22>Ciudad:</TD>";
+                $html.="<TD WIDTH='270' HEIGHT=22>".$datos[0]['municipio']."</TD>";
+                $html.="<TD ALIGN='LEFT' HEIGHT=22 WIDTH='110'>Fecha Solicitud:</TD>";
+                $html.="<TD ALIGN='LEFT' WIDTH='270' HEIGHT=22>".$fechaEvolucion."</TD>";
+                $html.="</TR>";
+                $html.="<TR><TD ALIGN='LEFT' HEIGHT=22 WIDTH='90'>Documento:</TD>";
+                $html.="<TD ALIGN='LEFT' WIDTH='270' HEIGHT=22>".$datos[0][tipo_id_paciente]." : ".$datos[0][paciente_id]."</TD>";
+                $html.="<TD ALIGN='LEFT' HEIGHT=22 WIDTH='110'>Apellidos y Nombres: </TD>";
+                $nombre = $datos[0][paciente];
+                $nombre = substr("$nombre", 0, 38);
+                $html.="<TD ALIGN='LEFT' WIDTH='270' HEIGHT=22><B>".strtoupper($nombre)."</B></TD>";
+                $html.="</TR>";
+                $html.="<TR>";
+                $html.="<TD ALIGN='LEFT' HEIGHT=22 WIDTH='90'>Diagnóstico(s) : </TD>";
+                $diagnostico_ingreso = '';
+                foreach ($datos[0][diagnostico_ingreso] as $k => $v)
+                {
+                    if($diagnostico_ingreso == '')
+                    {  $diagnostico_ingreso.= $v[diagnostico_id];   }
+                    else
+                    {  $diagnostico_ingreso.= ' - '.$v[diagnostico_id];     }
+                }
+
+                $diagnostico_egreso = '';
+                foreach ($datos[0][diagnostico_egreso] as $k => $v)
+                {
+                    if($diagnostico_egreso == '')
+                    {  $diagnostico_egreso.= $v[diagnostico_id];  }
+                    else
+                    {  $diagnostico_egreso.= ' - '.$v[diagnostico_id];  }
+                }
+                $html.="<TD ALIGN='LEFT' HEIGHT=22 WIDTH='270'>".$diagnostico_ingreso." ".$diagnostico_egreso."</TD>";
+                $html.="<TD ALIGN='LEFT' HEIGHT=22 WIDTH='110'>Tipo Contingencia:</TD>";
+                $html.="<TD ALIGN='LEFT' WIDTH='270' HEIGHT=22>".strtoupper($datos[0][atencion])."</TD>";
+                $html.="</TR>";
+                $html.="<TR><TD ALIGN='LEFT' HEIGHT=22 WIDTH='90'>Plan:</TD>";
+                $plan = $datos[0][plan_descripcion];
+                $plan = substr("$plan", 0, 38);
+                $html.="<TD WIDTH='270' HEIGHT=22>".strtoupper($plan)."</TD>";
+                $html.="<TD HEIGHT=22 WIDTH='110'>Estrato:</TD>";
+                $html.="<TD WIDTH='270' HEIGHT=22>".$datos[0][rango]."</TD>";
+                $html.="</TR>";
+                $html.="<TR>";
+                $html.="</TD><TD HEIGHT=22 WIDTH='90'>Empresa:</TD>";
+                $empleador = $datos[0][empleador];
+                $empleador = substr("$empleador", 0, 38);
+                $html.="<TD WIDTH='270' HEIGHT=22>".strtoupper($empleador)."</TD>";
+                $html.="<TD HEIGHT=22 WIDTH='110'>Edad:</TD>";
+                $html.="<TD WIDTH='270' HEIGHT=22>".$edad['anos']." Años</TD>";
+                $html.="</TR>";
+                $html.="<TR>";
+                $html.="<TD HEIGHT=22 WIDTH='90'>Sexo:</TD>";
+                $html.="<TD WIDTH='270' HEIGHT=22>".$datos[0][sexo_id]."</TD>";
+                $html.="</TR>";
+
+                if ($datos[0][uso_controlado]==1)
+                {
+                    $html.="<TR>";
+                    $html.="<TD WIDTH='110' HEIGHT=25>Direcciï¿½.:</TD>";
+                    $dir = $datos[0][residencia_direccion];
+                    $dir = substr("$dir", 0, 38);
+                    $html.="<TD WIDTH='270' HEIGHT=25>".strtoupper($dir)."."."</TD>";
+                    $html.="<TD WIDTH='110' HEIGHT=25>Telï¿½ono:</TD>";
+                    $html.="<TD WIDTH='270' HEIGHT=25>".strtoupper($datos[0]['residencia_telefono'])."</TD>";
+                    $html.="</TR>";
+                }
+                $html.="</TABLE><br>";
+              break;
+            }
+            $this->Ln(1);
+            $this->WriteHTML($html);
+        }
+
+        //CASO CUENTA DE COBRO
+        if($_SESSION['REPORTES']['VARIABLE']=='cuenta_cobro')
+        {
+            $empresa=EncabezadoCuentaCobro($_SESSION['CUENTACOBRO']['PALAN_ID'],$_SESSION['CUENTACOBRO']['INGRESO']);
+            $empresaCC=EmpresaCuentaCobro($_SESSION['CUENTACOBRO']['EMPRESA']);
+            $pacienteCC=PacienteCuentaCobro($_SESSION['CUENTACOBRO']['EMPRESA'],$_SESSION['CUENTACOBRO']['PREFIJO'],$_SESSION['CUENTACOBRO']['NUMERO']);
+            $dat=DatosPrincipales($_SESSION['CUENTACOBRO']['CUENTA']);
+            $this->SetFont('Arial','',7);
+            $this->Cell(100,10,'Pagina No '.$this->PageNo());
+            $html.="<table border=0 width=100 align='center' CELLSPACING=\"1\" CELLPADDING=\"1\">";
+            $html.="<tr><td width=760>&nbsp;</td></tr>";
+            $html.="<tr><td width=760>&nbsp;</td></tr>";
+            $html.="<tr><td width=760 align='CENTER'>FECHA: ".date('d/m/Y')."</td></tr>";
+            $html.="<tr><td width=760 align='CENTER'>CUENTA DE COBRO No.</td></tr>";
+            $html.="<tr><td width=760 align='CENTER'>".$_SESSION['CUENTACOBRO']['PREFIJO'].$_SESSION['CUENTACOBRO']['NUMERO']."</td></tr>";
+            $html.="<tr><td width=380 align='RIGHT'>EMPRESA ASEGURADORA:  </td><td width=380 align='LEFT'>".$empresa[nombre_tercero]." </td></tr>";
+            $html.="<tr><td width=380 align='RIGHT'>DEBE A:  </td><td width=380 align='LEFT'>".$empresaCC[razon_social]."</td></tr>";
+            $html.="<tr><td width=380 align='RIGHT'>&nbsp;</td><td width=380 align='LEFT'>".$empresaCC[tipo_id_tercero]."-".$empresaCC[id]."</td></tr>";
+            $html.="<tr><td width=380 align='RIGHT'>DIRECCIï¿½:  </td><td width=380 align='LEFT'>".$empresa[direccion]."</td></tr>";
+            $html.="<tr><td width=380 align='RIGHT'>TELEFONOS:  </td><td width=380 align='LEFT'>".$empresa[telefono]."</td></tr>";
+            $html.="<tr><td width=380 align='RIGHT'>CENTRO DE COSTO:  </td><td width=380 align='LEFT'>".$dat[deservicio]."</td></tr>";
+            $html.="<tr><td width=380 align='RIGHT'>LA SUMA DE:  </td><td width=380 align='LEFT'>$".FormatoValor($dat[total_cuenta])."</td></tr>";
+            $html.="<tr><td width=760>--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------</td></tr>";
+            $html.="</table>";
+            $this->Ln(1);
+            $this->WriteHTML($html);
+        }
+        //
+
+        if($_SESSION['REPORTES']['VARIABLE']=='factura_agrupada')
+        {
+                $datos=$_SESSION['REPORTES']['HOJACARGOS']['ARREGLO'];
+                $this->SetFont('Arial','',7);
+                //$this->Cell(0,2,'Pagina No '.$this->PageNo());
+                $this->Image('images/logocliente.png',170,9,30);//$pdf->image('classes/fpdf/clinicaoccidente.gif'
+                
+                
+                $html ="<br><br><br>"; 
+                $html.="<table border=0 width=100 align='center' border=0>";
+                $html.="<tr><td width=760><BR><BR></td></tr>";
+                $html.="<tr><td width=460><B>".$datos[0][razon_social]."</B></td><td width=300 align='center'>FACTURA DE VENTA</td></tr>";
+
+                if(!empty($datos[prefijo]) AND !empty($datos[factura_fiscal]))
+                {
+                        list($dbconn) = GetDBconn();
+                        $query = "SELECT count(numerodecuenta) FROM fac_facturas_cuentas
+                                            WHERE factura_fiscal=".$datos[factura_fiscal]."
+                                            and prefijo='".$datos[prefijo]."'
+                                            LIMIT 2 OFFSET 0";
+                        $result = $dbconn->Execute($query);
+                        if ($dbconn->ErrorNo() != 0) {
+                                        $this->error = "Error al Cargar el Modulo";
+                                        $this->mensajeDeError = "Error DB : " . $dbconn->ErrorMsg();
+                                        return false;
+                        }
+                        $result->Close();
+                        if($result->fields[0] > 1)
+                        {
+                                $datos[prefijo]='';
+                                $datos[factura_fiscal]='';
+                        }
+                }
+                $factura_fiscal=str_pad($datos[0][factura_fiscal], $datos[0][numero_digitos], "0", STR_PAD_LEFT);
+                $html.="<tr><td width=\"460\">".$datos[0][tipoid].": ".$datos[0][id]."</td><td width=\"300\">No. ".$datos[0][prefijo]."".$factura_fiscal."</td></tr>";
+                $html.="<tr><td width=\"230\">DIRECCION: ".$datos[0][direccion]."</td><td width=\"230\"> TELEFONOS: ".$datos[0][telefonos]."</td><td width=\"300\">".$datos[0][municipio]."-".$datos[0][departamento]."</td></tr>";
+		//$this->SetFont('Arial','',6);
+                $html.="<tr><td width=\"760\" colspan=\"3\">".$datos[0][texto1]."</td></tr>";
+		//$this->SetFont('Arial','',8);
+		$html.="<tr><td width=760>--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------</td></tr>";
+                $html.="<tr><td width=\"500\"><B>CLIENTE: ".$datos[0][nombre_tercero]."</B></td></tr>";
+                $html.="<tr><td width=460>".$datos[0][tipo_id_tercero].": ".$datos[0][tercero_id]."</td></tr>";
+                $html.="<tr><td width=450><B>PLAN: ".$datos[0][plan_descripcion]."</B></td></tr>";
+                $html.="<tr><td width=450> DPTO: ".$datos[0][descripcion]."</td></tr>";
+                $fecha=explode("-",$datos[0][fecha_registro]);
+                $nueva = mktime(0,0,0, $fecha[1],$fecha[2],$fecha[0]) + 30 * 24 * 60 * 60;
+                $nuevafecha=date("d/m/Y",$nueva);
+                $fechaElab=date("d/m/Y",mktime(0,0,0, $fecha[1],$fecha[2],$fecha[0]));
+                //$html.="<tr><td width=230>DIRECCION: ".$datos[residencia_direccion]."</td><td width=230>TELEFONOS: ".$datos[residencia_telefono]."</td><td width=150>FECHA ELAB.: ".$fechaElab."</td><td width=150>FECHA VENC.: ".$nuevafecha."</td></tr>";
+                $html.="<tr><td width=450>DIRECCION: ".$datos[0][dirter]."</td></tr>";
+                $html.="<tr><td width=400>TELEFONOS: ".$datos[0][telter]."</td><td width=200>FECHA ELAB.: ".$fechaElab."</td><td width=150>FECHA VENC.: ".$nuevafecha."</td></tr>";
+                $html.="<tr><td width=400>&nbsp;</td><td width=200>FECHA INGR.: ".$fechaElab."</td><td width=150>FECHA EGRE.: ".$nuevafecha."</td></tr>";
+                $html.="</table>";
+                $this->Ln(1);
+                $this->WriteHTML($html);
+        }
+        //To be implemented in your own inherited class
+    }
+
+    function Footer()
+    {
+        //darling envios
+        if($_SESSION['REPORTES']['VARIABLE']=='envios')
+        {
+                $this->SetY(-15);
+                $html .= "<table WIDTH=\"40\" border=\"0\" cellspacing=\"2\" cellpadding=\"2\" align=\"left\" class=\"normal_10\">";
+                $html.="<tr><td WIDTH=760 align=\"CENTER\">NOTA: Al cancelar hacer referencia al No. de la factura por paciente , o al No. del envio.</td></tr>";
+                $html .= "  </table><BR>";
+                $this->WriteHTML($html);
+        }
+    //To be implemented in your own inherited class
+
+
+//darling envios
+        if($_SESSION['REPORTES']['VARIABLE']=='cierre_caja')
+        {
+                $this->SetY(-25);
+                 //Select Arial italic 8
+            $this->SetFont('Arial','B',8);
+                    //Print current and total page numbers
+                $this->Cell(0,10,'Pagina '.$this->PageNo().' de {nb}',0,0,'C');
+
+        }
+
+        if ($_SESSION['REPORTES']['VARIABLE']=='incapacidad')
+        {
+            $this->SetY(-25);
+        $this->SetFont('Arial','',6);           
+            //$html.="<TABLE BORDER='0' WIDTH='1520'>";
+            //$html.="<tr><td WIDTH=760 align=\"CENTER\" HEIGHT=25>NOTA: 1:Documento no vï¿½ido para descuentos en planillas de autoliquidacion de aportes,favor acerquese a S.O.S para su liquidaciï¿½.</td></tr>";
+            //$html.="<tr><td WIDTH=760 align=\"CENTER\" HEIGHT=25>      2:La solicitud de licencia de maternidad requiere el certificado de nacido vivo, favor solicitarlo a su mï¿½ico y adjuntarlo para su respectivo trï¿½ite.</td></tr>";
+            //$html.="</TABLE>";
+            $this->WriteHTML($html);
+        }
+
+
+
+        /*if($_SESSION['REPORTES']['VARIABLE']=='incapacidad')
+        {
+                $this->SetY(-25);
+                 //Select Arial italic 8
+            $this->SetFont('Arial','B',8);
+                    //Print current and total page numbers
+                $this->Cell(0,10,'Pagina '.$this->PageNo().' de {nb}',0,0,'C');
+
+        }*/
+
+
+        if($_SESSION['REPORTES']['VARIABLE']=='solicitudes')
+        {
+                $this->SetY(-25);
+                 //Select Arial italic 8
+            $this->SetFont('Arial','B',8);
+                    //Print current and total page numbers
+                $this->Cell(0,10,'Pagina '.$this->PageNo().' de {nb}',0,0,'C');
+
+        }
+
+        if($_SESSION['REPORTES']['VARIABLE']=='orden_servicio')
+        {
+                $this->SetY(-25);
+                 //Select Arial italic 8
+            $this->SetFont('Arial','B',8);
+                    //Print current and total page numbers
+                $this->Cell(0,10,'Pagina '.$this->PageNo().' de {nb}',0,0,'C');
+
+        }
+
+        if($_SESSION['REPORTES']['VARIABLE']=='formula_hosp')
+        {
+
+                $this->SetY(-25);
+                 //Select Arial italic 8
+            $this->SetFont('Arial','B',8);
+                    //Print current and total page numbers
+                $this->Cell(0,10,'Pagina '.$this->PageNo().' de {nb}',0,0,'C');
+
+        }
+
+        if($_SESSION['REPORTES']['VARIABLE']=='formulacio_amb')
+        {
+          $this->SetY(-24);
+          //Select Arial italic 8
+          $this->SetFont('Arial','',7);
+          //Print current and total page numbers
+          //$this->Cell(0,10,'Si los sintomas persisten favor consultar en las siguientes 72 horas',0,0,"C");
+
+          $this->SetY(-20);
+          //Select Arial italic 8
+          $this->SetFont('Arial','',7);
+          //Print current and total page numbers
+
+          $this->Cell(0,10,'Caducidad Tres (3) dïás calendario',0,0,"C");
+
+          $this->SetY(-16);
+          //Select Arial italic 8
+          $this->SetFont('Arial','B',8);
+          //Print current and total page numbers
+          $this->Cell(0,10,'Pagina '.$this->PageNo().' de {nb}',0,0,'C');
+        }
+
+//      if($_SESSION['REPORTES']['VARIABLE']=='cuenta_cobro')
+//      {
+//              $this->SetY(-25);
+//               //Select Arial italic 8
+//              $this->SetFont('Arial','B',8);
+//                  //Print current and total page numbers
+//              $this->Cell(0,10,'Pagina '.$this->PageNo().' de {nb}',0,0,'C');
+// 
+//      }
+
+     if($_SESSION['REPORTES']['VARIABLE']=='facturacion_recepcion')
+     {
+             $this->SetY(-25);
+              //Select Arial italic 8
+             $this->SetFont('Arial','B',8);
+                 //Print current and total page numbers
+             $this->Cell(0,10,'Pï¿½ina '.$this->PageNo().' / {nb}',0,0,'C');
+
+     }
+
+    //To be implemented in your own inherited class
+    }
+}//end of class
+?>

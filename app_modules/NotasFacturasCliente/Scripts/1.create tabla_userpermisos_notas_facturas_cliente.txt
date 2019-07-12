@@ -1,0 +1,40 @@
+-- Table: public.userpermisos_notas_facturas_cliente
+
+-- DROP TABLE public.userpermisos_notas_facturas_cliente;
+
+CREATE TABLE public.userpermisos_notas_facturas_cliente (
+  tbl_notas_facturas_cliente_id  serial NOT NULL,
+  usuario_id   integer,
+  empresa_id   varchar(2),
+  /* Keys */
+  CONSTRAINT userpermisos_notas_facturas_cliente_pkey
+    PRIMARY KEY (tbl_notas_facturas_cliente_id),
+  /* Foreign keys */
+  CONSTRAINT userpermisos_notas_facturas_cliente_empresa_id_fkey
+    FOREIGN KEY (empresa_id)
+    REFERENCES public.empresas(empresa_id)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE, 
+  CONSTRAINT userpermisos_notas_facturas_cliente_usuario_id_fkey
+    FOREIGN KEY (usuario_id)
+    REFERENCES public.system_usuarios(usuario_id)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE
+) WITH (
+    OIDS = FALSE
+  );
+
+ALTER TABLE public.userpermisos_notas_facturas_cliente
+  OWNER TO "admin";
+
+COMMENT ON TABLE public.userpermisos_notas_facturas_cliente
+  IS 'Tabla de permisos para el módulo de parametrización de documentos de contabilidad';
+
+COMMENT ON COLUMN public.userpermisos_notas_facturas_cliente.tbl_notas_facturas_cliente_id
+  IS 'PK tabla';
+
+COMMENT ON COLUMN public.userpermisos_notas_facturas_cliente.usuario_id
+  IS 'Usuario Id';
+
+COMMENT ON COLUMN public.userpermisos_notas_facturas_cliente.empresa_id
+  IS 'Empresa Id';

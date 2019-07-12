@@ -1,0 +1,12 @@
+
+ALTER TABLE public.prof_pool ADD COLUMN estado character(1);
+
+ALTER TABLE "prof_pool" ALTER COLUMN "estado" SET NOT NULL;
+
+ALTER TABLE "prof_pool" ALTER COLUMN "estado" SET DEFAULT '0';
+
+ALTER TABLE "prof_honorarios_pool_cargos_excep" DROP CONSTRAINT "$1";
+
+ALTER TABLE public.prof_honorarios_pool_cargos_excep
+ADD CONSTRAINT "$1" FOREIGN KEY (honorario_pool_cargo_id)
+REFERENCES public.prof_honorarios_pool_cargos (honorario_pool_cargo_id) ON UPDATE CASCADE ON DELETE RESTRICT;

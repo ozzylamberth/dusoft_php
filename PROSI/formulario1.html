@@ -1,0 +1,24 @@
+<script language="javascript">
+function seleccionar_todo(form,grupo,marca){
+	for (i=0;i<form.elements.length;i++) {
+		if(form.elements[i].type == "checkbox") {
+			ultimo = form.elements[i].name.length-1;
+			if(form.elements[i].name.charAt(ultimo) == grupo) {
+				form.elements[i].checked=marca;
+			}
+		}
+	}
+} 
+</script>
+<form name="formu">
+<b>TEXTO B:</b><br>
+<input type="checkbox" name="Grupo_1B" value="XXX">1B<br>
+<input type="checkbox" name="Grupo_2B" value="YYY">2B<br>
+<b>TEXTO C:</b><br>
+<input type="checkbox" name="Grupo_1C" value="XXX">1C<br>
+<input type="checkbox" name="Grupo_2C" value="YYY">2C<br>
+<input type="button" value="Marca todos los B" name="todosB" onClick="seleccionar_todo(this.form,'B',1)">
+<input type="button" value="Marca todos los C" name="todosC" onClick="seleccionar_todo(this.form,'C',1)"><br>
+<input type="button" value="Desmarcar todos los B" name="destodosB" onClick="seleccionar_todo(this.form,'B',0)">
+<input type="button" value="Desmarcar todos los C" name="destodosC" onClick="seleccionar_todo(this.form,'C',0)">
+</form>

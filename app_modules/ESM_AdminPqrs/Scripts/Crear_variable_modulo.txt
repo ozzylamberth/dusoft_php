@@ -1,0 +1,4 @@
+Crear variable de módulo para verificar el estado de vigencia y solucion de los casos pqrs
+
+
+Vigencia_Pqrs = 3   (dias)

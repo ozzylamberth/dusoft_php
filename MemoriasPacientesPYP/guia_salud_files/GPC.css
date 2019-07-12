@@ -1,0 +1,418 @@
+
+
+INPUT
+{
+	border-right: #ff9900 1px solid;
+	border-top: #ff9900 1px solid;
+	font-size: 10px;
+	border-left: #ff9900 1px solid;
+	color: #000000;
+	border-bottom: #ff9900 1px solid;
+	font-family: Verdana;
+	background-color: white;
+}
+
+BUTTON
+{
+	border-top-width: 0px;
+	border-right-width: 0px;
+	border-bottom-width: 0px;
+	border-left-width: 0px;
+	background-color: Transparent;
+}
+
+SELECT
+{
+	font-size: 10px;
+	color: #000000;
+	font-family: Verdana;
+	background-color: white;
+}
+
+
+
+TEXTAREA
+{		
+	font-family: Verdana; 
+	font-size: 10px; 
+	color: #000000; 
+	border: #ff9900; 
+	border-style: solid; 
+	border-top-width: 1px; 
+	border-right-width: 1px; 
+	border-bottom-width: 1px; 
+	border-left-width: 1px;
+}
+
+
+
+INPUT.invisible
+{
+	border-style: none;
+	background-color: Transparent;
+}
+INPUT.checkbox
+{
+	border-style: none;
+}
+
+
+TABLE .TablaCamposBusqueda
+{
+	font-size: 8pt;
+	color: #222222;
+	font-family: Verdana;
+	border-right: black 1px solid;
+	border-top: black 1px solid;
+	border-left: black 1px solid;
+	border-bottom: black 1px solid;
+}
+
+TABLE .FichaLight
+{
+	border-right: black 1px solid;
+	border-top: black 1px solid;
+	border-left: black 1px solid;
+	border-bottom: black 1px solid;
+	background-color: white;
+}
+
+TABLE .FichaDark
+{
+	border-right: black 1px solid;
+	border-top: black 1px solid;
+	border-left: black 1px solid;
+	border-bottom: black 1px solid;
+	background-color: gainsboro;
+}
+
+.CampoTitulo
+{
+	font-weight: bold;
+	font-size: 7pt;
+	color: #7f2453;
+	font-family: Verdana;
+}
+
+.CampoValor
+{
+	font-size: 7pt;
+	color: #222222;
+	font-family: Verdana;
+}
+
+.TituloListado
+{
+	font-weight: bold;
+	font-size: 8pt;
+	color: #663300;
+	font-family: Verdana;
+}
+.TituloListadoSmall
+{
+	font-size: 8pt;
+	color: #663300;
+	font-family: Verdana;
+}
+
+.TituloSeccion
+{
+	font-weight: bold;
+	font-size: 8pt;
+	color: black;
+	font-family: Verdana;
+	text-decoration: underline;
+}
+
+.TextoSeccion
+{
+	font-size: 7pt;
+	color: black;
+	font-style: italic;
+	font-family: Verdana;
+}
+
+.TituloBusqueda
+{
+	font-weight: bold;
+	font-size: 8pt;
+	color: #663300;
+	font-family: Verdana;
+}
+
+.MSG
+{
+	font-weight: bold;
+	font-size: 8pt;
+	color: crimson;
+	font-family: Verdana;
+}
+
+
+.DescargaDesactivada
+{
+	border-right: black 1px solid;
+	padding-right: 1px;
+	border-top: black 1px solid;
+	padding-left: 1px;
+	font-size: 8pt;
+	padding-bottom: 1px;
+	border-left: black 1px solid;
+	color: white;
+	padding-top: 1px;
+	border-bottom: black 1px solid;
+	font-family: Verdana;
+	background-color: gray;
+}
+
+
+A.DescargaActivada:link, A.DescargaActivada:hover, A.DescargaActivada:visited
+{
+	border-right: black 1px solid;
+	padding-right: 1px;
+	border-top: black 1px solid;
+	padding-left: 1px;
+	font-size: 8pt;
+	padding-bottom: 1px;
+	border-left: black 1px solid;
+	color: black;
+	padding-top: 1px;
+	border-bottom: black 1px solid;
+	font-family: Verdana;
+	background-color: #ff9900;
+	text-decoration: none;
+}
+
+A.LinkListado:link, A.LinkListado:hover, A.LinkListado:visited
+{
+	font-size: 10pt;
+	color: #660033;
+	font-family: Verdana;
+	text-decoration: underline;
+	font-weight:bold;
+}
+
+
+.nuevo
+{
+	font-size: 10pt;
+	font-family: Verdana;
+	font-weight:bold;
+	background-color:cccccc;
+}
+
+A.LinkMainMenu:link, A.LinkMainMenu:hover, A.LinkMainMenu:visited
+{
+	font-weight:700;
+	font-size: 7pt;
+	color: #000000;
+	font-family: Verdana;
+	text-decoration: none;
+}
+
+.MainMenuItem
+{
+	font-weight: 700;
+	font-size: 7pt;
+	color: #000000;
+	font-family: Verdana;
+}
+
+.FondoMenuItem
+{
+	background-color: #CCCCCC;
+}
+.FondoMenuItemActivo
+{
+	background-color: #eeeeee;
+}
+
+.marco
+{
+	border-color:#ff9900;
+	border-style:solid;
+	border-top-width:1px;
+	border-bottom-width:1px;
+	border-right-width:1px;
+	border-left-width:1px;
+}
+
+.celdasdark
+{
+	background-color: #ff9900;
+	color: #000000;
+	font-family: Arial;
+	font-size: 8pt;
+}
+
+
+.celdaswhite
+{
+	background-color: #ffffff;
+	color: #000000;
+	font-family: Arial;
+	font-size: 8pt;
+}
+.celdaslight
+{
+	background-color: #E7E7E7;
+	color: #000000;
+	font-family: Arial;
+	font-size: 8pt;
+}
+
+.Contenido
+{
+	Z-INDEX:2;
+	TOP:199;
+	POSITION:absolute;
+	OVERFLOW: auto;
+	WIDTH: 99.5%;
+	HEIGHT: 99%;
+	background-color:white;
+	SCROLLBAR-FACE-COLOR:#feead2;
+	scrollbar-arrow-color:#f9a64a;
+	scrollbar-highlight-color:#f9a64a;
+	scrollbar-darkshadow-color:#f9a64a;
+	scrollbar-3dlight-color:#fcd3a5;
+	scrollbar-shadow-color:#fcd3a5;
+	scrollbar-track-color:#fcd3a5;
+}
+
+.ScrollBody
+{
+	overflow:auto;
+	SCROLLBAR-FACE-COLOR:#feead2;
+	scrollbar-arrow-color:#f9a64a;
+	scrollbar-highlight-color:#f9a64a;
+	scrollbar-darkshadow-color:#f9a64a;
+	scrollbar-3dlight-color:#fcd3a5;
+	scrollbar-shadow-color:#fcd3a5;
+	scrollbar-track-color:#fcd3a5;		
+}
+
+.ancla {position:relative;visibility:visible; } 
+.opciones {
+	margin:auto;
+	position:absolute;
+	visibility:hidden;
+	background-color:#FFFFFF;
+	border-collapse: collapse;
+	border-color:#fca64a;
+	border-top: 1px solid #fca64a;
+	border-right: 1px solid #fca64a;
+	border-bottom: 1px solid #fca64a;
+	border-left: 1px solid #fca64a;
+	z-index: 3 !important;
+	}
+.navegacion {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	font-weight: bold;
+	color: fca64a;
+	text-decoration: underline;
+}
+.navegacion:hover {text-decoration:none;color:#605f7f;font-family: Verdana, Arial, Helvetica, sans-serif;font-size: 10px;font-weight: bold;}
+
+.fecha {
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	color: 000;
+	font-weight: normal;
+	text-decoration: none;
+	}
+
+.nuevo {
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	font-weight: bold;
+	color:#000;
+	background-color: #cca0f4;
+	text-decoration: none;
+	}
+
+/* CSS DEL FORMULARIO DE SOLICITUD DE GPCs*/
+
+
+#formulario-imagenes{
+	margin-left:18em;
+}
+.tabla-formulario {
+	font-family:Verdana, Arial, Helvetica, sans-serif;
+	font-size:85%;
+	margin-left:5em;
+	background-color:#eeeeee;
+	color:#000000;
+	text-align: left;
+	border:0em;
+	width:80%;
+}
+.tabla-formulario th	{
+	font-weight: bold;
+	background-color:#ffffff;
+	padding:0.5em;
+}	
+.tabla-formulario td { 
+	background-color:#ffffff;
+}
+.formulario-p{
+	font-family:Verdana, Arial, Helvetica, sans-serif;
+	font-size:85%;
+	margin-left:3em;
+	}
+.formulario-centro{
+	text-align:center;
+}
+.formulario-aviso {
+	font-family:Verdana, Arial, Helvetica, sans-serif;
+	font-size:70%;
+	margin-left:3em;
+}
+.formulario input {
+	color: #000000;
+	font-family:Verdana, Arial, Helvetica, sans-serif;
+}
+
+img {border: none;}
+
+#bibliografia_act {
+    border: #8b2346 solid 0.01em;
+	padding-left: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+
+.imagen {
+border: 0.1em solid #ccc;
+padding:0em;
+float:left;
+margin: 0.7em;
+}
+
+.enlace-sin a:link {
+	color:#0000ee;
+	text-decoration:none;
+	font-weight:lighter;
+	font-size:120%;}
+	
+.enlace-sin a:visited {
+	color:#551a8b;
+	text-decoration:none;
+	font-weight:lighter;
+	font-size:120%;}
+	
+.enlace-sin a:hover {
+	color:#0000ee;
+	text-decoration:underline;
+	font-weight:lighter;
+	font-size:120%;}
+	
+.texto {color:#000000;
+	text-decoration:none;
+	font-weight:lighter;
+	font-size:120%;}
+	
+.mes {color:#663b8e;
+	text-decoration:none;
+	font-weight:bold;
+	font-size:110%;}

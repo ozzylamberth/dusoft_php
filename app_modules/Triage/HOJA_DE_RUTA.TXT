@@ -1,0 +1,55 @@
+
+S (Tabla del sistema Implementada con anterioridad en otro modulos.)
+M (Tabla de Movimiento, cuando la instalacion es nueva debera estar vacia)
+T (Tabla maestra de tipos)
+
+M puntos_admisiones_usuarios
+M puntos_admisiones_estaciones
+M puntos_triage_admision
+M puntos_admisiones
+M userpermisos_puntos_triage
+M puntos_triage
+M autorizaciones_admision_soat
+M triages
+M ingresos
+M pacientes_urgencias
+M pendientes_x_hospitalizar
+M garantes
+M ingresos_soat
+M signos_vitales_triages
+M triage_no_atencion
+M triages_diagnosticos
+M chequeo_triages
+M soat_consumos_internos
+M ordenes_hospitalizacion
+M ordenes_hospitalizacion_externas
+M pacientes_remitidos
+M triages_pendientes_admitir
+M egresos_no_atencion
+S departamentos
+S empresas
+S centros_utilidad
+S unidades_funcionales
+S planes
+S pacientes
+S estaciones_enfermeria
+M autorizaciones
+S planes_rangos
+S terceros_soat
+S terceros
+T tipo_estado_civil
+T tipos_id_pacientes
+T tipo_id_terceros
+S soat_eventos
+S soat_polizas
+T niveles_triages
+S centros_remision
+T hc_tipos_apertura_ocular
+T hc_tipos_respuesta_verbal
+T hc_tipos_respuesta_motora
+
+
+
+
+
+

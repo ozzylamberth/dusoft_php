@@ -1,0 +1,78 @@
+--desde aqui hasta la nota de Ricardo
+
+ALTER TABLE soat_vehiculo_conductor ALTER COLUMN telefono_conductor SET NOT NULL;
+ALTER TABLE soat_vehiculo_conductor ALTER COLUMN direccion_conductor SET NOT NULL;
+ALTER TABLE soat_polizas ADD COLUMN placa_vehiculo character varying (8);
+ALTER TABLE soat_polizas ADD COLUMN marca_vehiculo character varying (30);
+ALTER TABLE soat_polizas ADD COLUMN tipo_vehiculo character varying (30);
+
+ALTER TABLE soat_vehiculo_propietario DROP COLUMN placa_vehiculo;
+ALTER TABLE soat_vehiculo_propietario DROP COLUMN marca_vehiculo;
+ALTER TABLE soat_vehiculo_propietario DROP COLUMN tipo_vehiculo;
+
+ALTER TABLE soat_vehiculo_propietario ALTER COLUMN apellidos_propietario SET NOT NULL;
+ALTER TABLE soat_vehiculo_propietario ALTER COLUMN nombres_propietario SET NOT NULL;
+ALTER TABLE soat_vehiculo_propietario ALTER COLUMN tipo_id_propietario SET NOT NULL;
+ALTER TABLE soat_vehiculo_propietario ALTER COLUMN propietario_id SET NOT NULL;
+ALTER TABLE soat_vehiculo_propietario ALTER COLUMN extipo_pais_id SET NOT NULL;
+ALTER TABLE soat_vehiculo_propietario ALTER COLUMN extipo_dpto_id SET NOT NULL;
+ALTER TABLE soat_vehiculo_propietario ALTER COLUMN extipo_mpio_id SET NOT NULL;
+ALTER TABLE soat_vehiculo_propietario ALTER COLUMN tipo_pais_id SET NOT NULL;
+ALTER TABLE soat_vehiculo_propietario ALTER COLUMN tipo_dpto_id SET NOT NULL;
+ALTER TABLE soat_vehiculo_propietario ALTER COLUMN tipo_mpio_id SET NOT NULL;
+
+CREATE TABLE soat_atencion_medica (
+    evento integer NOT NULL,
+    nombres_declara character varying(40) NOT NULL,
+    apellidos_declara character varying(40) NOT NULL,
+    tipo_id_paciente character varying(3) NOT NULL,
+    declara_id character varying(32) NOT NULL,
+    extipo_pais_id character varying(4),
+    extipo_dpto_id character varying(4),
+    extipo_mpio_id character varying(4),
+    fecha_ingreso timestamp without time zone NOT NULL,
+    datos1_ta character varying(7),
+    datos2_fc character varying(7),
+    datos3_fr character varying(7),
+    datos4_te character varying(7),
+    datos5_conciencia character varying(1),
+    datos6_glasgow character varying(7),
+    estado_embriaguez character varying(1),
+    diagnostico1 text,
+    diagnostico2 text,
+    diagnostico3 text,
+    diagnostico4 text,
+    diagnostico5 text,
+    diagnostico6 text,
+    diagnostico7 text,
+    diagnostico8 text,
+    diagnostico9 text,
+    diagnostico_def text,
+    fecha_registro timestamp without time zone NOT NULL,
+    usuario_id integer NOT NULL,
+    tipo_id_tercero character varying(3),
+    tercero_id character varying(32)
+);
+
+REVOKE ALL ON TABLE soat_atencion_medica FROM PUBLIC;
+GRANT SELECT ON TABLE soat_atencion_medica TO siis_consulta;
+GRANT INSERT,SELECT,UPDATE,DELETE ON TABLE soat_atencion_medica TO siis;
+
+ALTER TABLE ONLY soat_atencion_medica
+    ADD CONSTRAINT soat_atencion_medica_pkey PRIMARY KEY (evento);
+
+ALTER TABLE ONLY soat_atencion_medica
+    ADD CONSTRAINT "$1" FOREIGN KEY (evento) REFERENCES soat_eventos(evento) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE ONLY soat_atencion_medica
+    ADD CONSTRAINT "$2" FOREIGN KEY (tipo_id_paciente) REFERENCES tipos_id_pacientes(tipo_id_paciente) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE ONLY soat_atencion_medica
+    ADD CONSTRAINT "$3" FOREIGN KEY (usuario_id) REFERENCES system_usuarios(usuario_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE ONLY soat_atencion_medica
+    ADD CONSTRAINT "$4" FOREIGN KEY (tipo_id_tercero, tercero_id) REFERENCES profesionales(tipo_id_tercero, tercero_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+COMMENT ON TABLE soat_atencion_medica IS 'Información de la atención medica por urgencias del paciente.';
+
+--esto se envio a Ricardo para que lo subiera en pruebas y en producción

@@ -1,0 +1,211 @@
+<?php
+	
+	function AccionBusqueda($valor)
+	{
+		$objResponse=new xajaxResponse();
+		$salida="";
+		switch($valor)
+		{
+			case 1:
+				$salida=NumeroFactura();
+				$objResponse->assign("capa_tipo2","style.display","none");
+			break;
+			case 2:
+				$salida=PorMedico();
+			break;
+			case 3:
+				$salida=PorFecha();
+				$objResponse->assign("capa_tipo2","style.display","none");
+			break;
+		}
+		$salida=$objResponse->setTildes($salida);
+		$objResponse->assign("capa_adv","style.display","none");
+		$objResponse->assign("capa_tipo","innerHTML",$salida);
+		
+		return $objResponse;
+	}
+	
+	function Profesional($datos)
+	{
+			$objResponse=new xajaxResponse();
+			
+			$_REQUEST['nombreProf']=$datos[0];
+			$_REQUEST['uidProf']=$datos[1];
+			$_REQUEST['loginProf']=$datos[2];
+			$_REQUEST['TipoIdProf']=$datos[3];
+			$_REQUEST['IdProf']=$datos[4];
+			
+			$salida="";
+			$objClass=new app_Voucher_FacturasProfesionales_user();
+			$profesionales=$objClass->BusquedaProfesionales($_REQUEST['nombreProf'],$_REQUEST['uidProf'],$_REQUEST['loginProf'],$_REQUEST['TipoIdProf'],$_REQUEST['IdProf']);
+			
+      $salida .= "    <table border=\"0\" width=\"90%\" align=\"center\">";    
+      $salida .= "    <tr>";
+      $salida .= "    <td width=\"20\" class=\"modulo_table_list_title\" align=\"center\">IDENTIFICACION</td>";
+      $salida .= "    <td class=\"modulo_table_list_title\" align=\"center\">NOMBRE</td>";
+      $salida .= "    <td width=\"20\" class=\"modulo_table_list_title\" align=\"center\">UID</td>"; 
+      $salida .= "    <td width=\"20\" class=\"modulo_table_list_title\" align=\"center\">LOGIN</td>"; 
+      $salida .= "    <td width=\"5\" class=\"modulo_table_list_title\">&nbsp;</td>"; 
+      $salida .= "    </tr>";    
+      for($i=0;$i<sizeof($profesionales);$i++)
+			{
+        $backgrounds=array('modulo_list_claro'=>'#DDDDDD','modulo_list_oscuro'=>'#CCCCCC');
+        if($y % 2){$estilo='modulo_list_claro';}else{$estilo='modulo_list_oscuro';}
+        $salida .= "    <tr class=\"$estilo\" onmouseout=mOut(this,'$backgrounds[$estilo]'); onmouseover=mOvr(this,'#7A99BB');>\n";        
+        $salida .= "    <td>".$profesionales[$i]['tipo_tercero_id']." ".$profesionales[$i]['tercero_id']."</td>";        
+        $salida .= "    <td>".$profesionales[$i]['nombre_tercero']."</td>"; 
+        $salida .= "    <td>".$profesionales[$i]['usuario_id']."</td>"; 
+        $salida .= "    <td>".$profesionales[$i]['usuario']."</td>";         
+        $salida .= "    <td align=\"center\"><input type=\"radio\" name=\"Profesional\" value=\"".$profesionales[$i]['tipo_tercero_id']."||//".$profesionales[$i]['tercero_id']."||//".$profesionales[$i]['nombre_tercero']."\"></td>";
+        $salida .= "    </tr>"; $y++;
+      }
+      $salida .= "    <tr>";
+      $salida .= "    <td colspan=\"5\" align=\"right\"><input type=\"button\" class=\"input-submit\" name=\"Guardar\" value=\"SELECCIONAR\" onclick=\"ValidarDatos(2,this.form)\"></td>";
+      $salida .= "    </tr>";
+      $salida .= "    </table>";
+			
+			$salida=$objResponse->setTildes($salida);
+			$objResponse->assign("capa_tipo2","style.display","");
+			$objResponse->assign("capa_tipo2","innerHTML",$salida);
+		
+			return $objResponse;
+	}
+	
+	function NumeroFactura()
+	{
+		$salida="";
+		$salida.="<table align=\"center\" border=\"0\" width=\"100\">";
+		$salida.="	<tr>";
+		$salida.="		<td class=\"modulo_table_list_title\" align=\"center\">No. FACTURA</td>";
+		$salida.="		<td class=\"modulo_list_claro\"><input type=\"input\" name=\"NoFactura\" value=\"".$_REQUEST['NoFactura']."\" class=\"input-text\" size=\"30\"></td>";
+    $salida.="    <td class=\"modulo_list_claro\"><input type=\"button\" class=\"input-submit\"  name=\"Filtrar\" value=\"FILTRAR\" onclick=\"ValidarDatos(1,this.form)\"></td>";
+		$salida.="	</tr>";
+		$salida.="</table>";
+		return $salida;
+	}
+	
+	function PorMedico()
+	{
+		$objClass=new app_Voucher_FacturasProfesionales_user();
+		$salida="";
+		$salida .= "    <table border=\"0\" width=\"90%\" align=\"center\" class=\"modulo_table_list\">";    
+    $salida .= "    <tr><td colspan=\"8\" width=\"100%\" class=\"modulo_table_list_title\" align=\"center\">BUSQUEDA DEL PROFESIONAL</td></tr>";
+    $salida .= "    <tr>";
+    $salida .= "    <td width=\"10%\" class=\"modulo_table_list_title\" align=\"center\">NOMBRE</td>";
+    $salida .= "    <td class=\"modulo_list_claro\"><input size=\"20\" type=\"text\" class=\"input-text\" name=\"nombreProf\" value=\"".$_REQUEST['nombreProf']."\"></td>";
+    $salida .= "    <td width=\"10%\" class=\"modulo_table_list_title\" align=\"center\">UID</td>";
+    $salida .= "    <td class=\"modulo_list_claro\"><input size=\"10\" type=\"text\" class=\"input-text\" name=\"uidProf\" value=\"".$_REQUEST['uidProf']."\"></td>";
+    $salida .= "    <td width=\"10%\" class=\"modulo_table_list_title\" align=\"center\">LOGIN</td>";
+    $salida .= "    <td class=\"modulo_list_claro\"><input size=\"10\" type=\"text\" class=\"input-text\" name=\"loginProf\" value=\"".$_REQUEST['loginProf']."\"></td>";
+    $salida .= "    </tr>";
+    $salida .= "    <tr>";    
+    $salida .= "    <td width=\"10%\" class=\"modulo_table_list_title\" align=\"center\">TIPO ID</td>";
+    $salida .= "    <td class=\"modulo_list_claro\"><select name=\"TipoIdProf\" class=\"select\">";
+    $tipos=$objClass->tipo_id_paciente();
+    foreach($tipos as $value=>$titulo)
+		{
+      if($value==$_REQUEST['TipoIdProf']){
+        $salida .=" <option value=\"$value\" selected>$titulo</option>";
+      }else{
+        $salida .=" <option value=\"$value\">$titulo</option>";
+      }
+    }
+    $salida .= "    </select></td>";        
+    $salida .= "    <td width=\"10%\" class=\"modulo_table_list_title\" align=\"center\">IDENTIFICACION</td>";
+    $salida .= "    <td class=\"modulo_list_claro\"><input size=\"20\" type=\"text\" class=\"input-text\" name=\"IdProf\" value=\"".$_REQUEST['IdProf']."\"></td>";    
+    $salida .= "    <td align=\"center\" class=\"modulo_list_claro\" colspan=\"2\"><input type=\"button\" class=\"input-submit\" name=\"Filtrar\" value=\"FILTRAR\" onclick=\"BuscarProfesional(this.form)\"></td>";
+    $salida .= "    </tr>";
+    $salida .= "    </table><BR>";
+		
+		return $salida;
+	}
+	
+	function PorFecha()
+	{
+		$salida="";
+		$fecha_ini=date("d-m-Y");
+		if($_REQUEST['fecha_ini'])
+			$fecha_ini=$_REQUEST['fecha_ini'];
+		
+		$fecha_fin=date("d-m-Y");
+		if($_REQUEST['fecha_fin'])
+			$fecha_fin=$_REQUEST['fecha_fin'];
+			
+		$salida.="<table align=\"center\" border=\"0\" width=\"80%\">";
+		$salida.="	<tr height=\"25\">";
+		$salida.="		<td width=\"10%\" class=\"modulo_table_list_title\" align=\"center\">DESDE</td>";
+		$salida.="		<td width=\"30%\" class=\"modulo_list_claro\"><input type=\"input\" name=\"fecha_ini\" value=\"".$fecha_ini."\" size=\"10\" class=\"input-text\" maxlength=\"10\" readonly><sub> <a href=\"javascript:LlamarCalendariofecha_ini()\"> <img onMouseOver=\"window.status='Calendario';return true;\" onMouseOut=\"window.status=''; return true;\" src=\"themes/HTML/AzulXp/images/calendario/calendario.png\" border=\"0\"></a>[dd-mm-aaaa]</sub></td>";
+    $salida.="		<td width=\"10%\" class=\"modulo_table_list_title\" align=\"center\">HASTA</td>";
+		$salida.="		<td width=\"30%\" class=\"modulo_list_claro\"><input type=\"input\" name=\"fecha_fin\" value=\"".$fecha_fin."\" class=\"input-text\" size=\"10\" maxlength=\"10\" readonly><sub> <a href=\"javascript:LlamarCalendariofecha_fin()\"> <img onMouseOver=\"window.status='Calendario';return true;\" onMouseOut=\"window.status=''; return true;\" src=\"themes/HTML/AzulXp/images/calendario/calendario.png\" border=\"0\"></a>[dd-mm-aaaa]</sub></td>";
+  	$salida.="    <td width=\"20%\"class=\"modulo_list_claro\"><input type=\"button\" class=\"input-submit\"  name=\"Filtrar\" value=\"FILTRAR\" onclick=\"ValidarDatos(3,this.form)\"></td>";
+		$salida.="	</tr>";
+		$salida.="</table>";
+		return $salida;
+	}
+	
+	function Validar($valor,$datos)
+	{
+		$objResponse=new xajaxResponse();
+		$mensaje="";
+		switch($valor)
+		{
+			case 1:
+					$_REQUEST['NoFactura']=$datos[0];
+					if(empty($_REQUEST['NoFactura']))
+						$mensaje="DIGITE EL NUMERO DE LA FACTURA";
+
+			break;
+			case 2:
+					$_REQUEST['nombreProf']=$datos[0];
+					$_REQUEST['uidProf']=$datos[1];
+					$_REQUEST['loginProf']=$datos[2];
+					$_REQUEST['IdProf']=$datos[3];
+					if(empty($_REQUEST['nombreProf']) && empty($_REQUEST['uidProf']) && empty($_REQUEST['loginProf']) && empty($_REQUEST['IdProf']))
+						$mensaje="SELECCIONE ALGUN PARAMETRO DE BUSQUEDA";
+			break;
+			case 3:
+					$_REQUEST['fecha_ini']=$datos[0];
+					$_REQUEST['fecha_fin']=$datos[1];
+				 	
+					if(empty($_REQUEST['fecha_ini']) || empty($_REQUEST['fecha_fin']))
+						$mensaje="INGRESE LAS FECHAS";
+						
+					$_REQUEST['fecha_ini']=FechaStamp($_REQUEST['fecha_ini']);
+					$_REQUEST['fecha_fin']=FechaStamp($_REQUEST['fecha_fin']);
+					
+					if($_REQUEST['fecha_ini'] > $_REQUEST['fecha_fin'])
+						$mensaje="LA FECHA INICIAL NO PUEDE SER MAYOR A LA FINAL";
+					elseif($_REQUEST['fecha_ini'] > date("Y-m-d"))
+						$mensaje="LA FECHA INICIAL NO PUEDE SER MAYOR A LA ACTUAL";
+					elseif($_REQUEST['fecha_fin'] > date("Y-m-d"))
+						$mensaje="LA FECHA FINAL NO PUEDE SER MAYOR A LA ACTUAL";
+			break;
+		}
+		if($mensaje)
+		{
+			$mensaje=$objResponse->setTildes($mensaje);
+			$objResponse->assign("capa_adv","style.display","");
+			$objResponse->assign("capa_adv","innerHTML","<label class=\"label_error\">".$mensaje."</label>");
+		}
+		else
+			$objResponse->call("Cargar");
+		
+		return $objResponse;
+	}
+	
+	function FechaStamp($fecha)
+	{
+		if($fecha)
+		{
+			$fech = strtok ($fecha,"-");
+			for($l=0;$l<3;$l++)
+			{
+				$date[$l]=$fech;
+				$fech = strtok ("-");
+			}
+
+			return  ceil($date[2])."-".str_pad(ceil($date[1]),2,0,STR_PAD_LEFT)."-".str_pad(ceil($date[0]),2,0,STR_PAD_LEFT);
+		}
+	}
+	
+?>

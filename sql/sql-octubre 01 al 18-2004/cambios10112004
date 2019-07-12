@@ -1,0 +1,78 @@
+ALTER TABLE "autorizaciones_os_solicitudes_requerimientos" ADD COLUMN "sw_telefonica" character(1);
+update autorizaciones_os_solicitudes_requerimientos set sw_telefonica=0;
+ALTER TABLE "autorizaciones_os_solicitudes_requerimientos" ALTER COLUMN "sw_telefonica" SET NOT NULL;
+ALTER TABLE "autorizaciones_os_solicitudes_requerimientos" ALTER COLUMN "sw_telefonica" SET DEFAULT 0;
+COMMENT ON COLUMN "autorizaciones_os_solicitudes_requerimientos"."sw_telefonica" IS '1 es telefonica 0 no es telefonica';
+
+
+
+CREATE TABLE auditoria_cambio_proveedor (
+		auditoria_cambio_proveedor_id serial,
+    numero_orden_id integer NOT NULL,
+		usuario_id integer NOT NULL,
+    fecha_registro timestamp without time zone NOT NULL,
+    tipo_id_tercero_ant character varying(3)  NULL,
+    tercero_id_ant character varying(32)  NULL,
+    plan_proveedor_id_ant integer  NULL,
+		departamento_ant character varying(6) NULL,
+
+    tipo_id_tercero_act character varying(3)  NULL,
+    tercero_id_act character varying(32)  NULL,
+    plan_proveedor_id_act integer  NULL,
+		departamento_act character varying(6) NULL
+);
+
+
+
+ALTER TABLE ONLY auditoria_cambio_proveedor
+    ADD CONSTRAINT auditoria_cambio_proveedor_pkey PRIMARY KEY (auditoria_cambio_proveedor_id);
+
+ALTER TABLE ONLY auditoria_cambio_proveedor
+    ADD FOREIGN KEY (numero_orden_id) REFERENCES os_maestro(numero_orden_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE ONLY auditoria_cambio_proveedor
+    ADD  FOREIGN KEY (usuario_id) REFERENCES system_usuarios(usuario_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+ALTER TABLE ONLY auditoria_cambio_proveedor
+    ADD  FOREIGN KEY (plan_proveedor_id_ant) REFERENCES planes_proveedores(plan_proveedor_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE ONLY auditoria_cambio_proveedor
+    ADD  FOREIGN KEY (plan_proveedor_id_act) REFERENCES planes_proveedores(plan_proveedor_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE ONLY auditoria_cambio_proveedor
+    ADD  FOREIGN KEY (tipo_id_tercero_ant, tercero_id_ant) REFERENCES terceros(tipo_id_tercero, tercero_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE ONLY auditoria_cambio_proveedor
+    ADD  FOREIGN KEY (tipo_id_tercero_act, tercero_id_act) REFERENCES terceros(tipo_id_tercero, tercero_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+ALTER TABLE ONLY auditoria_cambio_proveedor
+    ADD  FOREIGN KEY (departamento_ant) REFERENCES departamentos(departamento) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE ONLY auditoria_cambio_proveedor
+    ADD  FOREIGN KEY (departamento_act) REFERENCES departamentos(departamento) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+
+
+CREATE TABLE auditoria_anular_solicitudes (
+    hc_os_solicitud_id integer NOT NULL,
+		usuario_id integer NOT NULL,
+    fecha_registro timestamp without time zone NOT NULL,
+		observacion text NOT NULL
+);
+
+ALTER TABLE ONLY auditoria_anular_solicitudes
+    ADD CONSTRAINT auditoria_anular_solicitudes_pkey PRIMARY KEY (hc_os_solicitud_id);
+
+ALTER TABLE ONLY auditoria_anular_solicitudes
+    ADD  FOREIGN KEY (usuario_id) REFERENCES system_usuarios(usuario_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+
+COMMENT ON COLUMN "hc_os_solicitudes"."sw_estado" IS '1 activa 0 paso pro proceso de autorizacion 2 anulada';
+
+
+
+

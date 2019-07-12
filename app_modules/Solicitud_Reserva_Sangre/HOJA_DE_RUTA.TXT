@@ -1,0 +1,34 @@
+
+S (Tabla del sistema Implementada con anterioridad en otro modulos.)
+M (Tabla de Movimiento, cuando la instalacion es nueva debera estar vacia)
+T (Tabla maestra de tipos)
+
+
+T hc_tipos_sanguineos
+T hc_tipos_rh
+T hc_tipos_componentes
+M banco_sangre_albaranes
+M banco_sangre_bolsas
+M banco_sangre_bolsas_alicuotas
+M banco_sangre_cantidad_cruzes
+M banco_sangre_cruzes_sanguineos
+M banco_sangre_cruzes_sanguineos_entregados
+M banco_sangre_cruzes_correcciones
+M banco_sangre_reserva
+M banco_sangre_reserva_detalle
+S departamentos
+S pacientes
+S pacientes_grupo_sanguineo
+S profesionales
+S profesionales_usuarios
+S servicios
+S terceros_sgsss
+S terceros
+T tipos_id_pacientes
+
+
+
+
+
+
+

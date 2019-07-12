@@ -1,0 +1,177 @@
+<?php
+	/**************************************************************************************
+	* $Id: historial.php,v 1.1 2006/08/18 20:54:10 hugo Exp $ 
+	* @copyright (C) 2005 IPSOFT - SA (www.ipsoft-sa.com)
+	* @package IPSOFT-SIIS
+	*
+	* @author Hugo F. Manrique	
+	**************************************************************************************/
+	$VISTA = "HTML";
+	$_ROOT = "../../../";
+	include  "../../../classes/rs_server/rs_server.class.php";
+	include	 "../../../includes/enviroment.inc.php";
+
+	class procesos_admin extends rs_server
+	{
+		function ConsultarHistorial($param)
+		{
+ 			$historial = $this->ObtenerInformacionHistorial(SessionGetVar("IngresoHc"),$param[0]);
+			print_r($historial);
+			
+			$info1 = "";
+			$info2 = "";
+			$borde = "style=\"border-bottom-width:0px;border-left-width:0px;border-right-width:0px;border-top-width:1px;border-style: solid;\""; 
+			
+			foreach($historial as $key => $nivel1)
+			{
+				$info1 = "";
+				foreach($nivel1 as $key2 => $nivel2)
+				{
+					if($nivel2['sumistro_id'])
+					{
+						$info1 .= "	<tr>\n";
+						$info1 .= "		<td class=\"label\">F. SUMISTRO: </td>\n";
+						$info1 .= "		<td class=\"label_mark\">".$nivel2['fecha_registro_control']."</td>\n";
+						$info1 .= "	</tr>\n";
+						$info1 .= "	<tr>\n";
+						$info1 .= "		<td class=\"label\">RESPONSABLE:</td>\n";
+						$info1 .= "		<td class=\"label_mark\">".$nivel2['usuario_suministra']."</td>\n";
+						$info1 .= "	</tr>\n";
+						$info1 .= "	<tr>\n";
+						$info1 .= "		<td class=\"label\">CANTIDAD SUMINISTRADA: </td>\n";
+						$info1 .= "		<td class=\"label_mark\">".$nivel2['cantidad_suministrada']."</td>\n";
+						$info1 .= "	</tr>\n";
+						$info1 .= "	<tr>\n";
+						$info1 .= "		<td align=\"center\" class=\"label\" colspan=\"2\">OBSERVACIÓN SUMINISTRO:</td>\n";
+						$info1 .= "	</tr>\n";
+						$info1 .= "	<tr>\n";
+						$info1 .= "		<td align=\"center\" colspan=\"2\">".$nivel2['observacion_suministro']."</td>\n";
+						$info1 .= "	</tr>\n";						
+					}
+				}
+				
+				if($nivel2['num_reg_actual'])
+				{ 
+					$info2 .= "	<tr>\n";
+					$info2 .= "		<td align=\"center\" class=\"normal_11N\" colspan=\"4\">".$nivel2['producto']."<br>(<font class=\"normal_09N\">".$nivel2['principio_activo']."</font>)</td>\n";
+					$info2 .= "	</tr>\n";
+					$info2 .= "	<tr>\n";
+					$info2 .= "		<td class=\"label\" width=\"28%\">ESTADO</td>\n";
+					$info2 .= "		<td class=\"label_mark\" width=\"72%\" colspan=\"3\">".$nivel2['sw_estado']."</td>\n";
+					$info2 .= "	</tr>\n";					
+					$info2 .= "	<tr>\n";
+					$info2 .= "		<td class=\"label\" width=\"28%\">FORMULÓ</td>\n";
+					$info2 .= "		<td class=\"label_mark\" width=\"72%\" colspan=\"3\">".$nivel2['med_formula']."</td>\n";
+					$info2 .= "	</tr>\n";
+					$info2 .= "	<tr>\n";
+					$info2 .= "		<td class=\"label\">F. FORMULACION: </td>\n";
+					$info2 .= "		<td class=\"label_mark\">".$nivel2['fecha']."</td>\n";
+					$info2 .= "		<td class=\"label\">EVOLUCIÓN: </td>\n";
+					$info2 .= "		<td class=\"label_mark\">".$nivel2['evolucion_id']."</td>\n";
+					$info2 .= "	</tr>\n";
+					if($info1 != "")
+					{
+						$info2 .= "	<tr>\n";
+						$info2 .= "		<td align=\"center\" class=\"normal_10AN\" colspan=\"4\" $borde>SUMINISTRO</td>\n";
+						$info2 .= "	</tr>\n";	
+						$info2 .= "	<tr>\n";
+						$info2 .= "		<td align=\"center\"colspan=\"4\">\n";
+						$info2 .= "			<table width=\"98%\" class=\"modulo_table_list\">\n";
+						$info2 .= $info1;
+						$info2 .= "			</table>\n";
+						$info2 .= "		</td>\n";
+						$info2 .= "	</tr>\n";	
+					}
+				}
+			}
+			$html .= "<table class=\"modulo_table_list\" width=\"100%\" >\n";
+			$html .= $info2;
+			$html .= "</table>\n";
+			return $html;
+		}
+		/**************************************************************************
+		* Consulta el historial de un medicamento junto con el suministro
+		* @param int $ingreso Numero de ingreso del paciente
+		* @param string $producto Codigo del producto
+		*
+		* @return array datos del historial agrupados por num_reg y suministro_id
+		***************************************************************************/
+		function ObtenerInformacionHistorial($ingreso,$producto)
+		{
+			$sql .= "SELECT	FH.num_reg AS num_reg_actual, ";
+			$sql .= "				FM.num_reg, ";
+			$sql .= "				COALESCE(HS.suministro_id,0) AS sumistro_id, ";
+			$sql .= "				TO_CHAR(FM.fecha_registro,'DD/MM/YYYY') AS fecha,  ";
+			$sql .= "				ID.descripcion AS producto,  ";
+			$sql .= "				IA.descripcion AS principio_activo,  ";
+			$sql .= "				IM.descripcion AS umm,   ";
+			$sql .= "				FM.dosis,  ";
+			$sql .= "				FM.unidad_dosificacion,  ";
+			$sql .= "				FM.cantidad,  ";
+			$sql .= "				FM.observacion,  ";
+			$sql .= "				CASE 	WHEN FM.sw_estado = '0' THEN 'FINALIZADO' ";
+			$sql .= "							WHEN FM.sw_estado = '1' THEN 'ACTIVO' ";
+			$sql .= "							WHEN FM.sw_estado = '2' THEN 'SUPENDIDO' ";
+			$sql .= "							ELSE 'OTRO ESTADO' END AS sw_estado, ";
+			$sql .= "				FM.codigo_producto,  ";
+			$sql .= "				FM.frecuencia, ";
+			$sql .= "				FM.evolucion_id, ";
+			$sql .= "				SU.nombre AS med_formula, ";
+			$sql .= "				HS.observacion AS observacion_suministro, ";
+			$sql .= "				US.nombre AS usuario_suministra, ";
+			$sql .= "				TO_CHAR(HS.fecha_registro_control,'DD/MM/YYY HH:MI AM') AS fecha_registro_control, ";
+			$sql .= "				HS.cantidad_suministrada ";
+			$sql .= "FROM 	inv_med_cod_principios_activos AS IA,  ";
+			$sql .= "				hc_formulacion_medicamentos_eventos FM LEFT JOIN ";
+			$sql .= "				hc_formulacion_medicamentos FH ";
+			$sql .= "				ON(FH.num_reg = FM.num_reg)  ";
+			$sql .= "				LEFT JOIN hc_formulacion_suministro_medicamentos HS ";
+			$sql .= "				ON(HS.num_reg_formulacion = FM.num_reg) ";
+			$sql .= "				LEFT JOIN system_usuarios US  ";
+			$sql .= "				ON (HS.usuario_id_control = US.usuario_id), ";
+			$sql .= "				system_usuarios SU, ";
+			$sql .= "				inventarios_productos ID,  ";
+			$sql .= "				medicamentos ME LEFT JOIN inv_unidades_medida_medicamentos IM  ";
+			$sql .= "				ON(ME.unidad_medida_medicamento_id = IM.unidad_medida_medicamento_id) ";
+			$sql .= "WHERE	ID.codigo_producto = ME.codigo_medicamento  ";
+			$sql .= "AND 		ME.cod_principio_activo = IA.cod_principio_activo  ";
+			$sql .= "AND 		FM.codigo_producto = ME.codigo_medicamento  ";
+			$sql .= "AND		FM.ingreso = ".$ingreso."  ";
+			$sql .= "AND		FM.codigo_producto = '".$producto."' ";
+			$sql .= "AND		SU.usuario_id = FM.usuario_id  ";
+			$sql .= "ORDER BY FM.num_reg DESC "; 
+			
+			if(!$rst = $this->ConexionBaseDatos($sql)) return false;
+			
+			$datos = array();
+			while (!$rst->EOF)
+			{
+				$datos[$rst->fields[1]][$rst->fields[2]] = $rst->GetRowAssoc($ToUpper = false);
+				$rst->MoveNext();
+			}
+			return $datos;
+		}
+		/********************************************************************************
+		* Funcion que permite realizar la conexion a la base de datos y ejecutar la 
+		* consulta sql 
+		* 
+		* @param string sentencia sql a ejecutar 
+		* @return rst 
+		*********************************************************************************/
+		function ConexionBaseDatos($sql)
+		{
+			list($dbconn)=GetDBConn();
+			$dbconn->debug=true;
+			$rst = $dbconn->Execute($sql);
+				
+			if ($dbconn->ErrorNo() != 0)
+			{
+				$this->frmError['MensajeError'] = "ERROR DB : " . $dbconn->ErrorMsg();
+				return false;
+			}
+			return $rst;
+		}
+	}
+	$oRS = new procesos_admin( array( 'ActivarMenu', 'CrearTabla'));
+	$oRS->action();	
+?>

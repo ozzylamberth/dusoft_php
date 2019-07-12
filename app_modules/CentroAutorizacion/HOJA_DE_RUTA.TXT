@@ -1,0 +1,46 @@
+
+S (Tabla del sistema Implementada con anterioridad en otro modulos.)
+M (Tabla de Movimiento, cuando la instalacion es nueva debera estar vacia)
+T (Tabla maestra de tipos)
+
+
+M hc_os_autorizaciones_proceso
+M userpermisos_centro_autorizacion
+S empresas
+S planes
+S terceros
+T tipos_id_pacientes
+S hc_os_solicitudes
+S hc_evoluciones
+S ingresos
+S pacientes
+S departamentos
+T servicios
+M hc_os_solicitudes_manuales
+T os_tipos_solicitudes
+S departamentos_cargos
+S cups
+S plan_tarifario
+S tarifarios_detalle
+S tarifarios_equivalencias
+M os_ordenes_servicios
+M os_maestro
+M os_internas
+M os_externas
+T tipos_afiliado
+M hc_os_autorizaciones
+M autorizaciones
+M hc_os_autorizaciones
+S terceros_proveedores_cargos
+S planes_proveedores
+S os_tipos_periodos_planes
+S os_tipos_periodos_tramites
+S planes_auditores_int
+S autorizaciones_ingreso_cargos
+S planes_rangos
+S auditoria_cambio_datos_bdafiliados
+T tipos_profesionales
+S profesionales
+
+
+

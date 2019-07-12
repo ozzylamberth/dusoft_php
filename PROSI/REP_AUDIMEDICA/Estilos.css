@@ -1,0 +1,80 @@
+a{
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	text-decoration: none;
+}
+
+a:Visited  { color : #003366; }
+a:Active  { color : #003366; }
+a:Hover  { font: bold; }
+
+body {
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+}
+
+td {
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+}
+
+th {
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+}
+
+form {
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	}
+
+input 
+{ 
+	font-family : Verdana, arial, Helvetica; 
+	font-size : 10; color : #000033;
+	border-color : #999999;
+	border-width : 1;
+} 
+
+.textbox{
+	font-family : Verdana, arial, Helvetica; 
+	font-size : 10; color : #000033;
+	border-color : #999999;
+	border-width : 1;
+	background-position: left top; background-image:url('imagenes/cell-background.gif'); 
+	background-repeat:no-repeat; 
+	background-attachment:fixed
+}
+
+textarea {
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+}
+
+select {
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+}
+
+
+ol {
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	list-style-type: upper-roman;
+	list-style-position: outside;
+}
+
+.small {
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 9px;
+}
+
+.big {
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 18px;
+}
+
+.bodystyle {
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+}

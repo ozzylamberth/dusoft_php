@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wc-entries
+   xmlns="svn:">
+<entry
+   committed-rev="6"
+   name=""
+   committed-date="2012-01-12T15:34:08.578843Z"
+   url="http://10.0.0.254/repositorio/ips/trunk/codigo%20fuente/sinergias_ips/app_modules/Cuentas/RemoteXajax"
+   last-author="andres.velez"
+   kind="dir"
+   revision="6"/>
+<entry
+   committed-rev="6"
+   name="PaquetesCargosCuentas.php"
+   text-time="2011-11-15T20:24:14.000000Z"
+   committed-date="2012-01-12T15:34:08.578843Z"
+   checksum="1fa3f836569bd5c5f04a263bf358421e"
+   last-author="andres.velez"
+   kind="file"
+   prop-time="2012-01-12T14:37:43.000000Z"/>
+<entry
+   committed-rev="6"
+   name="DevolucionCargosIyMCta.php"
+   text-time="2011-11-15T20:24:14.000000Z"
+   committed-date="2012-01-12T15:34:08.578843Z"
+   checksum="1920447b64680a1465e38797d64d0347"
+   last-author="andres.velez"
+   kind="file"
+   prop-time="2012-01-12T14:37:43.000000Z"/>
+<entry
+   committed-rev="6"
+   name="DivisiondeCuentas.php"
+   text-time="2011-11-15T20:24:14.000000Z"
+   committed-date="2012-01-12T15:34:08.578843Z"
+   checksum="d50cc776f647a3d5cdc56d613f4aec99"
+   last-author="andres.velez"
+   kind="file"
+   prop-time="2012-01-12T14:37:43.000000Z"/>
+<entry
+   committed-rev="6"
+   name="Cuentas.php"
+   text-time="2011-11-15T20:24:14.000000Z"
+   committed-date="2012-01-12T15:34:08.578843Z"
+   checksum="dc10fb6df87e6db0470e509c2810c890"
+   last-author="andres.velez"
+   kind="file"
+   prop-time="2012-01-12T14:37:43.000000Z"/>
+<entry
+   committed-rev="6"
+   name="datosbusquedaCargos.php"
+   text-time="2011-11-15T20:24:14.000000Z"
+   committed-date="2012-01-12T15:34:08.578843Z"
+   checksum="a8a53b59ff54379f643825ef355d0e43"
+   last-author="andres.velez"
+   kind="file"
+   prop-time="2012-01-12T14:37:43.000000Z"/>
+</wc-entries>

@@ -1,0 +1,435 @@
+CREATE TABLE envios_despacho (
+    envio_id integer NOT NULL,
+		guia integer,
+		empresa_mensajeria character varying(255),
+		responsable character varying(100),
+    observacion text,
+    usuario_id integer NOT NULL,
+    fecha_registro timestamp without time zone NOT NULL,
+    sw_estado character(1) DEFAULT 0 NOT NULL
+);
+
+ALTER TABLE ONLY envios_despacho
+    ADD CONSTRAINT envios_despacho_pkey PRIMARY KEY (envio_id);
+
+
+ALTER TABLE ONLY envios_despacho
+    ADD FOREIGN KEY (envio_id) REFERENCES envios(envio_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+ALTER TABLE ONLY envios_despacho
+    ADD FOREIGN KEY (usuario_id) REFERENCES system_usuarios(usuario_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE "bodegas" DROP COLUMN "tipo_numeracion" CASCADE
+
+
+-- CAMBIOS DE TABLAS TIZZIANO PEREA
+-- SUBMODULO DE CONTROLES NEUROLOGICOS
+
+-- ACTUALIZACION DE TABLA hc_tipos_respuesta_motora
+-- EJECUTAR QUERY
+-- FECHA ACTUALIZACION 4 - 11 - 2004
+
+ALTER TABLE "hc_tipos_respuesta_motora" ADD COLUMN "descripcion_lactante" character varying(40);
+
+UPDATE hc_tipos_respuesta_motora SET descripcion_lactante = 'Ninguna' WHERE respuesta_motora_id = '1';
+UPDATE hc_tipos_respuesta_motora SET descripcion_lactante = 'Extensión Anormal' WHERE respuesta_motora_id = '2';
+UPDATE hc_tipos_respuesta_motora SET descripcion_lactante = 'Movimiento Expontaneo' WHERE respuesta_motora_id = '6';
+UPDATE hc_tipos_respuesta_motora SET descripcion_lactante = 'Flexion Anormal' WHERE respuesta_motora_id = '3';
+UPDATE hc_tipos_respuesta_motora SET descripcion_lactante = 'Retira a Estimulo' WHERE respuesta_motora_id = '4';
+UPDATE hc_tipos_respuesta_motora SET descripcion_lactante = 'Retira al Tacto' WHERE respuesta_motora_id = '5';
+UPDATE hc_tipos_respuesta_motora SET descripcion = 'Flexion' WHERE respuesta_motora_id = '3';
+
+ALTER TABLE "hc_tipos_respuesta_motora" ALTER COLUMN "descripcion_lactante" SET NOT NULL
+
+
+-- ACTUALIZACION DE TABLA hc_tipos_respuesta_verbal
+-- EJECUTAR QUERY
+-- FECHA ACTUALIZACION 4 - 11 - 2004
+
+ALTER TABLE "hc_tipos_respuesta_verbal" ADD COLUMN "descripcion_lactante" character varying(40);
+
+UPDATE hc_tipos_respuesta_verbal SET descripcion_lactante = 'Ninguna' WHERE respuesta_verbal_id = '1';
+UPDATE hc_tipos_respuesta_verbal SET descripcion_lactante = 'Gime Respuesta a Dolor' WHERE respuesta_verbal_id = '2';
+UPDATE hc_tipos_respuesta_verbal SET descripcion_lactante = 'Llora Respuesta a dolor' WHERE respuesta_verbal_id = '3';
+UPDATE hc_tipos_respuesta_verbal SET descripcion_lactante = 'Irritable' WHERE respuesta_verbal_id = '4';
+UPDATE hc_tipos_respuesta_verbal SET descripcion_lactante = 'Balbucea' WHERE respuesta_verbal_id = '5';
+
+ALTER TABLE "hc_tipos_respuesta_verbal" ALTER COLUMN "descripcion_lactante" SET NOT NULL
+
+
+-- CREACION DE TABLA hc_controles_neurologia
+-- CAMBIOS VALIDOS PARA EL SUBMODULO DE CONTRELES NEUROLOGICOS
+
+
+CREATE TABLE hc_controles_neurologia (
+    control_neurologico_id serial NOT NULL,
+    fecha timestamp without time zone NOT NULL,
+    pupila_talla_d character varying(2),
+    pupila_talla_i character varying(2),
+    pupila_reaccion_d character varying(2) NOT NULL,
+    pupila_reaccion_i character varying(2) NOT NULL,
+    tipo_nivel_consciencia_id character varying(2),
+    fuerza_brazo_d character varying(2) NOT NULL,
+    fuerza_brazo_i character varying(2) NOT NULL,
+    fuerza_pierna_d character varying(2) NOT NULL,
+    fuerza_pierna_i character varying(2) NOT NULL,
+    tipo_apertura_ocular_id character varying(2),
+    tipo_respuesta_verbal_id character varying(2),
+    tipo_respuesta_motora_id character varying(2),
+    usuario_id integer NOT NULL,
+    ingreso integer NOT NULL,
+	evolucion_id integer,
+	fecha_registro timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE hc_controles_neurologia
+    ADD PRIMARY KEY (control_neurologico_id);
+
+
+ALTER TABLE hc_controles_neurologia
+    ADD FOREIGN KEY (pupila_talla_d) REFERENCES hc_tipos_talla_pupila(talla_pupila_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+ALTER TABLE hc_controles_neurologia
+    ADD FOREIGN KEY (pupila_talla_i) REFERENCES hc_tipos_talla_pupila(talla_pupila_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+ALTER TABLE hc_controles_neurologia
+    ADD FOREIGN KEY (pupila_reaccion_d) REFERENCES hc_tipos_reaccion_pupila(reaccion_pupila_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+ALTER TABLE hc_controles_neurologia
+    ADD FOREIGN KEY (pupila_reaccion_i) REFERENCES hc_tipos_reaccion_pupila(reaccion_pupila_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+ALTER TABLE hc_controles_neurologia
+    ADD FOREIGN KEY (tipo_nivel_consciencia_id) REFERENCES hc_tipos_nivel_consciencia(nivel_consciencia_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+ALTER TABLE hc_controles_neurologia
+    ADD FOREIGN KEY (fuerza_brazo_d) REFERENCES hc_tipos_fuerza(fuerza_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+ALTER TABLE hc_controles_neurologia
+    ADD FOREIGN KEY (fuerza_brazo_i) REFERENCES hc_tipos_fuerza(fuerza_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+ALTER TABLE hc_controles_neurologia
+    ADD FOREIGN KEY (fuerza_pierna_d) REFERENCES hc_tipos_fuerza(fuerza_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+ALTER TABLE hc_controles_neurologia
+    ADD FOREIGN KEY (fuerza_pierna_i) REFERENCES hc_tipos_fuerza(fuerza_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+ALTER TABLE hc_controles_neurologia
+    ADD FOREIGN KEY (tipo_apertura_ocular_id) REFERENCES hc_tipos_apertura_ocular(apertura_ocular_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+ALTER TABLE hc_controles_neurologia
+    ADD FOREIGN KEY (tipo_respuesta_verbal_id) REFERENCES hc_tipos_respuesta_verbal(respuesta_verbal_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+ALTER TABLE hc_controles_neurologia
+    ADD FOREIGN KEY (tipo_respuesta_motora_id) REFERENCES hc_tipos_respuesta_motora(respuesta_motora_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+ALTER TABLE hc_controles_neurologia
+    ADD FOREIGN KEY (usuario_id) REFERENCES system_usuarios(usuario_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+ALTER TABLE hc_controles_neurologia
+    ADD FOREIGN KEY (ingreso) REFERENCES ingresos(ingreso) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+ALTER TABLE hc_controles_neurologia
+    ADD FOREIGN KEY (evolucion_id) REFERENCES hc_evoluciones(evolucion_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+COMMENT ON TABLE hc_controles_neurologia IS 'tabla para el control del sistema neurológico';
+
+
+COMMENT ON COLUMN hc_controles_neurologia.control_neurologico_id IS 'PK Id del sistema neurologico';
+
+
+COMMENT ON COLUMN hc_controles_neurologia.fecha IS 'Fecha del control del sitema neurologico';
+
+
+COMMENT ON COLUMN hc_controles_neurologia.pupila_talla_d IS 'FK talla de la pupila derecha';
+
+
+COMMENT ON COLUMN hc_controles_neurologia.pupila_talla_i IS 'FK talla pupila izquierda';
+
+
+COMMENT ON COLUMN hc_controles_neurologia.pupila_reaccion_d IS 'FK reaccion de la pupila derecha';
+
+
+COMMENT ON COLUMN hc_controles_neurologia.pupila_reaccion_i IS 'FK reacción pupila izquierda';
+
+
+COMMENT ON COLUMN hc_controles_neurologia.usuario_id IS 'FK Id del system_usuarios que utiliza el sistema';
+
+
+COMMENT ON COLUMN hc_controles_neurologia.ingreso IS 'FK ingreso del paciente';
+
+
+-- CAMBIOS DE TABLAS TIZZIANO PEREA
+-- CAMBIOS VALIDOS PARA LAS TABLAS DEL SIGNOS VITALES GENERALES
+-- BORRAR LAS TABLAS EXISTENTES
+-- hc_signos_vitales_sitios
+-- hc_signos_vitales
+-- hc_notas_enfermeria_descripcion
+-- hc_evolucion_descripcion
+
+CREATE TABLE hc_signos_vitales_sitios (
+    sitio_id character varying(2) NOT NULL,
+    descripcion character varying(50) NOT NULL,
+    indice_orden integer
+);
+
+INSERT INTO hc_signos_vitales_sitios VALUES ('1', 'Miembro Superior Derecho(NINV)', 0);
+INSERT INTO hc_signos_vitales_sitios VALUES ('2', 'Miembro Superior Izquierdo(NINV)', 1);
+INSERT INTO hc_signos_vitales_sitios VALUES ('3', 'Miembro Inferior Derecho(NINV)', 2);
+INSERT INTO hc_signos_vitales_sitios VALUES ('4', 'Miembro Inferior Izquierdo(NINV)', 3);
+INSERT INTO hc_signos_vitales_sitios VALUES ('5', 'Arterial Radial Derecha(INV)', 4);
+INSERT INTO hc_signos_vitales_sitios VALUES ('6', 'Arterial Cubital Derecha(INV)', 5);
+INSERT INTO hc_signos_vitales_sitios VALUES ('7', 'Arterial Pedia Derecha(INV)', 6);
+INSERT INTO hc_signos_vitales_sitios VALUES ('8', 'Arterial Pedia Izquierda(INV)', 7);
+INSERT INTO hc_signos_vitales_sitios VALUES ('9', 'Arterial Cubital Izquierda(INV)', 8);
+INSERT INTO hc_signos_vitales_sitios VALUES ('10', 'Arterial Radial Izquierda(INV)', 9);
+INSERT INTO hc_signos_vitales_sitios VALUES ('11', 'Arterial Umbilical(INV)', 10);
+
+
+ALTER TABLE hc_signos_vitales_sitios
+    ADD PRIMARY KEY (sitio_id);
+
+
+COMMENT ON TABLE hc_signos_vitales_sitios IS 'Maestro donde se guardan los diferentes sitios donde se toman los signos vitales del paciente';
+
+COMMENT ON COLUMN hc_signos_vitales_sitios.descripcion IS 'Nombre del sitio donde se toman los signos vitales';
+
+
+CREATE TABLE hc_signos_vitales (
+    sitio_id character varying(2),
+    fecha timestamp without time zone NOT NULL,
+    fc numeric(5,0),
+    pvc numeric(5,0),
+    ta_alta numeric(5,0),
+    media numeric(5,0),
+    temp_piel numeric(5,2),
+    servo numeric(5,2),
+    manual numeric(5,2),
+    presion_intracraneana numeric(5,2),
+    ingreso integer NOT NULL,
+    usuario_id integer NOT NULL,
+    peso numeric(6,2),
+    ta_baja numeric(5,0),
+    evolucion_id integer,
+    fecha_registro timestamp without time zone,
+    observacion character varying(256),
+    sato2 numeric(5,2),
+    evaluacion_dolor smallint,
+    fr numeric(5,0)
+);
+
+ALTER TABLE  hc_signos_vitales
+    ADD PRIMARY KEY (fecha, ingreso);
+
+
+ALTER TABLE  hc_signos_vitales
+    ADD  FOREIGN KEY (usuario_id) REFERENCES system_usuarios(usuario_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+ALTER TABLE  hc_signos_vitales
+    ADD  FOREIGN KEY (ingreso) REFERENCES ingresos(ingreso) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE  hc_signos_vitales
+    ADD  FOREIGN KEY (sitio_id) REFERENCES hc_signos_vitales_sitios(sitio_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+ALTER TABLE  hc_signos_vitales
+    ADD  FOREIGN KEY (evolucion_id) REFERENCES hc_evoluciones(evolucion_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+COMMENT ON TABLE hc_signos_vitales IS 'Tabla donde se guardan los signos vitales de cada paciente de una estacion';
+
+COMMENT ON COLUMN hc_signos_vitales.evaluacion_dolor IS 'Escala de evaluacion del dolor';
+
+COMMENT ON COLUMN hc_signos_vitales.fr IS 'Retiene valores de frecuencia respiratoria';
+
+
+
+CREATE TABLE hc_notas_enfermeria_descripcion (
+    hc_notas_enfermeria_descripcion_id serial NOT NULL,
+    descripcion text NOT NULL,
+    evolucion_id integer,
+    usuario_id integer NOT NULL,
+    fecha_registro timestamp without time zone,
+    ingreso integer NOT NULL
+);
+
+
+ALTER TABLE hc_notas_enfermeria_descripcion
+    ADD PRIMARY KEY (hc_notas_enfermeria_descripcion_id);
+
+
+ALTER TABLE hc_notas_enfermeria_descripcion
+    ADD FOREIGN KEY (evolucion_id) REFERENCES hc_evoluciones(evolucion_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+ALTER TABLE hc_notas_enfermeria_descripcion
+    ADD FOREIGN KEY (usuario_id) REFERENCES system_usuarios(usuario_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+ALTER TABLE hc_notas_enfermeria_descripcion
+    ADD FOREIGN KEY (ingreso) REFERENCES ingresos(ingreso) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+COMMENT ON COLUMN hc_notas_enfermeria_descripcion.evolucion_id IS 'Registro de Evoluciones';
+
+
+COMMENT ON COLUMN hc_notas_enfermeria_descripcion.fecha_registro IS 'Fecha de registro de datos';
+
+
+COMMENT ON COLUMN hc_notas_enfermeria_descripcion.ingreso IS 'Codigo de Ingreso';
+
+
+
+
+CREATE TABLE hc_evolucion_descripcion (
+    hc_evolucion_descripcion_id serial NOT NULL,
+    descripcion text NOT NULL,
+    evolucion_id integer,
+    ingreso integer,
+    usuario_id integer,
+    fecha_registro timestamp without time zone
+);
+
+ALTER TABLE hc_evolucion_descripcion
+    ADD PRIMARY KEY (hc_evolucion_descripcion_id);
+
+
+ALTER TABLE hc_evolucion_descripcion
+    ADD FOREIGN KEY (evolucion_id) REFERENCES hc_evoluciones(evolucion_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+ALTER TABLE hc_evolucion_descripcion
+    ADD FOREIGN KEY (ingreso) REFERENCES ingresos(ingreso) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+ALTER TABLE hc_evolucion_descripcion
+    ADD FOREIGN KEY (usuario_id) REFERENCES system_usuarios(usuario_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+COMMENT ON COLUMN hc_evolucion_descripcion.ingreso IS 'Registro de ingreso de pacientes';
+
+COMMENT ON COLUMN hc_evolucion_descripcion.usuario_id IS 'Registro de usuarios';
+
+
+-- CAMBIOS EN TABLA DE ASISTENCIA VENTILATORIA
+-- CAMBIOS VALIDOS PARA EL SUBMODULO DE ASISTENCIA VENTILATORIA
+-- TIZZIANO PEREA
+
+
+ALTER TABLE ONLY public.hc_asistencia_ventilatoria DROP CONSTRAINT "$5";
+ALTER TABLE ONLY public.hc_asistencia_ventilatoria DROP CONSTRAINT "$4";
+ALTER TABLE ONLY public.hc_asistencia_ventilatoria DROP CONSTRAINT "$3";
+ALTER TABLE ONLY public.hc_asistencia_ventilatoria DROP CONSTRAINT "$2";
+ALTER TABLE ONLY public.hc_asistencia_ventilatoria DROP CONSTRAINT "$1";
+ALTER TABLE ONLY public.hc_asistencia_ventilatoria DROP CONSTRAINT hc_asistencia_ventilatoria_pkey;
+DROP TABLE public.hc_asistencia_ventilatoria;
+
+
+CREATE TABLE hc_asistencia_ventilatoria (
+    fecha timestamp without time zone NOT NULL,
+    modo_id character varying(2) NOT NULL,
+    f102_id character varying(2),
+    fr_respiratoria numeric(5,0),
+    fr_ventilatoria numeric(5,2),
+    sens numeric(5,0),
+    ti numeric(5,2),
+    i_e character varying(10),
+    peep numeric(5,0),
+    paw numeric(5,2),
+    t_via_a numeric(5,2),
+    pp numeric(6,1),
+    pm numeric(6,1),
+    etco2 numeric(6,1),
+    ingreso integer NOT NULL,
+    usuario_id integer NOT NULL,
+    evolucion_id integer,
+    fecha_registro timestamp without time zone,
+    expontanea numeric(5,0),
+    volumen numeric(5,0),
+    p_insp numeric(5,0),
+    pip numeric(5,2)
+);
+
+
+ALTER TABLE hc_asistencia_ventilatoria
+    ADD PRIMARY KEY (fecha, ingreso);
+
+
+ALTER TABLE hc_asistencia_ventilatoria
+    ADD FOREIGN KEY (usuario_id) REFERENCES system_usuarios(usuario_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE ONLY hc_asistencia_ventilatoria
+    ADD FOREIGN KEY (ingreso) REFERENCES ingresos(ingreso) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE ONLY hc_asistencia_ventilatoria
+    ADD FOREIGN KEY (modo_id) REFERENCES hc_asistencia_ventilatoria_modos(modo_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE ONLY hc_asistencia_ventilatoria
+    ADD FOREIGN KEY (f102_id) REFERENCES hc_tipos_concentracion_oxigenoterapia(concentracion_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE ONLY hc_asistencia_ventilatoria
+    ADD FOREIGN KEY (evolucion_id) REFERENCES hc_evoluciones(evolucion_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+COMMENT ON TABLE hc_asistencia_ventilatoria IS 'Contiene los valores obtenidos al realizar este control al paciente';
+
+COMMENT ON COLUMN hc_asistencia_ventilatoria.fecha IS 'PK: fecha en que se realiza el control';
+
+COMMENT ON COLUMN hc_asistencia_ventilatoria.modo_id IS 'FK: modo de la asistencia ventilatoria';
+
+COMMENT ON COLUMN hc_asistencia_ventilatoria.f102_id IS 'FK: tipos de concentracion de oxigenoterapia';
+
+COMMENT ON COLUMN hc_asistencia_ventilatoria.fr_respiratoria IS 'valor de la fr_respiratoria';
+
+COMMENT ON COLUMN hc_asistencia_ventilatoria.fr_ventilatoria IS 'valor de la fr_ventilatoria';
+
+COMMENT ON COLUMN hc_asistencia_ventilatoria.sens IS 'valor del sens';
+
+COMMENT ON COLUMN hc_asistencia_ventilatoria.ti IS 'valor de ti';
+
+COMMENT ON COLUMN hc_asistencia_ventilatoria.i_e IS 'valor de i_e';
+
+COMMENT ON COLUMN hc_asistencia_ventilatoria.peep IS 'valor de peep';
+
+COMMENT ON COLUMN hc_asistencia_ventilatoria.paw IS 'valor de paw';
+
+COMMENT ON COLUMN hc_asistencia_ventilatoria.t_via_a IS 'valor de t_via_a';
+
+COMMENT ON COLUMN hc_asistencia_ventilatoria.pp IS 'valor de pp';
+
+COMMENT ON COLUMN hc_asistencia_ventilatoria.pm IS 'valor de pm';
+
+COMMENT ON COLUMN hc_asistencia_ventilatoria.etco2 IS 'valor de etco2';
+
+COMMENT ON COLUMN hc_asistencia_ventilatoria.ingreso IS 'PK:FK ingreso del paciente';
+
+COMMENT ON COLUMN hc_asistencia_ventilatoria.usuario_id IS 'FK: usuario que realiza el registro';
+
+COMMENT ON COLUMN hc_asistencia_ventilatoria.evolucion_id IS 'Campo de registro de evoluciones';
+
+COMMENT ON COLUMN hc_asistencia_ventilatoria.fecha_registro IS 'Registro de fechas de inserciones en tabla';
+
+COMMENT ON COLUMN hc_asistencia_ventilatoria.expontanea IS 'valor de la expontanea';
+
+COMMENT ON COLUMN hc_asistencia_ventilatoria.volumen IS 'valor del volumen';
+
+COMMENT ON COLUMN hc_asistencia_ventilatoria.p_insp IS 'valor de p_insp';
+
+COMMENT ON COLUMN hc_asistencia_ventilatoria.pip IS 'valor de pip';
+
+

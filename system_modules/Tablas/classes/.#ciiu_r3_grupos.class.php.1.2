@@ -1,0 +1,25 @@
+<?php
+  /**
+  * $Id: ciiu_r3_grupos.class.php,v 1.2 2007/10/31 22:21:05 hugo Exp $
+  *
+  * @copyright (C) 2005 IPSOFT - SA (www.ipsoft-sa.com)
+  * @package IPSOFT-SIIS
+  *
+  * $Revision: 1.2 $
+  *
+  * @autor Hugo F  Manrique
+  */
+  class ciiu_r3_grupos extends Modelo
+  {
+    /**
+    * constructor de la clase
+    */
+    function ciiu_r3_grupos()
+    {
+      $this->primarykey = array("ciiu_r3_division","ciiu_r3_grupo");
+      $this->foreignkey = array("ciiu_r3_divisiones"=>
+                              array("ciiu_r3_division" => "ciiu_r3_division"),
+                          );
+    }
+  }
+?>

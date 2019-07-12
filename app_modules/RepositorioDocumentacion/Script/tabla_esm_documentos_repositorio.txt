@@ -1,0 +1,159 @@
+-- Table: public.esm_documentos_repositorio
+
+-- DROP TABLE public.esm_documentos_repositorio;
+
+CREATE TABLE public.esm_documentos_repositorio (
+  documentos_repositorio_id  serial NOT NULL,
+  tipo_archivo               integer,
+  nombre_archivo             varchar(50),
+  size_archivo_bytes         varchar(10),
+  formato_archivo            varchar(20),
+  empresa_doc                varchar(2),
+  centro_utilidad_doc        varchar(2),
+  bodega_doc                 varchar(2),
+  dpto_doc                   varchar(5),
+  num_orden_req              varchar(8),
+  num_orden_sum              varchar(8),
+  num_formula                varchar(30),
+  tipo_paciente_id           varchar(3),
+  paciente_id                varchar(15),
+  valor_ctc                  numeric(18,4) DEFAULT 0,
+  num_glosa                  varchar(20),
+  num_factura_glosa          varchar(20),
+  valor_glosa                numeric(18,4) DEFAULT 0,
+  corte_cant_formulas        varchar(5),
+  fecha_corte_ini            date,
+  fecha_corte_fin            date,
+  corte_entregado_por        varchar(50),
+  corte_auditado_por         varchar(50),
+  valor_corte                numeric(18,4) DEFAULT 0,
+  tipo_informe               varchar(30),
+  nombre_informe             varchar(50),
+  fecha_ini_inf              date,
+  fecha_fin_inf              date,
+  usuario_id                 integer,
+  fecha_registro             timestamp WITHOUT TIME ZONE DEFAULT now(),
+  num_factura                varchar(20),
+  fecha_factura              date,
+  tipo_factura               varchar(2),
+  numero_corte               varchar(15),
+  /* Keys */
+  CONSTRAINT esm_documentos_repositorio_pkey
+    PRIMARY KEY (documentos_repositorio_id),
+  /* Foreign keys */
+  CONSTRAINT esm_documentos_repositorio_tipo_archivo_fkey
+    FOREIGN KEY (tipo_archivo)
+    REFERENCES public.tipo_archivos_repositorio(tipo_archivo_id)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE
+) WITH (
+    OIDS = FALSE
+  );
+
+ALTER TABLE public.esm_documentos_repositorio
+  OWNER TO "admin";
+
+COMMENT ON TABLE public.esm_documentos_repositorio
+  IS 'Tabla que registra a manera de log los archivos cargados al repositorio';
+
+COMMENT ON COLUMN public.esm_documentos_repositorio.documentos_repositorio_id
+  IS 'PK tabla';
+
+COMMENT ON COLUMN public.esm_documentos_repositorio.tipo_archivo
+  IS 'Tipo de documento cargado al repositorio';
+
+COMMENT ON COLUMN public.esm_documentos_repositorio.nombre_archivo
+  IS 'Nombre del documento cargado';
+
+COMMENT ON COLUMN public.esm_documentos_repositorio.size_archivo_bytes
+  IS 'Peso del archivo en bytes';
+
+COMMENT ON COLUMN public.esm_documentos_repositorio.formato_archivo
+  IS 'Formato del archivo';
+
+COMMENT ON COLUMN public.esm_documentos_repositorio.empresa_doc
+  IS 'Empresa relacionada al documento';
+
+COMMENT ON COLUMN public.esm_documentos_repositorio.centro_utilidad_doc
+  IS 'Centro utilidad relacionao al documento';
+
+COMMENT ON COLUMN public.esm_documentos_repositorio.bodega_doc
+  IS 'Bodega/farmacia relacionada al documento';
+
+COMMENT ON COLUMN public.esm_documentos_repositorio.dpto_doc
+  IS 'Dpto o area relacionada al documento - si aplica';
+
+COMMENT ON COLUMN public.esm_documentos_repositorio.num_orden_req
+  IS 'Numero de orden de requisicion - si aplica';
+
+COMMENT ON COLUMN public.esm_documentos_repositorio.num_orden_sum
+  IS 'Numero orden de suministro - si aplica';
+
+COMMENT ON COLUMN public.esm_documentos_repositorio.num_formula
+  IS 'Numero de formula - si aplica';
+
+COMMENT ON COLUMN public.esm_documentos_repositorio.tipo_paciente_id
+  IS 'Tipo id paciente';
+
+COMMENT ON COLUMN public.esm_documentos_repositorio.paciente_id
+  IS 'Identificacion paciente';
+
+COMMENT ON COLUMN public.esm_documentos_repositorio.valor_ctc
+  IS 'Valor formula - doc. comite tecnico cientifico';
+
+COMMENT ON COLUMN public.esm_documentos_repositorio.num_glosa
+  IS 'Numero de la glosa';
+
+COMMENT ON COLUMN public.esm_documentos_repositorio.num_factura_glosa
+  IS 'Numero de factura a la cual esta aplicada la glosa';
+
+COMMENT ON COLUMN public.esm_documentos_repositorio.valor_glosa
+  IS 'Valor de la glosa';
+
+COMMENT ON COLUMN public.esm_documentos_repositorio.corte_cant_formulas
+  IS 'Cantidad de formulas en el corte';
+
+COMMENT ON COLUMN public.esm_documentos_repositorio.fecha_corte_ini
+  IS 'Fecha inicial corte';
+
+COMMENT ON COLUMN public.esm_documentos_repositorio.fecha_corte_fin
+  IS 'Fecha final corte';
+
+COMMENT ON COLUMN public.esm_documentos_repositorio.corte_entregado_por
+  IS 'Persona que realizo el corte';
+
+COMMENT ON COLUMN public.esm_documentos_repositorio.corte_auditado_por
+  IS 'Persona que audito corte';
+
+COMMENT ON COLUMN public.esm_documentos_repositorio.valor_corte
+  IS 'Valor del corte';
+
+COMMENT ON COLUMN public.esm_documentos_repositorio.tipo_informe
+  IS 'Tipo de informe (formulacion, ordenes, facturacion, etc)';
+
+COMMENT ON COLUMN public.esm_documentos_repositorio.nombre_informe
+  IS 'Nombre del informe';
+
+COMMENT ON COLUMN public.esm_documentos_repositorio.fecha_ini_inf
+  IS 'fecha inicial informe';
+
+COMMENT ON COLUMN public.esm_documentos_repositorio.fecha_fin_inf
+  IS 'fecha final del informe';
+
+COMMENT ON COLUMN public.esm_documentos_repositorio.usuario_id
+  IS 'Usuario que genero el registro';
+
+COMMENT ON COLUMN public.esm_documentos_repositorio.fecha_registro
+  IS 'Fecha de creacion del registro';
+
+COMMENT ON COLUMN public.esm_documentos_repositorio.num_factura
+  IS 'Numero factura';
+
+COMMENT ON COLUMN public.esm_documentos_repositorio.fecha_factura
+  IS 'Fecha de la factura';
+
+COMMENT ON COLUMN public.esm_documentos_repositorio.tipo_factura
+  IS 'Tipo de facturación (1,2,3,8: tipo_archivos_repositorio)';
+
+COMMENT ON COLUMN public.esm_documentos_repositorio.numero_corte
+  IS 'Número del corte';

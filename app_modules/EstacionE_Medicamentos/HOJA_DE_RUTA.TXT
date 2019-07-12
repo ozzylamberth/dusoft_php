@@ -1,0 +1,67 @@
+
+S (Tabla del sistema Implementada con anterioridad en otro modulos.)
+M (Tabla de Movimiento, cuando la instalacion es nueva debera estar vacia)
+T (Tabla maestra de tipos)
+
+
+
+S empresas
+S centros_utilidad
+S system_usuarios
+T tipos_planes
+S cups
+S servicios
+T tipos_planes
+T tipos_id_pacientes
+S profesionales
+S terceros
+M cuentas_detalle
+S tarifarios_equivalencias
+S tarifarios_detalle
+T tipos_afiliado
+S planes
+S pacientes
+S cuentas
+M ingresos
+S profesionales_usuarios
+S  profesionales
+M hc_evoluciones
+S departamentos
+M bodegas_doc_numeraciones
+M bodegas_documentos_d
+M inv_solicitudes_devolucion
+M Minv_solicitudes_devolucion_d
+M hc_solicitudes_insumos_d
+M bodegas_documentos_d_equiv_ins
+hc_tipo_unidades_frecuencia
+M hc_solicitudes_medicamentos
+M hc_solicitudes_medicamentos_d
+M hc_solicitudes_insumos_d
+M inventarios_productos
+M hc_insumos_estacion
+T hc_tipos_insumo
+M bodegas_documentos_hc_solicitudes
+M bodegas_documentos_d
+S medicamentos
+M inv_med_cod_forma_farmacologica
+M hc_bodega_paciente
+M hc_os_solicitudes
+M hc_agenda_controles
+M hc_mezclas_recetadas_medicamentos
+M hc_solicitudes_medicamentos_mezclas_d
+M hc_vias_administracion_uds
+M bodegas_estaciones
+M bodegas
+M hc_vias_administracion
+M medicamentos_bodega
+M hc_solicitudes_medicamentos_pacientes
+M medicamentos
+M movimientos_habitacion
+T hc_tipos_controles_paciente
+M camas
+M piezas
+S estaciones_enfermeria
+M ingresos_departamento
+M hc_turnos_estacion
+M pendientes_x_hospitalizar
+M egresos_departamento

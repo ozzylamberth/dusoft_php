@@ -1,0 +1,15 @@
+DROP TABLE responsable_area_empresa IF EXISTS;
+
+CREATE TABLE "public"."responsable_area_empresa" (
+  "id" SERIAL, 
+  "area_empresa_id" INTEGER, 
+  "usuario_id" INTEGER, 
+  "sw_activo" CHAR(1), 
+  "fecha_registro" TIMESTAMP WITHOUT TIME ZONE DEFAULT now(), 
+  CONSTRAINT "responsable_area_empresa_pkey" PRIMARY KEY("id"), 
+  CONSTRAINT "fkey02" FOREIGN KEY ("usuario_id")
+    REFERENCES "public"."system_usuarios"("usuario_id")
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE
+) WITHOUT OIDS;

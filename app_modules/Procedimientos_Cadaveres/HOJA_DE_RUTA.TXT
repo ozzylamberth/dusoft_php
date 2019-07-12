@@ -1,0 +1,23 @@
+
+S (Tabla del sistema Implementada con anterioridad en otro modulos.)
+M (Tabla de Movimiento, cuando la instalacion es nueva debera estar vacia)
+T (Tabla maestra de tipos)
+
+M cadaveres_entregados
+M cadaveres_informes
+M cadaveres_informes_diagnosticos
+M cadaveres_informes_procedimientos
+M cadaveres_recepcion
+S cadaveres_tipo_cargo
+S cadaveres_tipos_plantillas
+S cups
+S departamentos
+S diagnosticos
+S pacientes
+S profesionales
+S profesionales_usuarios
+S servicios
+T tipos_id_pacientes
+S userpermisos_auxiliares_patologias_cadaveres
+S userpermisos_profesionales_patologias_cadaveres
+

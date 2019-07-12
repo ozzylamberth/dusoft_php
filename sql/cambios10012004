@@ -1,0 +1,45 @@
+ALTER TABLE "cg_parametros_cuentas" DROP CONSTRAINT "$1";
+ALTER TABLE "cg_parametros_cuentas" DROP CONSTRAINT "$3";
+ALTER TABLE "cg_parametros_cuentas" DROP CONSTRAINT "cg_parametros_cuentas_pkey";
+ALTER TABLE "cg_parametros_cuentas" DROP COLUMN "grupo_tarifario_id";
+ALTER TABLE "cg_parametros_cuentas" DROP COLUMN "subgrupo_tarifario_id";
+ALTER TABLE "cg_parametros_cuentas" DROP COLUMN "cuenta";
+
+ALTER TABLE "cg_parametros_cuentas" ADD COLUMN "grupo_tipo_cargo" character varying(3);
+ALTER TABLE "cg_parametros_cuentas" ADD COLUMN "tipo_cargo" character varying(3);
+ALTER TABLE "cg_parametros_cuentas" ADD COLUMN "cuenta" character varying(32);
+
+ALTER TABLE "cg_parametros_cuentas" ALTER COLUMN "grupo_tipo_cargo" SET NOT NULL;
+ALTER TABLE "cg_parametros_cuentas" ALTER COLUMN "tipo_cargo" SET NOT NULL;
+ALTER TABLE "cg_parametros_cuentas" ALTER COLUMN "cuenta" SET NOT NULL;
+
+ALTER TABLE "cg_parametros_cuentas" ADD PRIMARY KEY (empresa_id, departamento, grupo_tipo_cargo, tipo_cargo);
+ALTER TABLE "cg_parametros_cuentas" ADD FOREIGN KEY (empresa_id, cuenta) REFERENCES cg_plan_de_cuentas (empresa_id, cuenta) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE "cg_parametros_cuentas" ADD FOREIGN KEY (grupo_tipo_cargo, tipo_cargo) REFERENCES tipos_cargos (grupo_tipo_cargo, tipo_cargo) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+ALTER TABLE "cg_excepciones_parametros_cuentas" DROP CONSTRAINT "$3";
+ALTER TABLE "cg_excepciones_parametros_cuentas" DROP CONSTRAINT "cg_excepciones_parametros_cuentas_pkey";
+ALTER TABLE "cg_excepciones_parametros_cuentas" DROP COLUMN "tarifario_id";
+
+ALTER TABLE "cg_excepciones_parametros_cuentas" ADD PRIMARY KEY (empresa_id, departamento, cargo);
+ALTER TABLE "cg_excepciones_parametros_cuentas" ADD FOREIGN KEY (cargo) REFERENCES cups (cargo) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+ALTER TABLE especialidades ADD sw_cirujano character(1);
+UPDATE especialidades SET sw_cirujano='0';
+ALTER TABLE especialidades ALTER COLUMN sw_cirujano SET NOT NULL;
+
+ALTER TABLE "qx_programacion_paquetes" ADD PRIMARY KEY ("programacion_id")
+ALTER TABLE "qx_programacion_paquetes" ADD FOREIGN KEY ("paquete_insumos_id") REFERENCES "public"."qx_paquetes_insumos"("paquete_insumos_id")  ON UPDATE CASCADE ON DELETE RESTRICT
+
+CREATE TABLE qx_programacion_insumos(
+    programacion_id integer NOT NULL,
+    codigo_producto character varying(10) NOT NULL ,
+    cantidad smallint
+);
+ALTER TABLE ONLY qx_programacion_insumos ADD CONSTRAINT qx_programacion_insumos_pkey PRIMARY KEY (programacion_id);
+ALTER TABLE ONLY qx_programacion_insumos ADD CONSTRAINT "$1" FOREIGN KEY (codigo_producto) REFERENCES inventarios_productos(codigo_producto) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE "qx_programacion_insumos" ADD UNIQUE ("programacion_id","codigo_producto")
+
+

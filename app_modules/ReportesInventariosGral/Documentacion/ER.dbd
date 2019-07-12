@@ -1,0 +1,94 @@
+<XMLDiagram version="1.0">
+<TDBADiagramController Locked="0">
+<Elements>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.bodegas">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="10" top="863" width="200" height="363"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.centros_utilidad">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="10" top="577" width="200" height="209"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.bodegas.$1">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="48" top="48" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="110" y="1040"/>
+<Point x="110" y="680"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.empresas">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="10" top="10" width="200" height="489"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.centros_utilidad.$1">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="80" top="80" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="110" y="680"/>
+<Point x="110" y="250"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.system_usuarios">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="234" top="549" width="200" height="265"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.userpermisos_reportes_gral">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="234" top="995" width="200" height="97"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.userpermisos_reportes_gral.userpermisos_reportes_gral_empresa_id_fkey">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="128" top="128" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="330" y="1040"/>
+<Point x="110" y="680"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.userpermisos_reportes_gral.userpermisos_reportes_gral_usuario_id_fkey">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="144" top="144" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="330" y="1040"/>
+<Point x="330" y="680"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+</Elements>
+<Surface zoom="67" scrollx="0" scrolly="0"/>
+</TDBADiagramController>
+</XMLDiagram>

@@ -1,0 +1,50 @@
+CLUSTER "autorizaciones_pkey" ON "autorizaciones";
+
+CLUSTER "apoyod_cargos_pkey" ON "apoyod_cargos";
+
+CLUSTER "cups_pkey" ON "cups";
+
+CLUSTER "especialidades_pkey" ON "especialidades";
+
+CREATE INDEX "evolucion" ON "hc_os_solicitudes" USING BTREE ("evolucion_id");
+
+CREATE INDEX "uno" ON "hc_os_solicitudes" USING BTREE ("os_tipo_solicitud_id");
+
+CLUSTER "evolucion" ON "hc_os_solicitudes";
+
+CLUSTER "hc_os_autorizaciones_pkey" ON "hc_os_autorizaciones";
+
+CREATE INDEX "solicitudes" ON "os_maestro" USING BTREE ("hc_os_solicitud_id");
+
+CLUSTER "solicitudes" ON "os_maestro";
+
+CREATE INDEX "hc_resultados_sistemas" ON "hc_resultados_sistema" USING BTREE ("numero_orden_id");
+
+CLUSTER "hc_resultados_sistemas" ON "hc_resultados_sistema";
+
+CREATE INDEX "hc_resultados_manualesindex" ON "hc_resultados_manuales" USING BTREE ("numero_orden_id");
+
+CLUSTER "hc_resultados_manualesindex" ON "hc_resultados_manuales";
+
+CLUSTER "hc_lecturas_apoyod_pkey" ON "hc_resultados";
+
+CREATE INDEX "paciente_resultado" ON "hc_resultados" USING BTREE ("tipo_id_paciente","paciente_id");
+
+CREATE INDEX "resultado" ON "hc_apoyod_resultados_detalles" USING BTREE ("resultado_id");
+
+CLUSTER "resultado" ON "hc_apoyod_resultados_detalles";
+
+CLUSTER "hc_os_solicitudes_interconsultas_pkey" ON "hc_os_solicitudes_interconsultas";
+
+CREATE INDEX "ingreso" ON "hc_evoluciones" USING BTREE ("ingreso");
+
+
+CLUSTER "hc_evoluciones_pkey" ON "hc_evoluciones";
+
+CREATE INDEX "paciente" ON "ingresos" USING BTREE ("tipo_id_paciente","paciente_id");
+
+CLUSTER "paciente" ON "ingresos";
+
+
+
+

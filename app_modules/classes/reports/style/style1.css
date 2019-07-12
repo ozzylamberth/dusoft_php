@@ -1,0 +1,167 @@
+/* pos.class.php  07/22/2004
+// -------------------------------------------------------------------------------------
+// SIIS v 0.1
+// Copyright (C) 2003 IPSOFT SA.
+// Email: mail@ipsoft-sa.com
+// -------------------------------------------------------------------------------------
+// Autor: Jairo Duvan Diaz Martinez
+// Proposito del Archivo: Hoja de estilos para reportes html
+// -------------------------------------------------------------------------------------
+*/
+
+/*HOJA DE ESTILOS APLICACION SIIS 22-10-2003  --- 11/03/2004*/
+
+
+
+
+/*---------------------------------------------------------------------------------------
+* FUENTES
+*--------------------------------------------------------------------------------------*/
+
+/*normal_10 = Es el estilo para las fuentes de tamaño 10*/
+.usuario{  font-family:sans_serif, Verdana, helvetica, Arial;
+                        font-size: 10px;
+                        color: #FFFFFF;
+                        font-weight: bold }
+
+/*normal_10 = Es el estilo para las fuentes de tamaño 10 y color negra*/
+.normal_10{  font-family:sans_serif, Verdana, helvetica, Arial;
+                        font-size: 10px;
+                        color: #000000 }
+
+/*normal_10N = Es el estilo para las fuentes de tamaño 10 negra y negrita*/
+.normal_10N{  font-family:sans_serif, Verdana, helvetica, Arial;
+                        font-size: 10px;
+                        color: #000000;
+                        font-weight: bold }
+
+/*normal_10A = Es el estilo para las fuentes de tamaño 10 y color azul*/
+.normal_10A{  font-family:sans_serif, Verdana, helvetica, Arial;
+                        font-size: 10px;
+                        color: #000980 }
+
+/*normal_10AN = Es el estilo para las fuentes de tamaño 10 azul y negrita*/
+.normal_10AN{  font-family:sans_serif, Verdana, helvetica, Arial;
+                        font-size: 10px;
+                        color: #000980;
+                        font-weight: bold }
+
+/*normal_10_menu = Es el estilo para las fuentes de tamaño 10*/
+.normal_10_menu{  font-family:sans_serif, Verdana, helvetica, Arial;
+                        font-size: 10px;
+                        color: #536CB0 }
+
+/*normal_10N_menu = Es el estilo para las fuentes de tamaño 10*/
+.normal_10N_menu{  font-family:sans_serif, Verdana, helvetica, Arial;
+                        font-size: 10px;
+                        color: #536CB0;
+                        font-weight: bold }
+
+/*normal_09 = Es el estilo para las fuentes de tamaño 10*/
+.normal_09{  font-family:sans_serif, Verdana, helvetica, Arial;
+                        font-size: 9px;
+                        color: #000980 }
+
+/*normal_09N = Es el estilo para las fuentes de tamaño 10*/
+.normal_09N{  font-family:sans_serif, Verdana, helvetica, Arial;
+                        font-size: 9px;
+                        color: #000980;
+                        font-weight: bold }
+
+/*normal_09_menu = Es el estilo para las fuentes de tamaño 10*/
+.normal_09_menu{  font-family:sans_serif, Verdana, helvetica, Arial;
+                        font-size: 9px;
+                        color: #536CB0 }
+
+/*normal_09N_menu = Es el estilo para las fuentes de tamaño 10*/
+.normal_09N_menu{  font-family:sans_serif, Verdana, helvetica, Arial;
+                        font-size: 9px;
+                        color: #536CB0;
+                        font-weight: bold }
+
+/*normal_11 = Es el estilo para las fuentes de tamaño 10*/
+.normal_11{  font-family:sans_serif, Verdana, helvetica, Arial;
+                        font-size: 11px;
+                        color: #000980 }
+
+/*normal_11N = Es el estilo para las fuentes de tamaño 10*/
+.normal_11N{  font-family:sans_serif, Verdana, helvetica, Arial;
+                        font-size: 11px;
+                        color: #000980;
+                        font-weight: bold }
+
+/*normal_11_menu = Es el estilo para las fuentes de tamaño 10*/
+.normal_11_menu{  font-family:sans_serif, Verdana, helvetica, Arial;
+                        font-size: 11px;
+                        color: #536CB0 }
+
+/*normal_11N_menu = Es el estilo para las fuentes de tamaño 10*/
+.normal_11N_menu{  font-family:sans_serif, Verdana, helvetica, Arial;
+                        font-size: 11px;
+                        color: #536CB0;
+                        font-weight: bold }
+
+
+/*Cliente = Es el estilo del tiltulo del la cabecera con el nombre del cliente*/
+.Cliente {  font-family:sans_serif, Verdana, helvetica, Arial;
+                        font-size: 15px;
+                        color: #FFFFFF;
+                        font-weight: bold }
+
+/*label = Es el estilo para los label's de los campos de los modulos o submodulos*/
+.label { font-family: sans_serif, Verdana, helvetica, Arial;
+                 font-size: 10px;
+                 color: #000000;
+                 font-weight: bold }
+
+/*label_error = Es el estilo para cambiar el color del label, indicando el error*/
+.label_error { font-family: sans_serif, Verdana,helvetica, Arial;
+                             font-size: 10px;
+                             color: #FF0000;
+                             font-weight: bold }
+
+/*label_mark = Es el estilo para cambiar el color del label, generandolo como marca*/
+.label_mark { font-family: sans_serif, Verdana,helvetica, Arial;
+                             font-size: 10px;
+                             color: #4D6EAB;
+                             font-weight: bold }
+
+/*titulo_error = Es el estilo del tiltulo de los errores*/
+.titulo1 {  font-family:sans_serif, Verdana, helvetica, Arial;
+                        font-size: 16px;
+                        color: #000000;
+                        font-weight: bold }
+
+/*titulo_error = Es el estilo del tiltulo de los errores*/
+.titulo2 {  font-family:sans_serif, Verdana, helvetica, Arial;
+                        font-size: 14px;
+                        color: #000000;
+                        font-weight: bold }
+
+/*titulo_error = Es el estilo del tiltulo de los errores*/
+.titulo3 {  font-family:sans_serif, Verdana, helvetica, Arial;
+                        font-size: 14px;
+                        color: #000BA6;
+                        font-weight: bold }
+
+/*titulo_error = Es el estilo del tiltulo de los errores*/
+.titulo1_error {  font-family: sans_serif, Verdana, helvetica, Arial;
+                                  font-size: 16px;
+                                  color: maroon;
+                                  font-weight: bold }
+/*titulo_error = Es el estilo del tiltulo de los errores*/
+.titulo2_error {  font-family: sans_serif, Verdana, helvetica, Arial;
+                                  font-size: 16px;
+                                  color: maroon;
+                                  font-weight: bold }
+/*titulo_error = Es el estilo del tiltulo de los errores*/
+.titulo3_error {  font-family: sans_serif, Verdana, helvetica, Arial;
+                                  font-size: 14px;
+                                  color: #FF0000;
+                                  font-weight: bold }
+                                                            
+/*Estilo para las alertas en enfermeria => color rojo*/
+.alerta { font-family: sans_serif, Verdana,helvetica, Arial;
+                    font-size: 10px;
+                    color: #FF0000;
+                    font-weight: bold }

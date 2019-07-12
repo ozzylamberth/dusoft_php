@@ -1,0 +1,9 @@
+ConfigDB.php
+cache/
+pqrs
+tmp
+repositorio
+cache/FacturaVenta.pdf
+cache/InformeOrdenPedido.pdf
+tmp/inventarios/Rotacion.csv
+ws/ws.log

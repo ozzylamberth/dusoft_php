@@ -1,0 +1,43 @@
+
+S (Tabla del sistema Implementada con anterioridad en otro modulos.)
+M (Tabla de Movimiento, cuando la instalacion es nueva debera estar vacia)
+T (Tabla maestra de tipos)
+
+M pacientes
+M historias_clinicas
+M hc_recomendaciones
+M gestacion
+M cronicos
+M hc_control_protocolos
+M hc_vacunas_cumplidas
+M ingresos
+M programacion_cx
+M agenda_citas_asignadas
+M soat_eventos
+M caja_ordenes_pago
+M hc_pacientes_hemoclasificacion
+M os_ordenes_servicios
+M os_cumplimientos
+M hc_os_solicitudes_manuales
+S cuentas
+S planes
+T tipos_estratos
+S pacientes_campos_obligatorios
+S cuentasxcobrar
+S centros_utilidad
+S empresas
+T tipo_pais
+T tipo_dptos
+T tipo_mpios
+T tipo_comunas
+T tipo_barrios
+T tipos_id_pacientes
+T tipo_sexo
+T tipos_estratos
+T tipo_estado_civil
+T ocupaciones
+T zonas_residencia
+T tipos_parentescos
+
+
+

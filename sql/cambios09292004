@@ -1,0 +1,79 @@
+
+CREATE TABLE "hc_tipos_finalidad_detalle" ("tipo_finalidad_id" character varying(2) NOT NULL, "tipo_finalidad_detalle" SERIAL NOT NULL, "descripcion" character varying(20) NOT NULL);
+
+ALTER TABLE "hc_tipos_finalidad_detalle" ADD PRIMARY KEY ("tipo_finalidad_id","tipo_finalidad_detalle");
+
+ALTER TABLE "hc_tipos_finalidad_detalle" ADD FOREIGN KEY ("tipo_finalidad_id") REFERENCES "public"."hc_tipos_finalidad"("tipo_finalidad_id")  ON UPDATE CASCADE ON DELETE RESTRICT;
+
+COMMENT ON TABLE "hc_tipos_finalidad_detalle" IS 'Identificacion de las diferentes razones por las que se realiza una atencion de PYP';
+COMMENT ON COLUMN "hc_tipos_finalidad_detalle"."tipo_finalidad_id" IS 'PK:FK llave foranea para identificar el tipo de finalidad a la cual hace referencia';
+COMMENT ON COLUMN "hc_tipos_finalidad_detalle"."tipo_finalidad_detalle" IS 'PK serial para identificar los campos de la tabla';
+COMMENT ON COLUMN "hc_tipos_finalidad_detalle"."descripcion" IS 'descripcion para desplegar en la pantalla';
+
+
+ALTER TABLE "hc_finalidad" DROP CONSTRAINT "hc_finalidad_pkey";
+
+ALTER TABLE "hc_finalidad" ADD PRIMARY KEY ("evolucion_id");
+
+
+CREATE TABLE hc_finalidad_detalle (
+    evolucion_id integer NOT NULL,
+    tipo_finalidad_detalle integer NOT NULL,
+    tipo_finalidad_id character varying(2) NOT NULL
+);
+
+ALTER TABLE "hc_finalidad_detalle" ADD PRIMARY KEY ("evolucion_id","tipo_finalidad_detalle");
+
+ALTER TABLE "hc_finalidad_detalle" ADD FOREIGN KEY ("evolucion_id") REFERENCES "public"."hc_finalidad"("evolucion_id")  ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE "hc_finalidad_detalle" ADD FOREIGN KEY ("tipo_finalidad_detalle","tipo_finalidad_id") REFERENCES "public"."hc_tipos_finalidad_detalle"("tipo_finalidad_detalle","tipo_finalidad_id")  ON UPDATE CASCADE ON DELETE RESTRICT;
+
+COMMENT ON TABLE "hc_finalidad_detalle" IS 'Tabla en donde se guardan la informacion estadistica de las atenciones de PYP';
+COMMENT ON COLUMN "hc_finalidad_detalle"."evolucion_id" IS 'PK:FK Llave foranea para identificar la evolucion del paciente';
+COMMENT ON COLUMN "hc_finalidad_detalle"."tipo_finalidad_detalle" IS 'PK:FK llave foranea para identificar tipo de finalidad en detalle';
+COMMENT ON COLUMN "hc_finalidad_detalle"."tipo_finalidad_id" IS 'PK:FK Llave foranea para identificar el tipo de finalidad';
+
+
+
+CREATE TABLE tmp_bodegas_documentos_hc_solicitudes (
+    solicitud_id integer NOT NULL,
+    documento integer
+);
+ALTER TABLE ONLY tmp_bodegas_documentos_hc_solicitudes ADD CONSTRAINT "$2" FOREIGN KEY (solicitud_id) REFERENCES hc_solicitudes_medicamentos(solicitud_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY tmp_bodegas_documentos_hc_solicitudes ADD CONSTRAINT "$1" FOREIGN KEY (documento) REFERENCES tmp_bodegas_documentos(documento) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+CREATE TABLE tmp_bodegas_documentos_d_equiv_med (
+    consecutivo integer NOT NULL,
+    consecutivo_d integer NOT NULL
+);
+ALTER TABLE ONLY tmp_bodegas_documentos_d_equiv_med ADD CONSTRAINT tmp_bodegas_documentos_d_equiv_pkey PRIMARY KEY (consecutivo);
+ALTER TABLE ONLY tmp_bodegas_documentos_d_equiv_med ADD CONSTRAINT "$1" FOREIGN KEY (consecutivo) REFERENCES tmp_bodegas_documentos_d(consecutivo) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY tmp_bodegas_documentos_d_equiv_med ADD CONSTRAINT "$2" FOREIGN KEY (consecutivo_d) REFERENCES hc_solicitudes_medicamentos_d(consecutivo_d) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+CREATE TABLE tmp_bodegas_documentos_d_equiv_ins (
+    consecutivo integer NOT NULL,
+    consecutivo_d integer NOT NULL
+);
+ALTER TABLE ONLY bodegas_documentos_d_equiv_ins ADD CONSTRAINT bodegas_documentos_d_equiv_ins_pkey PRIMARY KEY (consecutivo);
+ALTER TABLE ONLY bodegas_documentos_d_equiv_ins ADD CONSTRAINT "$1" FOREIGN KEY (consecutivo) REFERENCES bodegas_documentos_d(consecutivo) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY bodegas_documentos_d_equiv_ins ADD CONSTRAINT "$2" FOREIGN KEY (consecutivo_d) REFERENCES hc_solicitudes_insumos_d(consecutivo_d) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+CREATE TABLE tmp_bodegas_documentos_d_equiv_mez (
+    consecutivo integer NOT NULL,
+    consecutivo_d integer NOT NULL
+);
+ALTER TABLE ONLY tmp_bodegas_documentos_d_equiv_mez ADD CONSTRAINT tmp_bodegas_documentos_d_equiv_mez_pkey PRIMARY KEY (consecutivo);
+ALTER TABLE ONLY tmp_bodegas_documentos_d_equiv_mez ADD CONSTRAINT "$1" FOREIGN KEY (consecutivo) REFERENCES tmp_bodegas_documentos_d(consecutivo) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY tmp_bodegas_documentos_d_equiv_mez ADD CONSTRAINT "$2" FOREIGN KEY (consecutivo_d) REFERENCES hc_solicitudes_medicamentos_mezclas_d(consecutivo_d) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+ALTER TABLE "gestacion" ADD COLUMN "fecha_registro" timestamp without time zone;
+ALTER TABLE "gestacion" ALTER COLUMN "fecha_registro" SET NOT NULL;
+ALTER TABLE "gestacion" ALTER COLUMN "fecha_registro" SET DEFAULT now();
+ALTER TABLE "gestacion" ADD COLUMN "evolucion_id" integer;
+ALTER TABLE "gestacion" ADD FOREIGN KEY ("evolucion_id") REFERENCES "public"."hc_evoluciones"("evolucion_id")  ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE "gestacion" ADD COLUMN "usuario_id" integer;
+ALTER TABLE "gestacion" ALTER COLUMN "usuario_id" SET NOT NULL;
+ALTER TABLE "gestacion" ADD FOREIGN KEY ("usuario_id") REFERENCES "public"."system_usuarios"("usuario_id")  ON UPDATE CASCADE ON DELETE RESTRICT;
+
+INSERT INTO "system_hc_submodulos" ("submodulo", "descripcion", "version_numero", "version_info", "activo", "sexo_id", "gestacion", "edad_max", "edad_min") VALUES ('IngresoGestacion', 'INGRESO DE PERSONAS GESTANTES', 1.00, ''::character varying, '1'::bpchar, NULL, NULL, NULL, NULL);

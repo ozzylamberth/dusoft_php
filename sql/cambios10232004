@@ -1,0 +1,40 @@
+CREATE TABLE solicitud_reserva_sangre (
+    solicitud_reserva_sangre_id serial NOT NULL,
+		paciente_id character varying(32) NOT NULL,
+		tipo_id_paciente character varying(3) NOT NULL,
+		ubicacion_paciente character varying(255),
+    responsable_solicitud character varying(60),
+    departamento character varying(6),
+    sw_urgencia character(1) DEFAULT '0'::bpchar NOT NULL,
+    grupo_sanguineo character varying(2) NOT NULL,
+    rh character(1) NOT NULL,
+		laboratorio character varying(60),
+    preparacion character varying(255) DEFAULT ''::character varying,
+    fecha_hora_reserva timestamp without time zone,
+    cruzar character(1) DEFAULT '0'::bpchar NOT NULL,
+    transfuciones_ant character(1) DEFAULT '0'::bpchar NOT NULL,
+    reacciones_adv character(1) DEFAULT '0'::bpchar NOT NULL,
+    descripcion_reac text DEFAULT ''::text,
+    embarazos_previos character(1) DEFAULT '0'::bpchar NOT NULL,
+    fecha_ultimo_embarazo date,
+    motivo_reserva text DEFAULT ''::text,
+    sw_estado character(1) DEFAULT 1 NOT NULL,
+    estado_gestacion character(1) DEFAULT 0 NOT NULL,
+		usuario_id integer NOT NULL,
+		fecha_registro timestamp without time zone NOT NULL
+);
+
+ALTER TABLE ONLY solicitud_reserva_sangre ADD CONSTRAINT solicitud_reserva_sangre_pkek PRIMARY KEY (solicitud_reserva_sangre_id);
+ALTER TABLE ONLY solicitud_reserva_sangre ADD CONSTRAINT "$1" FOREIGN KEY (grupo_sanguineo, rh) REFERENCES hc_tipos_sanguineos(grupo_sanguineo, rh) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY solicitud_reserva_sangre ADD CONSTRAINT "$2" FOREIGN KEY (tipo_id_paciente,paciente_id) REFERENCES pacientes(tipo_id_paciente,paciente_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY solicitud_reserva_sangre ADD CONSTRAINT "$3" FOREIGN KEY (departamento) REFERENCES departamentos(departamento) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY solicitud_reserva_sangre ADD CONSTRAINT "$4" FOREIGN KEY (usuario_id) REFERENCES system_usuarios(usuario_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+CREATE TABLE solicitud_reserva_sangre_detalle (
+    solicitud_reserva_sangre_id integer NOT NULL,
+    tipo_componente_id integer NOT NULL,
+    cantidad_componente smallint NOT NULL
+);
+
+ALTER TABLE ONLY solicitud_reserva_sangre_detalle ADD CONSTRAINT solicitud_reserva_sangre_detalle_pkey PRIMARY KEY (solicitud_reserva_sangre_id,tipo_componente_id);
+ALTER TABLE ONLY solicitud_reserva_sangre_detalle ADD CONSTRAINT "$1" FOREIGN KEY (tipo_componente_id) REFERENCES hc_tipos_componentes(hc_tipo_componente) ON UPDATE CASCADE ON DELETE RESTRICT;

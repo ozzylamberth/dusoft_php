@@ -1,0 +1,17 @@
+
+
+CREATE TABLE pacientes_campos_obligatorios (
+    campo character varying(50) NOT NULL,
+    sw_mostrar character(1) NOT NULL,
+		sw_obligatorio character(1) NOT NULL
+);
+
+ALTER TABLE ONLY pacientes_campos_obligatorios
+    ADD CONSTRAINT pacientes_campos_obligatorios_pkey PRIMARY KEY (campo);
+
+INSERT INTO pacientes_campos_obligatorios VALUES ('tipo_barrio_id', '1', '1');
+INSERT INTO pacientes_campos_obligatorios VALUES ('residencia_direccion', '1', '1');
+INSERT INTO pacientes_campos_obligatorios VALUES ('residencia_telefono', '1', '1');
+INSERT INTO pacientes_campos_obligatorios VALUES ('tipo_estrato_id', '1', '0');
+INSERT INTO pacientes_campos_obligatorios VALUES ('tipo_comuna_id', '1', '0');
+

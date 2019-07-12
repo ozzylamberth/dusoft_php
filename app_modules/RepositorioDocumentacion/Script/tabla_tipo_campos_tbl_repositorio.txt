@@ -1,0 +1,35 @@
+-- Table: public.tipo_campos_tbl_repositorio
+
+-- DROP TABLE public.tipo_campos_tbl_repositorio;
+
+CREATE TABLE public.tipo_campos_tbl_repositorio (
+  campos_tbl_repositorio_id  serial NOT NULL,
+  tipo_archivo               integer,
+  campo                      varchar(20),
+  /* Keys */
+  CONSTRAINT tipo_campos_tbl_repositorio_pkey
+    PRIMARY KEY (campos_tbl_repositorio_id),
+  /* Foreign keys */
+  CONSTRAINT tipo_campos_tbl_repositorio_tipo_archivo_fkey
+    FOREIGN KEY (tipo_archivo)
+    REFERENCES public.tipo_archivos_repositorio(tipo_archivo_id)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE
+) WITH (
+    OIDS = FALSE
+  );
+
+ALTER TABLE public.tipo_campos_tbl_repositorio
+  OWNER TO "admin";
+
+COMMENT ON TABLE public.tipo_campos_tbl_repositorio
+  IS 'Campos de cada tipo de documento a subir en el repositorio de archivos escaneados';
+
+COMMENT ON COLUMN public.tipo_campos_tbl_repositorio.campos_tbl_repositorio_id
+  IS 'PK tabla';
+
+COMMENT ON COLUMN public.tipo_campos_tbl_repositorio.tipo_archivo
+  IS 'Tipo de documento para el repositorio';
+
+COMMENT ON COLUMN public.tipo_campos_tbl_repositorio.campo
+  IS 'Campos del tipo de documento';

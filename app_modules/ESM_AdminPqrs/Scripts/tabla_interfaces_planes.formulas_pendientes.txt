@@ -1,0 +1,69 @@
+CREATE TABLE "interfaces_planes"."formulas_pendientes" (
+  "pendiente_id" SERIAL, 
+  "numero_paciente_sisap" INTEGER, 
+  "tipo_documento_sisap" CHAR(4), 
+  "formula_id" CHAR(50), 
+  "numero_formula_manual" CHAR(50), 
+  "fecha_formula" DATE, 
+  "fecha_radicacion" DATE, 
+  "fecha_inicio_entrega_farmacia" DATE, 
+  "fecha_fin_entrega_farmacia" DATE, 
+  "codigo_producto" CHAR(50), 
+  "empresa_id" CHAR(2), 
+  "molecula_id" CHAR(10), 
+  "laboratorio_id" CHAR(4), 
+  "farmacia_id" CHAR(10), 
+  "cantidad_prescrita" CHAR(5), 
+  "cantidad_pendiente" CHAR(5), 
+  "tipo_id_paciente" CHAR(2), 
+  "paciente_id" CHAR(32), 
+  "tipo_id_medico" CHAR(2), 
+  "medico_id" CHAR(32), 
+  "ambito_atencion" CHAR(100), 
+  CONSTRAINT "formulas_pendientes_pkey" PRIMARY KEY("pendiente_id"), 
+  CONSTRAINT "formulas_pendientes_fk" FOREIGN KEY ("paciente_id", "tipo_id_paciente")
+    REFERENCES "public"."terceros"("tipo_id_tercero", "tercero_id")
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE, 
+  CONSTRAINT "formulas_pendientes_fk1" FOREIGN KEY ("medico_id", "tipo_id_medico")
+    REFERENCES "public"."terceros"("tipo_id_tercero", "tercero_id")
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE, 
+  CONSTRAINT "formulas_pendientes_fk2" FOREIGN KEY ("laboratorio_id")
+    REFERENCES "public"."inv_laboratorios"("laboratorio_id")
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE, 
+  CONSTRAINT "formulas_pendientes_fk3" FOREIGN KEY ("empresa_id", "codigo_producto")
+    REFERENCES "public"."inventarios"("empresa_id", "codigo_producto")
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE, 
+  CONSTRAINT "formulas_pendientes_fk4" FOREIGN KEY ("molecula_id")
+    REFERENCES "public"."inv_moleculas"("molecula_id")
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE, 
+  CONSTRAINT "formulas_pendientes_fk5" FOREIGN KEY ("farmacia_id", "empresa_id")
+    REFERENCES "interfaces_planes"."equivalencia_farmacia"("farmacia_id", "empresa_id")
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE
+) WITH OIDS;
+
+COMMENT ON COLUMN "interfaces_planes"."formulas_pendientes"."formula_id"
+IS 'Número de fórmula SISAP';
+
+COMMENT ON COLUMN "interfaces_planes"."formulas_pendientes"."numero_formula_manual"
+IS 'Numero formula manual';
+
+COMMENT ON COLUMN "interfaces_planes"."formulas_pendientes"."fecha_radicacion"
+IS 'Fecha de radicación de la formula en la farmacia.';
+
+COMMENT ON COLUMN "interfaces_planes"."formulas_pendientes"."fecha_inicio_entrega_farmacia"
+IS 'Fecha de inicio entrega en la farmacia';
+
+COMMENT ON COLUMN "interfaces_planes"."formulas_pendientes"."fecha_fin_entrega_farmacia"
+IS 'Fecha de finalización entrega en la farmacia';

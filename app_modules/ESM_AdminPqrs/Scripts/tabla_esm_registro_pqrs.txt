@@ -1,0 +1,104 @@
+-- Table: public.esm_registro_pqrs
+
+-- DROP TABLE public.esm_registro_pqrs;
+
+CREATE TABLE public.esm_registro_pqrs (
+  registro_pqrs_id      serial NOT NULL,
+  empresa_id            varchar(2),
+  bodega                varchar(2),
+  responsable_solucion  varchar(10),
+  prioridad             varchar(2),
+  estado_caso           varchar(2),
+  paciente_id           varchar(12),
+  fuerza_id             varchar(10),
+  nombres               varchar(30),
+  apellidos             varchar(30),
+  genero                varchar(2),
+  fecha_nacimiento      date,
+  direccion             varchar(50),
+  tel_casa              varchar(12),
+  num_celular           varchar(12),
+  email_paciente        varchar(50),
+  categoria_caso        integer DEFAULT 0,
+  fecha_registro        timestamp WITHOUT TIME ZONE DEFAULT now(),
+  usuario_id            integer,
+  /* Keys */
+  CONSTRAINT esm_registro_pqrs_pkey
+    PRIMARY KEY (registro_pqrs_id),
+  /* Foreign keys */
+  CONSTRAINT esm_registro_pqrs_empresa_id_fkey
+    FOREIGN KEY (empresa_id)
+    REFERENCES public.empresas(empresa_id)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE, 
+  CONSTRAINT esm_registro_pqrs_usuario_id_fkey
+    FOREIGN KEY (usuario_id)
+    REFERENCES public.system_usuarios(usuario_id)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE
+) WITH (
+    OIDS = FALSE
+  );
+
+ALTER TABLE public.esm_registro_pqrs
+  OWNER TO "admin";
+
+COMMENT ON TABLE public.esm_registro_pqrs
+  IS 'Tabla que almacena la información de quejas y reclamos reportados en atención al cliente';
+
+COMMENT ON COLUMN public.esm_registro_pqrs.registro_pqrs_id
+  IS 'PK tabla numero unico de caso';
+
+COMMENT ON COLUMN public.esm_registro_pqrs.empresa_id
+  IS 'Codigo empresa';
+
+COMMENT ON COLUMN public.esm_registro_pqrs.bodega
+  IS 'Codigo esm/farmacia';
+
+COMMENT ON COLUMN public.esm_registro_pqrs.responsable_solucion
+  IS 'Nombre del responsable a quien se remite el caso';
+
+COMMENT ON COLUMN public.esm_registro_pqrs.prioridad
+  IS 'Prioridad del caso reportado';
+
+COMMENT ON COLUMN public.esm_registro_pqrs.estado_caso
+  IS 'Estado del caso';
+
+COMMENT ON COLUMN public.esm_registro_pqrs.paciente_id
+  IS 'Id de paciente';
+
+COMMENT ON COLUMN public.esm_registro_pqrs.fuerza_id
+  IS 'Codigo de fuerza';
+
+COMMENT ON COLUMN public.esm_registro_pqrs.nombres
+  IS 'Nombres paciente';
+
+COMMENT ON COLUMN public.esm_registro_pqrs.apellidos
+  IS 'Apellidos paciente';
+
+COMMENT ON COLUMN public.esm_registro_pqrs.genero
+  IS 'M / F / 0 no indicado';
+
+COMMENT ON COLUMN public.esm_registro_pqrs.fecha_nacimiento
+  IS 'Fecha nacimiento paciente';
+
+COMMENT ON COLUMN public.esm_registro_pqrs.direccion
+  IS 'Dirección residencia paciente';
+
+COMMENT ON COLUMN public.esm_registro_pqrs.tel_casa
+  IS 'Telefono residencia paciente';
+
+COMMENT ON COLUMN public.esm_registro_pqrs.num_celular
+  IS 'Número celular';
+
+COMMENT ON COLUMN public.esm_registro_pqrs.email_paciente
+  IS 'Correo electrónico paciente';
+
+COMMENT ON COLUMN public.esm_registro_pqrs.categoria_caso
+  IS 'Código categoría caso';
+
+COMMENT ON COLUMN public.esm_registro_pqrs.fecha_registro
+  IS 'Fecha creación del caso';
+
+COMMENT ON COLUMN public.esm_registro_pqrs.usuario_id
+  IS 'Usuario id aplicación';

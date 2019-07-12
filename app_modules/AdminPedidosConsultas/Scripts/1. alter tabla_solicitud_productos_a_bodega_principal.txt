@@ -1,0 +1,4 @@
+ALTER TABLE solicitud_productos_a_bodega_principal ADD COLUMN tipo_pedido character(1) DEFAULT 0;
+
+COMMENT ON COLUMN "solicitud_productos_a_bodega_principal"."tipo_pedido"
+  IS 'Tipo de solicitud, 0 => Normal, 1 => General';

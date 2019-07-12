@@ -1,0 +1,10 @@
+ALTER TABLE inv_bodegas_movimiento_despachos_farmacias ADD COLUMN solicitud_prod_a_bod_ppal_det_des_id INTEGER NULL;
+COMMENT ON COLUMN public.inv_bodegas_movimiento_despachos_farmacias.solicitud_prod_a_bod_ppal_det_des_id
+  IS 'Id del detalle (de despacho) relacionado al despacho';
+  
+ALTER TABLE inv_bodegas_movimiento_despachos_farmacias
+ADD CONSTRAINT inv_bodegas_movimiento_despachos_farmacias_solicitud_productos_a_bodega_principal_detalle_despacho_fkey
+FOREIGN KEY (solicitud_prod_a_bod_ppal_det_des_id)
+REFERENCES solicitud_productos_a_bodega_principal_detalle_despacho (solicitud_prod_a_bod_ppal_det_des_id)
+ON DELETE RESTRICT
+ON UPDATE CASCADE;

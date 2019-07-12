@@ -1,0 +1,38 @@
+CREATE TABLE banco_sangre_solicitud_ext(
+  documento_solicitud_id SERIAL,
+	entidad_solicitante character varying(6),
+	motivo_solicitud character(1),
+	fecha_registro timestamp without time zone,
+	usuario_id integer
+);
+ALTER TABLE ONLY banco_sangre_solicitud_ext ADD PRIMARY KEY (documento_solicitud_id);
+ALTER TABLE ONLY banco_sangre_solicitud_ext ADD FOREIGN KEY (usuario_id) REFERENCES system_usuarios(usuario_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY banco_sangre_solicitud_ext ADD FOREIGN KEY (entidad_solicitante) REFERENCES terceros_sgsss(codigo_sgsss) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+CREATE TABLE banco_sangre_solicitud_ext_detalle(
+  documento_solicitud_id SERIAL,
+	ingreso_bolsa_id integer
+);
+ALTER TABLE ONLY banco_sangre_solicitud_ext_detalle ADD PRIMARY KEY (documento_solicitud_id,ingreso_bolsa_id);
+ALTER TABLE ONLY banco_sangre_solicitud_ext_detalle ADD FOREIGN KEY (documento_solicitud_id) REFERENCES banco_sangre_solicitud_ext(documento_solicitud_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY banco_sangre_solicitud_ext_detalle ADD FOREIGN KEY (ingreso_bolsa_id) REFERENCES banco_sangre_bolsas(ingreso_bolsa_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+
+--claudia ok enviado a bogota 3-nov - enviado a tulua 22/nov
+CREATE TABLE apoyod_reentrega_resultados (
+    apoyod_reentrega_id serial NOT NULL,
+    apoyod_entrega_id integer NOT NULL,
+    resultado_id integer NOT NULL,
+    fecha_entrega timestamp without time zone NOT NULL,
+    observacion text
+);
+
+
+ALTER TABLE ONLY apoyod_reentrega_resultados
+    ADD CONSTRAINT apoyod_reentrega_resultados_pkey PRIMARY KEY (apoyod_reentrega_id);
+
+
+ALTER TABLE ONLY apoyod_reentrega_resultados
+    ADD CONSTRAINT "$1" FOREIGN KEY (apoyod_entrega_id, resultado_id) REFERENCES apoyod_entrega_resultados_detalle(apoyod_entrega_id, resultado_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+

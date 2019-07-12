@@ -1,0 +1,43 @@
+-- Table: public.esm_registro_pqrs_d
+
+-- DROP TABLE public.esm_registro_pqrs_d;
+
+CREATE TABLE public.esm_registro_pqrs_d (
+  registro_pqrs_d_id  serial NOT NULL,
+  id_caso             integer,
+  observacion         varchar(100),
+  fecha_registro      timestamp WITHOUT TIME ZONE,
+  usuario_id          integer,
+  /* Keys */
+  CONSTRAINT esm_registro_pqrs_d_pkey
+    PRIMARY KEY (registro_pqrs_d_id),
+  /* Foreign keys */
+  CONSTRAINT esm_registro_pqrs_d_id_caso_fkey
+    FOREIGN KEY (id_caso)
+    REFERENCES public.esm_registro_pqrs(registro_pqrs_id)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE
+) WITH (
+    OIDS = FALSE
+  );
+
+ALTER TABLE public.esm_registro_pqrs_d
+  OWNER TO "admin";
+
+COMMENT ON TABLE public.esm_registro_pqrs_d
+  IS 'Tabla de detalle de registro y seguimiento de casos pqrs';
+
+COMMENT ON COLUMN public.esm_registro_pqrs_d.registro_pqrs_d_id
+  IS 'PK tabla';
+
+COMMENT ON COLUMN public.esm_registro_pqrs_d.id_caso
+  IS 'numero de caso pqrs';
+
+COMMENT ON COLUMN public.esm_registro_pqrs_d.observacion
+  IS 'Observación/Seguimiento al caso';
+
+COMMENT ON COLUMN public.esm_registro_pqrs_d.fecha_registro
+  IS 'Fecha creación registro / actualización caso';
+
+COMMENT ON COLUMN public.esm_registro_pqrs_d.usuario_id
+  IS 'Usuario id aplicación';

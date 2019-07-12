@@ -1,0 +1,24 @@
+-- Table: public.productos_docs_repositorio_tmp
+
+-- DROP TABLE public.productos_docs_repositorio_tmp;
+
+CREATE TABLE public.productos_docs_repositorio_tmp (
+  id  serial NOT NULL,
+  tipo_archivo integer,
+  codigo_producto varchar(50),
+  descripcion      varchar(50),
+  fecha_registro  timestamp WITHOUT TIME ZONE DEFAULT now(),
+  radicado  varchar(15),
+  /* Keys */
+  CONSTRAINT productos_docs_repositorio_tmp_pkey
+    PRIMARY KEY (id)
+
+) WITH (
+    OIDS = FALSE
+  );
+
+ALTER TABLE public.productos_docs_repositorio_tmp
+  OWNER TO "admin";
+
+COMMENT ON TABLE public.productos_docs_repositorio_tmp
+  IS 'Tabla temporal para guardar productos relacionados al documento a subir';

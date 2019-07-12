@@ -1,0 +1,283 @@
+<?php
+
+/**
+ * $Id: ordenservicio.report.php,v 1.7 2007/06/05 18:32:53 carlos Exp $
+ * @copyright (C) 2005 IPSOFT - SA (www.ipsoft-sa.com)
+ * @package IPSOFT-SIIS
+ *
+ * Reporte de ordenservicio para impresora pos
+ */
+
+class ordenservicio_report extends pos_reports_class
+{
+
+    //constructor por default
+    function ordenservicio_report()
+    {
+        $this->pos_reports_class();
+        return true;
+    }
+
+    /**
+    *
+    */
+    function CrearReporte()
+    {
+				IncludeLib("tarifario_cargos");
+				$reporte=&$this->driver; //obtener el driver
+				$datos=&$this->datos; //obtener los datos enviados al reporte.
+				$reporte->PrintFTexto($datos[0][razon_social],true,$align='center',false,true);
+				$reporte->PrintFTexto($datos[0][tipo_id_tercero].' '.$datos[0][id],false,'center',false,false);
+				//$reporte->PrintFTexto($datos[0][direccion].' '.$datos[0][municipio].' '.$datos[0][departamento],false,'center',false,false);
+				$reporte->SaltoDeLinea();
+				$reporte->PrintFTexto('ORDEN SERVICIO No. '.$datos[1][orden_servicio_id],true,'center',false,false);
+				$reporte->SaltoDeLinea();
+				//$reporte->PrintFTexto('Fecha impresión: '.date('d/m/Y h:i'),false,'left',false,false);
+				$cad=substr('Atendio : '.$datos[0][usuario_id].' - '.$datos[0][usuario],0,42);
+				$reporte->PrintFTexto($cad,false,'left',false,false);
+				$reporte->SaltoDeLinea();
+				$reporte->PrintFTexto('Identifi: '.$datos[0][tipo_id_paciente].' '.$datos[0][paciente_id],false,'left',false,false);
+				$reporte->PrintFTexto('Paciente: '.$datos[0][nombre],false,'left',false,false);
+				$reporte->PrintFTexto('Cliente : '.$datos[0][nombre_tercero],false,'left',false,false);
+				$reporte->PrintFTexto('Plan    : '.$datos[0][plan_descripcion],false,'left',false,false);
+				$reporte->PrintFTexto('Tipo Afi: '.$datos[0][tipo_afiliado_nombre].'     Rango: '.$datos[0][rango],false,'left',false,false);
+				$total=0;
+				$profe='';
+				$copago=$moderadora=$nocub=0;
+				$reporte->SaltoDeLinea();
+				//echo "<br><br><br><br><PRE>";
+				//print_r($datos);
+				for($i=1; $i<sizeof($datos);)
+				{
+						$cantidad=0;
+						$x=$i;
+						while($datos[$i][cargo_cups]==$datos[$x][cargo_cups]
+									AND $datos[$i][especialidad_nombre] == $datos[$x][especialidad_nombre])
+						{
+								$cantidad += $datos[$i][cantidad];
+								$x++;
+						}
+						if(empty($datos[$x-1][evolucion_id]))
+						{
+								$pro=$datos[$x-1][profesional];
+								if($pro!=$profe)
+								{
+										$profe=$pro;
+										$reporte->PrintFTexto('Profesional: '.$datos[$x-1][profesional],false,'left',false,false);
+										$reporte->SaltoDeLinea();
+								}
+
+						}
+						else
+						{
+								$pro=$this->Profesional($datos[$x-1][evolucion_id]);
+								if($pro!=$profe)
+								{
+										$profe=$pro;
+										$reporte->PrintFTexto('Profesional: '.$pro,false,'left',false,false);
+										$reporte->SaltoDeLinea();
+								}
+						}
+						$inter=$datos[$x-1][especialidad_nombre];
+						$reporte->PrintFTexto($datos[$x-1][numero_orden_id].' - '.$datos[$x-1][cargo_cups].' -  ( '.$cantidad.' ) '.$datos[$x-1][descripcion].' '.$inter,false,'left',false,false);
+
+						//
+						$dat = $this->GetDiagnosticos($datos[$x-1][hc_os_solicitud_id]);
+						print_r($dat);
+						foreach($dat AS $indice => $valor)
+						{
+							$reporte->PrintFTexto("Diag.: ".$valor[diagnostico_id]."-".$valor[diagnostico_nombre],false,'left',false,false);
+						}
+						//
+						
+						if(!empty($datos[$x-1][obsapoyo]))
+						{  $reporte->PrintFTexto('Observación: '.$datos[$x-1][obsapoyo],true,'left',false,false);    }
+						if(!empty($datos[$x-1][obsinter]))
+						{  $reporte->PrintFTexto('Observación: '.$datos[$x-1][obsinter],true,'left',false,false);    }
+						if(!empty($datos[$x-1][obsnoqx]))
+						{  $reporte->PrintFTexto('Observación: '.$datos[$x-1][obsnoqx],true,'left',false,false);    }
+						if(!empty($datos[$x-1][obsqx]))
+						{  $reporte->PrintFTexto('Observación: '.$datos[$x-1][obsqx],true,'left',false,false);    }
+						else
+						{
+							$ObsNoQX = $this->ObservacionNoQX($datos[$x-1][hc_os_solicitud_id]);
+							if(!empty($ObsNoQX))
+							{  $reporte->PrintFTexto('Observación: '.$ObsNoQX,true,'left',false,false);    }
+						}
+						$ObsQX = $this->ObservacionQX($datos[$x-1][hc_os_solicitud_id]);
+						if(!empty($ObsQX))
+						{  $reporte->PrintFTexto('Observación: '.$ObsQX,true,'left',false,false);    }
+
+						$reporte->PrintFTexto('Valida a Partir de: '.$this->FechaStamp($datos[$x-1][fecha_activacion]),false,'left',false,false);
+						$reporte->PrintFTexto('Fecha Vencimiento : '.$this->FechaStamp($datos[$x-1][fecha_vencimiento]),false,'left',false,false);
+						if(!empty($datos[$x-1][requisitos]))
+						{
+								$reporte->SaltoDeLinea();
+								$reporte->PrintFTexto('Recomendaciones: '.$datos[$x-1][requisitos],false,'left',false,false);
+								$reporte->SaltoDeLinea();
+						}
+						$i=$x;
+					}
+echo $cantidad; 
+				$reporte->SaltoDeLinea();
+				//verifica si el proveedor es interno
+				if(!empty($datos[1][desdpto]))
+				{
+						$dpto=$this->DatosDepto($datos[1][departamento]);
+						$ubicacion=$datos[0][direccion];
+						if(!empty($dpto[ubicacion]))
+						{  $ubicacion=$dpto[ubicacion];  }
+						$tel=$datos[0][telefonos];
+						if(!empty($dpto[telefono]))
+						{  $tel=$dpto[telefono];  }
+						$reporte->PrintFTexto('PRESTADOR : '.$datos[1][desdpto].' - '.$datos[0][razon_social],true,'left',false,false);
+						$reporte->PrintFTexto('Dirección : '.$ubicacion,false,'left',false,false);
+						$reporte->PrintFTexto('Telefonos : '.$tel,false,'left',false,false);
+				}
+				elseif(!empty($datos[1][nompro]))
+				{
+						$reporte->PrintFTexto('PRESTADOR : '.$datos[1][nompro],true,'left',false,false);
+						$reporte->PrintFTexto('Dirección : '.$datos[1][dirpro],false,'left',false,false);
+						$reporte->PrintFTexto('Telefonos : '.$datos[1][telpro],false,'left',false,false);
+				}
+				if($datos[1][sw_estado]==7)
+				{
+						$reporte->SaltoDeLinea();
+						$reporte->PrintFTexto('NOTA: '.$datos[0][nombre_tercero].' por favor hacer Tramite de la Transcripción a '.$datos[0][razon_social],true,'left',false,false);
+				}
+				$reporte->SaltoDeLinea();
+				$cargo_liq=array();
+				$d=1;
+				while($d<sizeof($datos))
+				{
+						$cargo_liq[]=array('tarifario_id'=>$datos[$d]['tarifario_id'],'cargo'=>$datos[$d]['cargo'],'cantidad'=>1,'autorizacion_int'=>$datos[$d]['autorizacion_int'],'autorizacion_ext'=>$datos[$d]['autorizacion_ext']);
+						$d++;
+				}
+				$cargo_fact=array();
+				$cargo_fact=LiquidarCargosCuentaVirtual($cargo_liq,'','','',$datos[0][plan_id] ,$datos[0][tipo_afiliado_id] ,$datos[0][rango] ,$datos[0][semanas_cotizacion],$datos[0][servicio]);
+				$copago=$cargo_fact[valor_cuota_paciente];
+				$moderadora=$cargo_fact[valor_cuota_moderadora];
+				$total=$cargo_fact[valor_total_paciente];
+				$reporte->PrintFTextoValor($datos[0][nombre_copago],$copago,0,true,11,false,'left');
+				$reporte->PrintFTextoValor($datos[0][nombre_cuota_moderadora],$moderadora,0,true,11,false,'left');
+				if($nocub > 0)
+				{  $reporte->PrintFTextoValor('Valor no Cubierto',$nocub,0,true,11,false,'left');  }
+				//$total+=$copago+$moderadora+$nocub;
+				$reporte->PrintFTextoValor('TOTAL A PAGAR',$total,0,true,11,true,'right');
+				$reporte->PrintEnd();
+				//$reporte->OpenCajaMonedera();
+				$reporte->PrintCutPaper();
+				return true;
+    }
+
+
+    function ObservacionQX($hc_os_solicitud_id)
+    {
+            list($dbconn) = GetDBconn();
+            $query = "SELECT observacion
+                      FROM hc_os_solicitudes_procedimientos
+                      WHERE hc_os_solicitud_id = ".$hc_os_solicitud_id.";";
+            $resulta=$dbconn->Execute($query);
+            if ($dbconn->ErrorNo() != 0) {
+                    $this->error = "Error al Guardar en la Base de Datos";
+                    $this->mensajeDeError = "Error DB : " . $dbconn->ErrorMsg();
+                    return false;
+            }
+            $var=$resulta->fields[0];
+            return $var;
+    }
+
+    function ObservacionNoQX($hc_os_solicitud_id)
+    {
+            list($dbconn) = GetDBconn();
+            $query = "SELECT observacion
+                      FROM hc_os_solicitudes_no_quirurgicos
+                      WHERE hc_os_solicitud_id = ".$hc_os_solicitud_id.";";
+            $resulta=$dbconn->Execute($query);
+            if ($dbconn->ErrorNo() != 0) {
+                    $this->error = "Error al Guardar en la Base de Datos";
+                    $this->mensajeDeError = "Error DB : " . $dbconn->ErrorMsg();
+                    return false;
+            }
+            $var=$resulta->fields[0];
+            return $var;
+    }
+
+    function Profesional($evolucion)
+    {
+            list($dbconn) = GetDBconn();
+            $query = "select c.nombre_tercero
+                      from hc_evoluciones as a, profesionales_usuarios as b, terceros as c
+                      where a.evolucion_id=".$evolucion." and a.usuario_id=b.usuario_id and
+                      b.tipo_tercero_id=c.tipo_id_tercero and b.tercero_id=c.tercero_id";
+            $resulta=$dbconn->Execute($query);
+            if ($dbconn->ErrorNo() != 0) {
+                    $this->error = "Error al Guardar en la Base de Datos";
+                    $this->mensajeDeError = "Error DB : " . $dbconn->ErrorMsg();
+                    return false;
+            }
+            $var=$resulta->fields[0];
+            return $var;
+    }
+
+    function DatosDepto($dpto)
+    {
+            list($dbconn) = GetDBconn();
+            $query = "select ubicacion, telefono, text1, text2
+                      from departamentos where departamento='$dpto'";
+            $resulta=$dbconn->Execute($query);
+            if ($dbconn->ErrorNo() != 0) {
+                    $this->error = "Error al Guardar en la Base de Datos";
+                    $this->mensajeDeError = "Error DB : " . $dbconn->ErrorMsg();
+                    return false;
+            }
+						$var=$resulta->GetRowAssoc($ToUpper = false);
+            return $var;
+    }
+
+    function GetDiagnosticos($hc_os_solicitud_id)
+    {
+		list($dbconn) = GetDBconn();
+		$query = "select b.diagnostico_id, b.diagnostico_nombre
+			from hc_os_solicitudes_diagnosticos as a,
+				diagnosticos as b
+			where a.diagnostico_id=b.diagnostico_id
+			and a.hc_os_solicitud_id = $hc_os_solicitud_id";
+
+		$resulta=$dbconn->Execute($query);
+		if ($dbconn->ErrorNo() != 0) {
+			$this->error = "Error al Guardar en la Base de Datos";
+			$this->mensajeDeError = "Error DB : " . $dbconn->ErrorMsg();
+			return false;
+		}
+		$var =  array();
+		while(!$resulta->EOF)
+		{
+		  $var[]=$resulta->GetRowAssoc($ToUpper = false);
+		  $resulta->MoveNext();
+		}
+		$resulta->Close();
+		return $var;
+    }
+
+  /**
+  * Separa la fecha del formato timestamp
+  * @access private
+  * @return string
+  * @param date fecha
+  */
+   function FechaStamp($fecha)
+   {
+      if($fecha){
+          $fech = strtok ($fecha,"-");
+          for($l=0;$l<3;$l++)
+          {
+            $date[$l]=$fech;
+            $fech = strtok ("-");
+          }
+          return  ceil($date[2])."/".str_pad(ceil($date[1]),2,0,STR_PAD_LEFT)."/".str_pad(ceil($date[0]),2,0,STR_PAD_LEFT);
+      }
+  }
+
+}
+?>

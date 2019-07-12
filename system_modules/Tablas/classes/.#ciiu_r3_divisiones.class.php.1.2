@@ -1,0 +1,28 @@
+<?php
+	/**
+  * @package IPSOFT-SIIS
+  * @version $Id: ciiu_r3_divisiones.class.php,v 1.2 2007/11/09 15:53:58 hugo Exp $
+  * @copyright (C) 2005 IPSOFT - SA (www.ipsoft-sa.com)
+  * @author Hugo F  Manrique
+  */
+  /**
+  * Clase : ciiu_r3_divisiones
+	* Clase, por medio de la cual se hacen las consultas de la tabla que referencia
+  *
+  * @package IPSOFT-SIIS
+  * @version $Revision: 1.2 $
+  * @copyright (C) 2005 IPSOFT - SA (www.ipsoft-sa.com)
+  * @author Hugo F  Manrique
+  */
+  IncludeClass("Modelo", "", "system","Tablas");
+  class ciiu_r3_divisiones extends Modelo
+  {
+    /**
+    * Constructor de la clase
+    */
+    function ciiu_r3_divisiones()
+    {
+      $this->primarykey = array("ciiu_r3_division");
+    }
+  }
+?>

@@ -1,0 +1,15 @@
+select a.tipo_id_tercero, a.tercero_id, b.tipo_id_tercero, b.tercero_id, e.nombre_tercero as nombre, d.estado
+from profesionales_empresas as a left join
+     (select tipo_id_tercero, tercero_id
+      from profesionales_especialidades as a join
+	       (select especialidad
+		    from tipos_consulta
+			where departamento='010301' and tipo_consulta_id=11) as b on (a.especialidad=b.especialidad)) as b on (a.tipo_id_tercero=b.tipo_id_tercero and a.tercero_id=b.tercero_id) join profesionales as c on (a.tipo_id_tercero=c.tipo_id_tercero and a.tercero_id=c.tercero_id) left join profesionales_estado as d on(a.tipo_id_tercero=d.tipo_id_tercero and a.tercero_id=d.tercero_id and d.empresa_id='01' and d.departamento='010301')
+     		left join terceros as e on(c.tipo_id_tercero=e.tipo_id_tercero and c.tercero_id=e.tercero_id)
+where a.empresa_id='01'
+order by e.nombre_tercero;
+
+
+http://192.168.1.1/SIIS/Contenido.php?SIIS_SID=4973cb123dc3b8b0318232005e620cd2&modulo=Credito_Paciente&metodo=LlamaFormaOpcionesPagare&pagare_id=
+http://192.168.1.1/SIIS/Contenido.php?SIIS_SID=4973cb123dc3b8b0318232005e620cd2&modulo=REPORTES_CONSULTA_EXTERNA&metodo=LlamaFormaAgenda&tipo_id_tercero=&tercero_id=
+http://192.168.1.1/SIIS/Contenido.php?SIIS_SID=4973cb123dc3b8b0318232005e620cd2&modulo=REPORTES_CONSULTA_EXTERNA&metodo=LlamaFormaAgenda&tipo_id_tercero=CC&tercero_id=16355013

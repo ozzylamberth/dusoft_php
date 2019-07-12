@@ -1,0 +1,4 @@
+2004-09-14 13:44:16 ERROR  : Error connecting to the server: could not connect to server: No route to host
+	Is the server running on host 192.168.1.98 and accepting
+	TCP/IP connections on port 5432?
+

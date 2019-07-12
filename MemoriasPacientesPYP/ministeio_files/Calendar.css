@@ -1,0 +1,67 @@
+/* ####################### */
+/* Estilos Generales Calendar.asp */
+
+
+/* Tabla general del calendario */
+#EventGeneral { width:125px; }
+
+/* Table calendario */
+#EventInside { border-collapse:collapse; padding:0px; border-spacing:0px; text-align:center;}							
+
+/* Table Titulo del mes */
+#EventTitle	{  }						
+
+/* Dias de la semana */
+#EventDayName td { font-size:9px; color:#333333; font-weight:bold;}						
+
+/* Estilo titulo del mes */
+.cssEventMonthName a { color:#79A200; font-weight:bold; font-size:10px;}	
+
+/* link buscador de eventos */
+.cssLinkEventSearch { }					
+
+/* Dia normal */
+.cssEventDay { font-size:9px; color: #666666 }							
+
+/* Dia Actual */
+.cssEventToday a { font-size:9px; color:#666666; background-color:#CACBB6; font-weight:bold;}						
+
+/* Dia del evento */
+.cssEventBusyDay a { font-size:9px; color: #79A200; }						
+
+/* Titulo Eventos "Destacados del Mes" */
+.cssEventHighlightsTitle { }				
+
+/* Titulo lista eventos "Destacados del Mes" */
+.cssEventHighlightsItem { }				
+
+
+
+/* ####################### */
+/* Estilos Generales EventDayDetail.asp */
+
+
+/* Tabla general eventos del mes */
+#eddEventGeneral {}
+
+/* Estilo titulo del mes */
+#eddEventGeneral .cssEventMonthName { }	
+
+/* Table Titulo del mes */
+#eddEventTitle	 { }	
+
+/* Listado de eventos programados del mes */
+#eddEventList {}
+
+
+/* Titulo Eventos programados */
+.csstxtEventProgrammed {}
+
+/* No hay eventos programados */
+.cssNoProgrammedEvent {}
+
+/* Lista de eventos Pares */
+.cssEventListItemEven {}
+
+/* Lista de eventos Impares */
+.cssEventListItemOdd {}

@@ -1,0 +1,36 @@
+
+S (Tabla del sistema Implementada con anterioridad en otro modulos.)
+M (Tabla de Movimiento, cuando la instalacion es nueva debera estar vacia)
+T (Tabla maestra de tipos)
+
+
+
+S empresas
+S centros_utilidad
+S system_usuarios
+T tipos_planes
+S cups
+S servicios
+T tipos_planes
+T tipos_id_pacientes
+S profesionales
+S terceros
+M cuentas_detalle
+S planes
+S pacientes
+S cuentas
+M ingresos
+S estaciones_enfermeria_usuarios
+S estaciones_enfermeria
+S unidades_funcionales
+S profesionales_usuarios
+S  profesionales
+M hc_evoluciones
+S departamentos
+M movimientos_habitacion
+M camas
+M piezas
+M ingresos_departamento
+M hc_turnos_estacion
+M pendientes_x_hospitalizar
+M egresos_departamento

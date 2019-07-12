@@ -1,0 +1,41 @@
+
+ALTER TABLE "autorizaciones_puntos" DROP COLUMN "departamento";
+ALTER TABLE "autorizaciones_puntos" ADD COLUMN "departamento" varchar(6);
+ALTER TABLE "autorizaciones_puntos" ADD FOREIGN KEY (departamento) REFERENCES departamentos(departamento) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+COMMENT ON COLUMN fac_facturas_cuentas.sw_tipo IS '0 es paciente 1 es cliente 2 es particular';
+
+
+CREATE TABLE auditoria_inactivar_cuentas (
+    auditoria_inactivar_cuenta_id serial NOT NULL,
+    numerodecuenta integer NOT NULL,
+    fecha_registro timestamp without time zone NOT NULL,
+    usuario_id integer NOT NULL
+);
+
+
+ALTER TABLE ONLY auditoria_inactivar_cuentas
+    ADD CONSTRAINT auditoria_inactivar_cuentas_pkey PRIMARY KEY (auditoria_inactivar_cuenta_id);
+
+ALTER TABLE ONLY auditoria_inactivar_cuentas
+    ADD CONSTRAINT "$1" FOREIGN KEY (numerodecuenta) REFERENCES cuentas(numerodecuenta) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+ALTER TABLE ONLY auditoria_inactivar_cuentas
+    ADD CONSTRAINT "$2" FOREIGN KEY (usuario_id) REFERENCES system_usuarios(usuario_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+CREATE TABLE qx_reserva_cama (
+    qx_reserva_id serial NOT NULL,
+    fecha_reserva date NOT NULL,
+    cama character varying(8),
+    usuario_id integer,
+    fecha_registro timestamp without time zone,
+    programacion_id integer NOT NULL
+);
+ALTER TABLE ONLY qx_reserva_cama ADD CONSTRAINT qx_reserva_cama_pkey PRIMARY KEY (qx_reserva_id);
+ALTER TABLE ONLY qx_reserva_cama ADD CONSTRAINT "$1" FOREIGN KEY (usuario_id) REFERENCES system_usuarios(usuario_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_reserva_cama ADD CONSTRAINT "$2" FOREIGN KEY (cama) REFERENCES camas(cama) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_reserva_cama ADD CONSTRAINT "$3" FOREIGN KEY (programacion_id) REFERENCES qx_programaciones(programacion_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+

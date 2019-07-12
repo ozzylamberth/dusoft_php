@@ -1,0 +1,165 @@
+CREATE TABLE bodegas_documento_despacho_med(
+    documento_despacho_id serial NOT NULL,
+		bodegas_doc_id integer,
+    fecha date NOT NULL,
+    total_costo numeric(13,2) DEFAULT 0 NOT NULL,
+		observacion text,
+    usuario_id integer NOT NULL,
+    fecha_registro timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY bodegas_documento_despacho_med ADD CONSTRAINT bodegas_documento_despacho_med_pkey PRIMARY KEY (documento_despacho_id);
+ALTER TABLE ONLY bodegas_documento_despacho_med ADD CONSTRAINT "$2" FOREIGN KEY (usuario_id) REFERENCES system_usuarios(usuario_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY bodegas_documento_despacho_med ADD CONSTRAINT "$1" FOREIGN KEY (bodegas_doc_id) REFERENCES bodegas_doc_numeraciones(bodegas_doc_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+CREATE TABLE bodegas_documento_despacho_med_d(
+    consecutivo_depacho serial NOT NULL,
+    documento_despacho_id integer NOT NULL,
+    codigo_producto character varying(10) NOT NULL,
+    cantidad numeric(14,4) NOT NULL,
+    total_costo numeric(13,2) DEFAULT 0 NOT NULL,
+		consecutivo_solicitud integer
+);
+
+ALTER TABLE ONLY bodegas_documento_despacho_med_d ADD CONSTRAINT bodegas_documento_despacho_med_d_pkey PRIMARY KEY (consecutivo_depacho);
+ALTER TABLE ONLY bodegas_documento_despacho_med_d ADD CONSTRAINT "$1" FOREIGN KEY (codigo_producto) REFERENCES inventarios_productos(codigo_producto) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY bodegas_documento_despacho_med_d ADD CONSTRAINT "$2" FOREIGN KEY (documento_despacho_id) REFERENCES bodegas_documento_despacho_med(documento_despacho_id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE ONLY bodegas_documento_despacho_med_d ADD CONSTRAINT "$3" FOREIGN KEY (consecutivo_solicitud) REFERENCES hc_solicitudes_medicamentos_d(consecutivo_d) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE "hc_solicitudes_medicamentos" DROP CONSTRAINT "$5"
+
+ALTER TABLE ONLY hc_solicitudes_medicamentos ADD CONSTRAINT "$5" FOREIGN KEY (documento_despacho) REFERENCES bodegas_documento_despacho_med(documento_despacho_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+DROP TABLE "tmp_bodegas_documentos_hc_solicitudes"
+DROP TABLE "bodegas_documentos_d_equiv_ins"
+DROP TABLE "bodegas_documentos_d_equiv_med"
+DROP TABLE "bodegas_documentos_d_equiv_mez"
+DROP TABLE "bodegas_documentos_hc_solicitudes"
+DROP TABLE "tmp_bodegas_documentos_d_equiv_ins"
+DROP TABLE "tmp_bodegas_documentos_d_equiv_med"
+DROP TABLE "tmp_bodegas_documentos_d_equiv_mez"
+DROP TABLE "tmp_bodegas_documentos_hc_solicitudes"
+
+CREATE TABLE banco_sangre_bolsas(
+    bolsa_id character varying(32) NOT NULL,
+		sello_calidad character varying(32) NOT NULL,
+    fecha_ingreso timestamp without time zone NOT NULL,
+		grupo_sanguineo character varying(2),
+		rh character(1),
+		codigo_sgsss character varying(6),
+    usuario_id integer NOT NULL,
+    fecha_registro timestamp without time zone NOT NULL
+);
+
+ALTER TABLE terceros_sgsss ADD UNIQUE (codigo_sgsss);
+ALTER TABLE ONLY banco_sangre_bolsas ADD CONSTRAINT banco_sangre_bolsas_pkey PRIMARY KEY (bolsa_id);
+ALTER TABLE ONLY banco_sangre_bolsas ADD CONSTRAINT "$1" FOREIGN KEY (grupo_sanguineo,rh) REFERENCES hc_tipos_sanguineos(grupo_sanguineo,rh) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY banco_sangre_bolsas ADD CONSTRAINT "$2" FOREIGN KEY (codigo_sgsss) REFERENCES terceros_sgsss(codigo_sgsss) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY banco_sangre_bolsas ADD CONSTRAINT "$3" FOREIGN KEY (usuario_id) REFERENCES system_usuarios(usuario_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+CREATE TABLE remisiones_pacientes(
+		remision_paciente_id serial NOT NULL,
+    triage_id integer NOT NULL,
+    tipo_id_paciente character varying(3) NOT NULL,
+    paciente_id character varying(32) NOT NULL,
+		motivo_consulta character varying(200) NOT NULL,
+		observacion_medico character varying(200),
+		observacion_remision character varying(200),
+    fecha_registro timestamp without time zone DEFAULT now() NOT NULL,
+    usuario_id integer NOT NULL
+);
+
+ALTER TABLE ONLY remisiones_pacientes
+    ADD CONSTRAINT remisiones_pacientes_pkey PRIMARY KEY (remision_paciente_id);
+
+ALTER TABLE ONLY remisiones_pacientes
+    ADD FOREIGN KEY (paciente_id, tipo_id_paciente) REFERENCES pacientes(paciente_id, tipo_id_paciente) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE ONLY remisiones_pacientes
+    ADD FOREIGN KEY (usuario_id) REFERENCES system_usuarios(usuario_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE ONLY remisiones_pacientes
+    ADD  FOREIGN KEY (triage_id) REFERENCES triages(triage_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+
+
+CREATE TABLE remisiones_pacientes_diagnosticos(
+		remision_paciente_diagnostico_id serial NOT NULL,
+		remision_paciente_id integer NOT NULL,
+		diagnostico_id  	character varying(6) NOT NULL
+);
+ALTER TABLE ONLY remisiones_pacientes_diagnosticos
+    ADD CONSTRAINT remisiones_pacientes_diagnosticos_pkey PRIMARY KEY (remision_paciente_id,diagnostico_id);
+
+ALTER TABLE ONLY remisiones_pacientes_diagnosticos
+    ADD FOREIGN KEY (diagnostico_id) REFERENCES diagnosticos(diagnostico_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE ONLY remisiones_pacientes_diagnosticos
+    ADD FOREIGN KEY (remision_paciente_id) REFERENCES remisiones_pacientes(remision_paciente_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+
+
+CREATE TABLE remisiones_pacientes_centros(
+		remision_paciente_diagnostico_id serial NOT NULL,
+		remision_paciente_id integer NOT NULL,
+		centro_remision  	character varying(10) NOT NULL
+);
+
+ALTER TABLE ONLY remisiones_pacientes_centros
+    ADD CONSTRAINT remisiones_pacientes_centros_pkey PRIMARY KEY (remision_paciente_id,centro_remision);
+
+ALTER TABLE ONLY remisiones_pacientes_centros
+    ADD FOREIGN KEY (centro_remision) REFERENCES centros_remision(centro_remision) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE ONLY remisiones_pacientes_centros
+    ADD FOREIGN KEY (remision_paciente_id) REFERENCES remisiones_pacientes(remision_paciente_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+
+CREATE TABLE tmp_solicitud_manual(
+		tmp_solicitud_manual_id serial NOT NULL,
+		codigo integer,
+    tipo_id_paciente character varying(3) NOT NULL,
+    paciente_id character varying(32) NOT NULL,
+		apoyod_tipo_id  character varying(3) NOT NULL,
+		cargo_cups  character varying(10) NOT NULL,
+    fecha_registro timestamp without time zone DEFAULT now() NOT NULL,
+    usuario_id integer NOT NULL
+);
+
+ALTER TABLE ONLY tmp_solicitud_manual
+    ADD CONSTRAINT tmp_solicitud_manual_pkey PRIMARY KEY (tmp_solicitud_manual_id);
+
+ALTER TABLE ONLY tmp_solicitud_manual
+    ADD FOREIGN KEY (paciente_id, tipo_id_paciente) REFERENCES pacientes(paciente_id, tipo_id_paciente) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE ONLY tmp_solicitud_manual
+    ADD FOREIGN KEY (usuario_id) REFERENCES system_usuarios(usuario_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE ONLY tmp_solicitud_manual
+    ADD FOREIGN KEY (apoyod_tipo_id) REFERENCES grupos_noqx_apoyod(grupo_tipo_cargo) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+CREATE TABLE tmp_solicitud_manual_detalle(
+		tmp_solicitud_manual_detalle_id serial NOT NULL,
+		tmp_solicitud_manual_id integer NOT NULL,
+		tarifario_id character varying(4) NOT NULL,
+		cargo  character varying(10) NOT NULL,
+		cantidad  numeric(9,2)  NOT NULL,
+		descripcion  character varying(600) NOT NULL
+);
+
+ALTER TABLE ONLY tmp_solicitud_manual_detalle
+    ADD CONSTRAINT tmp_solicitud_manual_detalle_pkey PRIMARY KEY (tmp_solicitud_manual_detalle_id,tmp_solicitud_manual_id);
+
+ALTER TABLE ONLY tmp_solicitud_manual_detalle
+    ADD FOREIGN KEY (tmp_solicitud_manual_id) REFERENCES tmp_solicitud_manual(tmp_solicitud_manual_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE ONLY tmp_solicitud_manual_detalle
+    ADD  FOREIGN KEY (tarifario_id, cargo) REFERENCES tarifarios_detalle(tarifario_id, cargo) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+
+
+
+

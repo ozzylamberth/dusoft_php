@@ -1,0 +1,2 @@
+
+para pedir los submodulos obligatorios en la historia clinica se debe poner en uno el sw sw_obligatorio_cierre

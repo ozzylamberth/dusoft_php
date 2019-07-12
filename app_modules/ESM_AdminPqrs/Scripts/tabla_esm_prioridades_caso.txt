@@ -1,0 +1,13 @@
+CREATE TABLE "public"."esm_prioridades_caso" (
+  "id" SERIAL, 
+  "nombre" VARCHAR(100) NOT NULL, 
+  "areas_empresa_id" INTEGER, 
+  "fecha_registro" TIMESTAMP WITHOUT TIME ZONE DEFAULT now(), 
+  "dias_vigencia" INTEGER, 
+  CONSTRAINT "esm_prioridades_caso_id_key" UNIQUE("id"), 
+  CONSTRAINT "esm_prioridades_caso_fk" FOREIGN KEY ("areas_empresa_id")
+    REFERENCES "public"."areas_empresa"("id")
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE
+) WITHOUT OIDS;

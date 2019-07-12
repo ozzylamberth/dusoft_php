@@ -1,0 +1,19 @@
+
+INSERT INTO system_modulos VALUES ('Remisiones', 'app', 'Para el tramite de remisiones', 1.00, '', '1', '1', '1');
+
+ALTER TABLE "inv_grupos_inventarios" ADD COLUMN "sw_insumos" character(1);
+ALTER TABLE "inv_grupos_inventarios" ALTER COLUMN "sw_insumos" SET DEFAULT 0;
+UPDATE inv_grupos_inventarios SET sw_insumos=0;
+ALTER TABLE "inv_grupos_inventarios" ALTER COLUMN "sw_insumos" SET NOT NULL;
+
+ALTER TABLE qx_cumplimientos ADD COLUMN programacion_id integer;
+
+
+ALTER TABLE "triages" ADD COLUMN "diagnostico_id" character varying(6);
+ALTER TABLE "triages" ADD COLUMN "ingreso" integer;
+
+ALTER TABLE ONLY triages
+    ADD FOREIGN KEY (diagnostico_id) REFERENCES diagnosticos(diagnostico_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE ONLY triages
+    ADD FOREIGN KEY (ingreso) REFERENCES ingresos(ingreso) ON UPDATE CASCADE ON DELETE RESTRICT;

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wc-entries
+   xmlns="svn:">
+<entry
+   committed-rev="6"
+   name=""
+   committed-date="2012-01-12T15:34:08.578843Z"
+   url="http://10.0.0.254/repositorio/ips/trunk/codigo%20fuente/sinergias_ips/app_modules/EE_AdministracionMedicamentos"
+   last-author="andres.velez"
+   kind="dir"
+   uuid="de7826d0-36f2-11e1-8d81-3fd762807c8f"
+   revision="6"/>
+<entry
+   name="ScriptsRemotos"
+   kind="dir"/>
+<entry
+   name="RemoteXajax"
+   kind="dir"/>
+<entry
+   name="scripts"
+   kind="dir"/>
+<entry
+   committed-rev="6"
+   name="app_EE_AdministracionMedicamentos_user.php"
+   text-time="2012-01-12T15:35:09.000000Z"
+   committed-date="2012-01-12T15:34:08.578843Z"
+   checksum="41d7d4436581941768ad31f4c3847779"
+   last-author="andres.velez"
+   kind="file"
+   prop-time="2012-01-12T15:35:09.000000Z"/>
+<entry
+   name="userclasses"
+   kind="dir"/>
+<entry
+   name="classes"
+   kind="dir"/>
+<entry
+   name="views"
+   kind="dir"/>
+<entry
+   name="reports"
+   kind="dir"/>
+</wc-entries>

@@ -1,0 +1,418 @@
+<XMLDiagram version="1.0">
+<TDBADiagramController Locked="0">
+<Elements>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.bodegas">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="397" top="10" width="200" height="363"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.existencias_bodegas">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="285" top="421" width="200" height="237"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.existencias_bodegas.$2">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="48" top="48" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="390" y="540"/>
+<Point x="500" y="190"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.existencias_bodegas_lote_fv">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="10" top="721" width="200" height="195"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.existencias_bodegas_lote_fv.existencias_bodegas_lote_fv_empresa_id_fkey">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="80" top="80" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="110" y="820"/>
+<Point x="390" y="540"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.inv_bodegas_movimiento_ajustes">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="733" top="706" width="200" height="223"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.inv_toma_fisica">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="550" top="450" width="200" height="195"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.inv_toma_fisica.inv_toma_fisica_empresa_id_fkey">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="128" top="128" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="651" y="548"/>
+<Point x="500" y="190"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.inv_bodegas_movimiento_ajustes.foreign_key05">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="144" top="144" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="830" y="820"/>
+<Point x="651" y="548"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.inv_toma_fisica_conteos">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="882" top="1013" width="200" height="181"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.inv_toma_fisica_d">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="290" top="810" width="200" height="181"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.inv_toma_fisica_d.inv_toma_fisica_d_empresa_id_fkey">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="192" top="192" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="395" y="903"/>
+<Point x="390" y="540"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.inv_toma_fisica_d.inv_toma_fisica_d_toma_fisica_id_fkey">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="208" top="208" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="395" y="903"/>
+<Point x="651" y="548"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.inv_toma_fisica_conteos.inv_toma_fisica_conteos_toma_fisica_id_fkey">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="224" top="224" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="980" y="1100"/>
+<Point x="395" y="903"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.inv_toma_fisica_d_printer">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="1060" top="670" width="200" height="167"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.inv_toma_fisica_detalle_inicial">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="509" top="727" width="200" height="181"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.inv_toma_fisica_detalle_inicial.inv_toma_fisica_detalle_inicial_empresa_id_fkey">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="272" top="272" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="610" y="820"/>
+<Point x="390" y="540"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.inv_toma_fisica_detalle_inicial.inv_toma_fisica_detalle_inicial_toma_fisica_id_fkey">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="288" top="288" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="610" y="820"/>
+<Point x="651" y="548"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.inv_toma_fisica_numeros_listas">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="1290" top="670" width="280" height="80"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.inv_toma_fisica_paramingreso">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="1015" top="483" width="200" height="111"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.inv_toma_fisica_update">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="79" top="978" width="200" height="251"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.inv_toma_fisica_update.inv_toma_fisica_update_empresa_id_fkey">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="352" top="352" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="180" y="1100"/>
+<Point x="390" y="540"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.inv_toma_fisica_update.inv_toma_fisica_update_empresa_id_fkey1">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="368" top="368" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="180" y="1100"/>
+<Point x="110" y="820"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.inv_toma_fisica_usuarios_administradores">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="1239" top="506" width="200" height="66"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.inv_toma_fisica_usuarios_conteo">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="1463" top="506" width="200" height="66"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.inv_toma_fisica_usuarios_validacion">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="1687" top="506" width="200" height="66"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.system_usuarios">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="866" top="58" width="200" height="265"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.existencias_bodegas.$3">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="448" top="448" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="390" y="540"/>
+<Point x="970" y="190"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.inv_bodegas_movimiento_ajustes.foreign_key02">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="464" top="464" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="830" y="820"/>
+<Point x="970" y="190"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.inv_bodegas_movimiento_ajustes.foreign_key03">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="480" top="480" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="833" y="816"/>
+<Point x="966" y="190"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.inv_bodegas_movimiento_ajustes.foreign_key04">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="496" top="496" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="833" y="816"/>
+<Point x="966" y="190"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.inv_toma_fisica.inv_toma_fisica_usuario_id_fkey">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="512" top="512" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="651" y="548"/>
+<Point x="970" y="190"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.inv_toma_fisica_conteos.inv_toma_fisica_conteos_usuario_registro_fkey">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="528" top="528" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="980" y="1100"/>
+<Point x="970" y="190"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.inv_toma_fisica_conteos.inv_toma_fisica_conteos_usuario_valido_fkey">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="544" top="544" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="982" y="1103"/>
+<Point x="966" y="190"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.inv_toma_fisica_paramingreso.inv_toma_fisica_paramingreso_usuario_id_fkey">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="560" top="560" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="1120" y="540"/>
+<Point x="970" y="190"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.inv_toma_fisica_paramingreso.inv_toma_fisica_paramingreso_usuario_id_fkey1">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="576" top="576" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="1115" y="543"/>
+<Point x="966" y="190"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.inv_toma_fisica_usuarios_administradores.inv_toma_fisica_usuarios_administradores_usuario_id_fkey">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="592" top="592" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="1340" y="540"/>
+<Point x="970" y="190"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.inv_toma_fisica_usuarios_conteo.inv_toma_fisica_usuarios_conteo_usuario_id_fkey">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="608" top="608" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="1560" y="540"/>
+<Point x="970" y="190"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.inv_toma_fisica_usuarios_validacion.inv_toma_fisica_usuarios_validacion_usuario_id_fkey">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="624" top="624" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="1790" y="540"/>
+<Point x="970" y="190"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+</Elements>
+<Surface zoom="30" scrollx="131" scrolly="0"/>
+</TDBADiagramController>
+</XMLDiagram>

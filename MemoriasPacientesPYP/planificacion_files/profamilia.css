@@ -1,0 +1,367 @@
+.tablaintro{
+	background-image:url(../intro/images/fondo.gif);
+	background-repeat:no-repeat;
+	background-color:#009933;}
+
+.copy, .copy a:link {
+	font-family:Verdana, Arial, Helvetica, sans-serif;
+	font-size:8px;
+	color:#e7e7e7;
+	text-decoration:none}
+.copy a:hover{
+	color:#FFFFFF}
+
+.buscar
+{
+	font-family: Arial, Helvetica, sans-serif; 
+	font-size: xx-small; 
+	font-weight: normal; 
+	color: #000000;
+}
+.fecha
+{
+	font-family: Verdana, Arial, Helvetica, sans-serif; 
+	font-size: 9px; 
+	font-weight: bold; 
+	color: #FFFFFF;
+}
+.parrafos
+{
+	font-family: Geneva, Arial, Helvetica, sans-serif; 
+	font-size: 12px; 
+	font-weight: normal; 
+	color: #333333; 
+	text-align: justify;
+}
+.titulos
+{
+	font-family: Geneva, Arial, Helvetica, sans-serif; 
+	font-size: 12px; 
+	font-weight: bold; 
+	color: #6666FF;
+}
+.submenu
+{
+	font-family: Verdana, Arial, Helvetica, sans-serif; 
+	font-size: 11px; 
+	font-weight: normal; 
+	text-align: left;
+}
+.submenutit
+{
+	font-family: Verdana, Arial, Helvetica, sans-serif; 
+	font-size: 10px; 
+	font-weight: bold; 
+	color: #FFFFFF; 
+	text-align: left;
+}
+.titulosverdes
+{
+	font-family: Geneva, Arial, Helvetica, sans-serif; 
+	font-size: 12px; 
+	font-weight: bold; 
+	color: #000000;
+}
+.submenuazul
+{
+	font-family: Verdana, Arial, Helvetica, sans-serif; 
+	font-size: 10px; 
+	font-weight: bold; 
+	color: #6666FF;
+}
+.titulosCopy
+{
+	font-family: Geneva, Arial, Helvetica, sans-serif; 
+	font-size: 12px; 
+	font-weight: bold; 
+	color: #009933;
+}
+SMALL
+{
+	font-size: 1px; 
+	color: #FFFFFF;
+}
+.categorias {
+	font-family: Geneva, Arial, Helvetica, sans-serif;
+	font-size: 14px;
+	font-style: normal;
+	font-weight: bold;
+	color: #FFFFFF;
+	line-height: normal;
+	text-align: left;
+	vertical-align: top;
+	white-space: normal;
+	margin-left: 5px;
+	padding-left: 5px;
+	left: 5px;
+	text-transform: uppercase;
+	margin-top: 7px;
+	margin-bottom: 7px;
+	padding-top: 7px;
+	padding-bottom: 7px;
+
+
+
+}
+.nombre {
+	font-family: Geneva, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	font-style: normal;
+	font-weight: bold;
+	color: #FFFFFF;
+	text-align: left;
+	line-height: normal;
+	white-space: normal;
+	margin-left: 7px;
+	float: left;
+	padding-left: 7px;
+	margin-top: 2px;
+	margin-bottom: 2px;
+	padding-top: 2px;
+	padding-bottom: 2px;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+.categoriastit {
+	font-family: Geneva, Arial, Helvetica, sans-serif;
+	font-size: 14px;
+	font-weight: bold;
+	color: #009933;
+	text-align: left;
+	margin-left: 5px;
+	text-transform: uppercase;
+	font-style: normal;
+	line-height: normal;
+	padding-left: 5px;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	padding-top: 10px;
+	padding-bottom: 10px;
+
+
+
+
+
+}
+.categoriassub {
+	font-family: Geneva, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	font-weight: bold;
+	color: #666666;
+	text-decoration: overline;
+	text-align: left;
+	margin-left: 5px;
+	border-top-style: 5;
+
+
+}
+.pregunta {
+	font-family: Geneva, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	font-weight: bold;
+	color: #000000;
+	text-transform: none;
+	text-align: left;
+	font-style: normal;
+	line-height: normal;
+	margin-top: 2px;
+	margin-bottom: 2px;
+	padding-top: 2px;
+	padding-bottom: 2px;
+
+
+
+
+
+}
+.preguntasub {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	font-weight: normal;
+	color: #6666FF;
+	text-align: left;
+	margin-left: 5px;
+	margin-top: 2px;
+	margin-bottom: 2px;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	font-style: normal;
+	line-height: normal;
+
+
+
+
+
+
+
+
+
+}
+.resultados {
+	font-family: Geneva, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	font-weight: normal;
+	color: #333333;
+	text-align: left;
+	text-indent: 5pt;
+
+}
+.respuesta {
+	font-family: Geneva, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	font-weight: normal;
+	color: #333333;
+	text-align: justify;
+	font-style: normal;
+	line-height: normal;
+
+
+
+}
+.titulossocial {
+	font-family: Geneva, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	font-weight: bold;
+	color: #66CC66;
+	text-transform: none;
+}
+.publicaciones {
+	font-family: Geneva, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	font-weight: bold;
+	color: #FFFFFF;
+	text-align: left;
+	font-style: normal;
+	line-height: normal;
+	float: none;
+	padding-right: 2px;
+	padding-bottom: 10px;
+	padding-left: 2px;
+	padding-top: 5px;
+	white-space: nowrap;
+	display: inline;
+}
+.idioma {
+
+	font-family: Verdana, Arial, Helvetica, sans-serif; 
+	font-size: 9px; 
+	font-weight: normal; 
+	color: #FFFFFF; 
+	text-align: left;
+}
+.lineas {
+
+	font-family: Geneva, Arial, Helvetica, sans-serif; 
+	font-size: 12px; 
+	font-weight: normal; 
+	color: #333333;
+}
+.capitalsocial {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 22px;
+	font-weight: bold;
+	color: #66CC66;
+	font-style: normal;
+}
+.capitalproductos {
+	font-size: 16px;
+	font-weight: bold;
+	color: #66CC66;
+	font-style: normal;
+	text-transform: capitalize;
+	font-family: Verdana, Arial, Helvetica, sans-serif, "Myriad Web";
+	text-decoration: none;
+	text-align: left;
+}
+.precioproductos {
+	font-family: Geneva, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	font-weight: bold;
+	color: #999999;
+	text-align: left;
+	margin-left: 5px;
+	background-color: #CCEECC;
+}
+.submenuproductos {
+	font-family: Verdana, Arial, Helvetica, sans-serif, "Myriad Web";
+	font-size: 10px;
+	font-weight: bold;
+	color: #FFFFFF;
+	text-align: left;
+	vertical-align: 5%;
+	margin-top: 2px;
+	margin-bottom: 2px;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	text-transform: uppercase;
+}
+.capitalpublicaciones {
+	font-size: 16px;
+	font-weight: bold;
+	color: #66CC66;
+	font-style: normal;
+	font-family: Verdana, Arial, Helvetica, sans-serif, "Myriad Web";
+	text-decoration: none;
+}
+.submenuorganizacion {
+	font-family: Geneva, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	font-weight: bold;
+	color: #6666FF;
+	text-align: left;
+	line-height: 23px;
+}
+.submenuproductos {
+	font-family: Geneva, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	font-weight: bold;
+	color: #FFFFFF;
+	text-align: left;
+	text-transform: none;
+}
+.capitalfertilidad {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 18px;
+	font-weight: bold;
+	color: #6666FF;
+	font-style: normal;
+	text-transform: capitalize;
+}
+.capitalfertilidad01 {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 14px;
+	font-weight: bold;
+	color: #6666FF;
+	font-style: normal;
+	text-transform: lowercase;
+}
+.fondo_buscar {
+	background-image: url(../004_servicios/images/fondo_buscar.gif);
+	background-repeat: no-repeat;
+}
+
+#menu_css , #menu_css a{
+	font-family:Arial, sans-serif;
+	font-size:11px;
+	color:#000000;
+	text-decoration:none;
+	letter-spacing: 1e-005;
+	font-weight:bold;
+	word-spacing: le-005;
+}
+#menu_css a:hover{
+	color:#009933;
+	text-decoration:none;
+}

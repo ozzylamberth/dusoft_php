@@ -1,0 +1,47 @@
+A:hover {
+	TEXT-DECORATION: none
+}
+PRE {
+	FONT-SIZE: 75%; FONT-FAMILY: "Courier New", Courier, mono
+}
+CODE {
+	FONT-SIZE: 75%; FONT-FAMILY: "Courier New", Courier, mono
+}
+BODY {
+	BACKGROUND-POSITION: left top; BACKGROUND-IMAGE: url(/uber/css/nav_bkg.gif); BACKGROUND-REPEAT: repeat-x
+}
+TD {
+	FONT-FAMILY: Arial, sans-serif
+}
+.clave {
+	FONT-WEIGHT: normal;
+	FONT-SIZE: 11px;
+	LINE-HEIGHT: 138%;
+	FONT-FAMILY: Verdana, Geneva, Arial, sans-serif;
+	display: inline;
+	color: #FFFFFF;
+
+
+
+}
+noticias {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	color: #000000;
+}
+.claveCopy {
+
+	FONT-WEIGHT: normal;
+	FONT-SIZE: 10px;
+	LINE-HEIGHT: 138%;
+	FONT-FAMILY: Verdana, Geneva, Arial, sans-serif;
+	display: inline;
+	color: #FFFFFF;
+}
+.titulosproductos {
+	font-family: Geneva, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	font-weight: bold;
+	color: #66CC66;
+	text-align: left;
+}

@@ -1,0 +1,379 @@
+<?php
+
+/**
+ * $Id: ordenservicio.report.php,v 1.1.1.1 2009/09/11 20:36:20 hugo Exp $
+ * @copyright (C) 2005 IPSOFT - SA (www.ipsoft-sa.com)
+ * @package IPSOFT-SIIS
+ *
+ * Reporte de ordenservicio para impresora pos
+ */
+
+class ordenservicio_report extends pos_reports_class
+{
+
+    //constructor por default
+    function ordenservicio_report()
+    {
+        $this->pos_reports_class();
+        return true;
+    }
+
+    /**
+    *
+    */
+    function CrearReporte()
+    {
+	IncludeLib("tarifario_cargos");
+	$reporte=&$this->driver; //obtener el driver
+	$datos=&$this->datos; //obtener los datos enviados al reporte.
+	$reporte->PrintFTexto($datos[0][razon_social],true,$align='center',false,true);
+	$reporte->PrintFTexto($datos[0][tipo_id_tercero].' '.$datos[0][id],false,'center',false,false);
+        $edad=$this->EdadPacientes($datos[0][paciente_id],$datos[0][tipo_id_paciente]);
+        $edadTotal=explode(':',$edad);
+	//$reporte->PrintFTexto($datos[0][direccion].' '.$datos[0][municipio].' '.$datos[0][departamento],false,'center',false,false);
+	$reporte->SaltoDeLinea();
+	$reporte->PrintFTexto('ORDEN SERVICIO No. '.$datos[1][orden_servicio_id],true,'center',false,false);
+	$reporte->SaltoDeLinea();
+	//$reporte->PrintFTexto('Fecha impresi�n: '.date('d/m/Y h:i'),false,'left',false,false);
+	$cad=substr('Atendio : '.$datos[0][usuario_id].' - '.$datos[0][usuario],0,42);
+	$reporte->PrintFTexto($cad,false,'left',false,false);
+	$reporte->SaltoDeLinea();
+	$reporte->PrintFTexto('Identifi: '.$datos[0][tipo_id_paciente].' '.$datos[0][paciente_id],false,'left',false,false);
+        $reporte->PrintFTexto('Edad: '.$edadTotal[0],false,'left',false,false);
+	$reporte->PrintFTexto('Paciente: '.$datos[0][nombre],false,'left',false,false);
+	$reporte->PrintFTexto('Cliente : '.$datos[0][nombre_tercero],false,'left',false,false);
+	$reporte->PrintFTexto('Plan    : '.$datos[0][plan_descripcion],false,'left',false,false);
+	$reporte->PrintFTexto('Tipo Afi: '.$datos[0][tipo_afiliado_nombre].' - Rango: '.$datos[0][rango],false,'left',false,false);
+        if(!empty($datos[0][horas_estimadas]))
+	  $reporte->PrintFTexto('Tirmpo: '.$datos[0][horas_estimadas].': '.$datos[0][minutos_estimados],false,'left',false,false);
+	$PtoAtencion=$this->BuscarPuntoAtencion($datos[0][tipo_id_paciente],$datos[0][paciente_id]);
+	
+	if(!empty($PtoAtencion))
+	{
+		$reporte->PrintFTexto('Pto Atencion: '.$PtoAtencion,false,'left',false,false);
+	}
+				
+	$total=0;
+	$profe='';
+	$copago=$moderadora=$nocub=0;
+	$reporte->SaltoDeLinea();
+	if(!empty($datos[$x][observacion]))
+	{
+			$reporte->PrintFTexto('Observacion: '.$datos[$x][observacion],false,'left',false,false);
+			$reporte->SaltoDeLinea();
+	}
+
+	for($i=1; $i<sizeof($datos);)
+	{
+		$x=$i;
+		while($datos[$i][cargo_cups]==$datos[$x][cargo_cups])
+		{
+		if(empty($datos[$x][evolucion_id]))
+		{
+		$pro=$datos[$x][profesional];
+		if($pro!=$profe)
+		{
+			$profe=$pro;
+			$reporte->PrintFTexto('Profesional: '.$datos[$x][profesional],false,'left',false,false);
+			$reporte->SaltoDeLinea();
+		}
+
+		}
+		else
+		{
+		$pro=$this->Profesional($datos[$x][evolucion_id]);
+		if($pro!=$profe)
+		{
+			$profe=$pro;
+			$reporte->PrintFTexto('Profesional: '.$pro[0][nombre_tercero],false,'left',false,false);
+			$reporte->PrintFTexto('Identificacion: '.$pro[0][tipo_id_tercero]." ".$pro[0][tercero_id],false,'left',false,false);
+			if($pro[0][tarjeta_profesional]!='')
+			{
+				$reporte->PrintFTexto('TP: '.$pro[0][tarjeta_profesional],false,'left',false,false);
+			}
+			for($j=0; $j<sizeof($pro); $j++)
+			{
+				$reporte->PrintFTexto('Espec: '.$pro[$j][descripcion],false,'left',false,false); 
+			}
+			$reporte->SaltoDeLinea();
+		}
+		}
+		$inter=$datos[$x][especialidad_nombre];
+		
+		$diag=$this->DiagnosticoCompleto($datos[$x][evolucion_id]);
+		if(!empty($diag))
+		{
+		$reporte->PrintFTexto('Diag: '.$diag[0]['diagnostico_id'].'  '.$diag[0]['diagnostico_nombre'],false,'left',false,false);
+		}
+		else
+		{
+		 $diag=$this->DiagnosticoSolicitudCompleto($datos[$x][hc_os_solicitud_id]);
+		 if(!empty($diag))
+		 {
+		   $reporte->PrintFTexto('Diag: '.$diag[0]['diagnostico_id'].'  '.$diag[0]['diagnostico_nombre'],false,'left',false,false);
+		 }
+		}	
+		$reporte->PrintFTexto($datos[$x][numero_orden_id].' - '.$datos[$x][cargo_cups].' -  ( '.$datos[$i][cantidad].' ) '.$datos[$x][descripcion].' '.$inter,false,'left',false,false);
+
+		if(!empty($datos[$x][obsapoyo]))
+		{  $reporte->PrintFTexto('Observacion: '.$datos[$x][obsapoyo],true,'left',false,false);    }
+		if(!empty($datos[$x][obsinter]))
+		{  $reporte->PrintFTexto('Observacion: '.$datos[$x][obsinter],true,'left',false,false);    }
+		if(!empty($datos[$x][obsnoqx]))
+		{  $reporte->PrintFTexto('Observacion: '.$datos[$x][obsnoqx],true,'left',false,false);    }
+
+		$reporte->PrintFTexto('Valida a Partir de: '.$this->FechaStamp($datos[$x][fecha_activacion]),false,'left',false,false);
+		$reporte->PrintFTexto('Fecha Vencimiento : '.$this->FechaStamp($datos[$x][fecha_vencimiento]),false,'left',false,false);
+		if(!empty($datos[$x][requisitos]))
+		{
+				$reporte->SaltoDeLinea();
+				$reporte->PrintFTexto('Recomendaciones: '.$datos[$x][requisitos],false,'left',false,false);
+				$reporte->SaltoDeLinea();
+		}
+	        $x++;
+	      }
+	  $i=$x;
+	}
+	$reporte->SaltoDeLinea();
+	//verifica si el proveedor es interno
+	if(!empty($datos[1][desdpto]))
+	{
+		$dpto=$this->DatosDepto($datos[1][departamento]);
+		$ubicacion=$datos[0][direccion];
+		if(!empty($dpto[ubicacion]))
+		{  $ubicacion=$dpto[ubicacion];  }
+		$tel=$datos[0][telefonos];
+		if(!empty($dpto[telefono]))
+		{  $tel=$dpto[telefono];  }
+		$reporte->PrintFTexto('PRESTADOR : '.$datos[1][desdpto].' - '.$datos[0][razon_social],true,'left',false,false);
+		$reporte->PrintFTexto('Direccion : '.$ubicacion,false,'left',false,false);
+		$reporte->PrintFTexto('Telefonos : '.$tel,false,'left',false,false);
+	}
+	elseif(!empty($datos[1][nompro]))
+	{
+		$reporte->PrintFTexto('PRESTADOR : '.$datos[1][nompro],true,'left',false,false);
+		$reporte->PrintFTexto('Direccion : '.$datos[1][direccion],false,'left',false,false);
+		$reporte->PrintFTexto('Telefonos : '.$datos[1][telefono],false,'left',false,false);
+	}
+	if($datos[1][sw_estado]==7)
+	{
+		$reporte->SaltoDeLinea();
+		$reporte->PrintFTexto('NOTA: '.$datos[0][nombre_tercero].' por favor hacer Tramite de la Transcripci�n a '.$datos[0][razon_social],true,'left',false,false);
+	}
+	$reporte->SaltoDeLinea();
+	$cargo_liq=array();
+	$d=1;
+	while($d<sizeof($datos))
+	{
+		$cargo_liq[]=array('tarifario_id'=>$datos[$d]['tarifario_id'],'cargo'=>$datos[$d]['cargo'],'cantidad'=>1,'autorizacion_int'=>$datos[$d]['autorizacion_int'],'autorizacion_ext'=>$datos[$d]['autorizacion_ext']);
+			$d++;
+	}
+        $reporte->PrintFTexto('SOLICITUDES DE DIAGNOSTICOS',true,'center',false,false);
+	for($i=1; $i<sizeof($datos);$i++)
+	{
+	  $reporte->SaltoDeLinea();
+	  $diagComp=$this->DiagnosticoCompleto($datos[1][evolucion_id]);
+          $diagS=$this->DiagnosticoSolicitudCompleto($datos[$i][hc_os_solicitud_id]);
+	  if(!empty($diagS))
+	  {  $diagnostico=$diagS;}	
+	  else
+	  { $diagnostico=$diagComp;}
+	  foreach($diagnostico as $key => $dtl)
+	  {
+	   $reporte->PrintFTexto($dtl[diagnostico_id].' - '.$dtl[diagnostico_nombre],false,'left',false,false);
+	  }
+	}
+	$cargo_fact=array();
+	$cargo_fact=LiquidarCargosCuentaVirtual($cargo_liq,'','','',$datos[0][plan_id] ,$datos[0][tipo_afiliado_id] ,$datos[0][rango] ,$datos[0][semanas_cotizacion],$datos[0][servicio]);
+	$copago=$cargo_fact[valor_cuota_paciente];
+	$moderadora=$cargo_fact[valor_cuota_moderadora];
+	$total=$cargo_fact[valor_total_paciente];
+	$reporte->PrintFTextoValor($datos[0][nombre_copago],$copago,0,true,11,false,'left');
+	$reporte->PrintFTextoValor($datos[0][nombre_cuota_moderadora],$moderadora,0,true,11,false,'left');
+	if($nocub > 0)
+	{  $reporte->PrintFTextoValor('Valor no Cubierto',$nocub,0,true,11,false,'left');  }
+	//$total+=$copago+$moderadora+$nocub;
+	$reporte->PrintFTextoValor('TOTAL A PAGAR',$total,0,true,11,true,'right');
+	$reporte->PrintEnd();
+	
+	return true;
+    }
+
+
+
+    function Profesional($evolucion)
+    {
+            list($dbconn) = GetDBconn();
+            $query = "select c.tipo_id_tercero, c.tercero_id, c.nombre_tercero, f.especialidad, g.descripcion, h.tarjeta_profesional
+										from hc_evoluciones as a, profesionales_usuarios as b, terceros as c,
+										profesionales_especialidades as f, especialidades as g, profesionales h
+										where a.evolucion_id=".$evolucion." and a.usuario_id=b.usuario_id
+										and b.tipo_tercero_id=c.tipo_id_tercero and b.tercero_id=c.tercero_id
+										and f.tipo_id_tercero=c.tipo_id_tercero and f.tercero_id=c.tercero_id
+										and f.especialidad=g.especialidad
+										and h.tipo_id_tercero=c.tipo_id_tercero
+										and h.tercero_id=c.tercero_id";
+            $resulta=$dbconn->Execute($query);
+			if ($dbconn->ErrorNo() != 0) {
+				$this->error = "Error al Guardar en la Base de Datos";
+				$this->mensajeDeError = "Error DB : " . $dbconn->ErrorMsg();
+				return false;
+			}
+			while(!$resulta->EOF)
+			{
+				$var[]=$resulta->GetRowAssoc($ToUpper = false);
+				$resulta->MoveNext();
+			}
+			$resulta->Close();
+			return $var;
+    }
+
+    function DatosDepto($dpto)
+    {
+            list($dbconn) = GetDBconn();
+            $query = "select ubicacion, telefono, text1, text2
+                      from departamentos where departamento='$dpto'";
+            $resulta=$dbconn->Execute($query);
+            if ($dbconn->ErrorNo() != 0) {
+                    $this->error = "Error al Guardar en la Base de Datos";
+                    $this->mensajeDeError = "Error DB : " . $dbconn->ErrorMsg();
+                    return false;
+            }
+						$var=$resulta->GetRowAssoc($ToUpper = false);
+            return $var;
+    }
+
+
+  /**
+  * Separa la fecha del formato timestamp
+  * @access private
+  * @return string
+  * @param date fecha
+  */
+   function FechaStamp($fecha)
+   {
+      if($fecha){
+          $fech = strtok ($fecha,"-");
+          for($l=0;$l<3;$l++)
+          {
+            $date[$l]=$fech;
+            $fech = strtok ("-");
+          }
+          return  ceil($date[2])."/".str_pad(ceil($date[1]),2,0,STR_PAD_LEFT)."/".str_pad(ceil($date[0]),2,0,STR_PAD_LEFT);
+      }
+  }
+	
+            /**
+  * Obtiene la informacion del diagnostico
+  *
+  * @param integer $evolucion Identificador de la evolucion
+  *
+  * @return mixed
+  */
+  function DiagnosticoCompleto($evolucion)
+  {
+    $sql  = "SELECT DI.diagnostico_id, ";
+    $sql .= "       DI.diagnostico_nombre ";
+    $sql .= "FROM   hc_diagnosticos_ingreso HI,";
+    $sql .= "       diagnosticos DI ";
+    $sql .= "WHERE  HI.evolucion_id = ".$evolucion." ";
+    $sql .= "AND    DI.diagnostico_id = HI.tipo_diagnostico_id ";
+    $sql .= "ORDER BY sw_principal DESC ";
+    
+    list($dbconn) = GetDBconn();
+    $rst = $dbconn->Execute($sql);
+  
+    if ($dbconn->ErrorNo() != 0)
+      return false;
+
+    $datos = array();
+    while(!$rst->EOF)
+    {
+      $datos[] =  $rst->GetRowAssoc($ToUpper = false);
+      $rst->MoveNext();
+    }
+    $rst->Close();
+
+    $rst->Close();
+    return $datos;
+   }
+   /**
+  * Obtiene la informacion del diagnostico segun la solicitud
+  *
+  * @param integer $solicitud Identificador de la solicitud
+  *
+  * @return mixed
+  */
+  function DiagnosticoSolicitudCompleto($solicitud)
+  {
+  
+    $sql  = "SELECT DI.diagnostico_id, ";
+    $sql .= "       DI.diagnostico_nombre ";
+    $sql .= "FROM   hc_os_solicitudes_diagnosticos HD, ";
+    $sql .= "       diagnosticos DI ";
+    $sql .= "WHERE  HD.hc_os_solicitud_id = ".$solicitud." ";
+    $sql .= "AND    HD.diagnostico_id = DI.diagnostico_id ";
+    
+    
+    list($dbconn) = GetDBconn();
+    $rst = $dbconn->Execute($sql);
+    if ($dbconn->ErrorNo() != 0) 
+      return false;
+    
+    $datos = array();
+    while(!$rst->EOF)
+    {
+      $datos[] =  $rst->GetRowAssoc($ToUpper = false);
+      $rst->MoveNext();
+    }
+    $rst->Close();
+
+    $rst->Close();
+    return $datos;
+   }
+
+	
+	function BuscarPuntoAtencion($tipo_id_paciente, $paciente_id)
+	{
+		list($dbconn) = GetDBconn();
+		$query = "	SELECT 	b.eps_punto_atencion_nombre
+					FROM 	eps_afiliados as a, eps_puntos_atencion as b
+					WHERE 	a.afiliado_tipo_id = '".$tipo_id_paciente."' 
+					AND		a.afiliado_id = '".$paciente_id."'
+					AND     a.eps_punto_atencion_id = b.eps_punto_atencion_id";
+		$result = $dbconn->Execute($query);
+		if ($dbconn->ErrorNo() != 0)
+		{
+			$this->error = "Error al Cargar el Modulo";
+			$this->mensajeDeError = "Error DB : " . $dbconn->ErrorMsg();
+			return false;
+		}
+		else
+		{
+			$var=$result->fields[0];
+		}
+		$result->Close();
+		return $var;
+	}
+	function EdadPacientes($paciente_id,$tipo_id_paciente)
+	{
+		list($dbconn) = GetDBconn();
+		$query = "select edad_completa(fecha_nacimiento) as edad
+			from   pacientes
+			where  paciente_id= '".$paciente_id."'
+			and    tipo_id_paciente='".$tipo_id_paciente."' 
+			";
+		
+		$resulta=$dbconn->Execute($query);
+		if ($dbconn->ErrorNo() != 0) 
+		{
+			$this->error = "Error al Guardar en la Base de Datos";
+			$this->mensajeDeError = "Error DB : " . $dbconn->ErrorMsg();
+			return false;
+		}
+		if(!$resulta->EOF)
+		{  $var=$resulta->fields[0];  }
+		return $var;
+	}
+}
+?>

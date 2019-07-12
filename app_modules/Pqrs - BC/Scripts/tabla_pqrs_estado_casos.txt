@@ -1,0 +1,29 @@
+-- Table: public.pqrs_estado_casos
+
+-- DROP TABLE public.pqrs_estado_casos;
+
+CREATE TABLE public.pqrs_estado_casos (
+  estado_caso_id  serial NOT NULL,
+  estado          varchar(20),
+  descripcion     varchar(50),
+  /* Keys */
+  CONSTRAINT pqrs_estado_casos_pkey
+    PRIMARY KEY (estado_caso_id)
+) WITH (
+    OIDS = FALSE
+  );
+
+ALTER TABLE public.pqrs_estado_casos
+  OWNER TO "admin";
+
+COMMENT ON TABLE public.pqrs_estado_casos
+  IS 'Estado de los casos Pqrs';
+
+COMMENT ON COLUMN public.pqrs_estado_casos.estado_caso_id
+  IS 'PK tabla';
+
+COMMENT ON COLUMN public.pqrs_estado_casos.estado
+  IS 'Estado del caso ';
+
+COMMENT ON COLUMN public.pqrs_estado_casos.descripcion
+  IS 'Descripción de estado';

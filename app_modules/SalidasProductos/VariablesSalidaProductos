@@ -1,0 +1,5 @@
+IMPORTANTE
+
+SE DEBEN CREAR DOS VARIABLES DE MODULO
+1. SE DEBE LLAMAR documento_salida_"empresa_id" y el valor debe ser el bodegas_doc_id q se encuentra en la tabla inv_bodegas_documentos.
+2. SE DEBE LLAMAR documento_prefijo_"empresa_id" y el valor debe ser el prefijo q se coloque en la tabla documentos.

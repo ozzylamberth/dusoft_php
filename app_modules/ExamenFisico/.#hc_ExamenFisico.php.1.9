@@ -1,0 +1,142 @@
+<?php
+
+
+session_start();
+
+IncludeClass("signos",NULL,"hc","ExamenFisico"); 
+IncludeClass("signos_HTML","HTML","hc","ExamenFisico"); 
+
+class ExamenFisico extends hc_classModules
+{
+/**
+* Esta funciï¿½ Inicializa las variable de la clase
+*
+* @access public
+* @return boolean Para identificar que se realizo.
+*/
+	function ExamenFisico()
+	{
+       		
+		return true;
+	}
+
+/**
+* Esta función retorna los datos de concernientes a la version del submodulo
+* @access private
+*/
+
+// 	function GetVersion()
+// 	{
+// 		$informacion=array(
+// 		'version'=>'1',
+// 		'subversion'=>'0',
+// 		'revision'=>'0',
+// 		'fecha'=>'10/25/2006',
+// 		'autor'=>'JAIME ANDRES GOMEZ',
+// 		'descripcion_cambio' => '',
+// 		'requiere_sql' => false,
+// 		'requerimientos_adicionales' => '',
+// 		'version_kernel' => '1.0'
+// 		);
+// 		return $informacion;
+// 	}
+
+
+/**
+* Esta función verifica si este submodulo fue utilizado para la atencion de un paciente.
+*
+* @access private
+* @return text Datos HTML de la pantalla.
+*/
+
+	function GetEstado()
+	{
+		return true;
+	}
+
+	
+
+
+function GetConsulta()
+  { $signo_HH=new signos_HTML($this);
+    $signo1=new signos($this);
+    $b_solo=$signo1->ConsultaExamenes(2);
+    print_r($b_solo);
+    $hallazgo_solo=$signo1->ConsultarHallazgo(2);
+    $consultax=$signo_HH->frmConsulta($b_solo,$hallazgo_solo);
+    if($consultax==false)
+    {
+      return true;
+    }
+    return $consultax;
+  }
+
+
+/**
+* Esta metodo captura los datos de la impresión de la Historia Clinica.
+* @access private
+* @return text Datos HTML de la pantalla.
+*/
+
+  function GetReporte_Html()
+  { $signo_HH=new signos_HTML($this);
+    $signo1=new signos($this);
+    $b_solo=$signo1->ConsultaExamenes(3);
+    $hallazgo_solo=$signo1->ConsultarHallazgo(3);
+    $imprimir=$signo_HH->frmHistoria($b_solo,$hallazgo_solo);
+    if($imprimir==false)
+    {
+      return true;
+    }
+    return $imprimir;
+  }
+
+
+
+
+
+
+
+
+
+
+/**
+* Esta funciï¿½ retorna la presentaciï¿½ del submodulo (consulta o inserciï¿½).
+*
+* @access public
+* @return text Datos HTML de la pantalla.
+* @param text Determina la acciï¿½ a realizar.
+*/
+	
+	function GetForma()
+	{
+		$pfj=$this->frmPrefijo;
+		echo "<br><br><br>";
+		$signo_H=new signos_HTML($this);
+		$signo1=new signos($this);
+		$a=$signo1->ConsultaSignos();
+		$b_todos=$signo1->ConsultaExamenes(1);
+		$b_solo=$signo1->ConsultaExamenes(2);
+    $profesional=$signo1->ConsultarNombre();
+		$hallazgo_todos=$signo1->ConsultarHallazgo(1);
+		$hallazgo_solo=$signo1->ConsultarHallazgo(2);
+    
+    if(empty($a)){/*$this->salida.="no se pudo realizar la consulta a "*/;}
+		if(empty($b_todos)){/*$this->salida.="no se pudo realizar la consulta b ";*/ $b_todos=0;}
+		if(empty($b_solo)){/*$this->salida.=/*"no se pudo realizar la consulta b2 ";*/$b_solo=0; }
+    if(empty($profesional)){/*$this->salida.=/*"no se pudo realizar la consulta p ";*/}
+		if(empty($hallazgo_todos)){/*$this->salida.=/*"no se pudo realizar la consulta h";*/$hallazgo_todos=0;}
+		if(empty($hallazgo_solo)){/*$this->salida.=/*"no se pudo realizar la consulta h2";*/$hallazgo_solo=0;}
+		$this->salida.=$signo_H->Forma($this,$a,$b_todos,$b_solo,$hallazgo_todos,$hallazgo_solo);
+		//$this->salida.=$signo_H->frmConsulta($b_solo,$hallazgo_solo);
+		$this->RegistrarSubmodulo($this->GetVersion());
+    return true;
+	}
+ 
+			
+// fin de la clase
+}
+
+
+
+?>

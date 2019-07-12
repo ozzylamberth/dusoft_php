@@ -1,0 +1,13 @@
+ALTER TABLE "qx_programacion_insumos" DROP CONSTRAINT "qx_programacion_insumos_pkey"
+ALTER TABLE "qx_programacion_insumos" DROP CONSTRAINT "qx_programacion_insumos_programacion_id_key"
+ALTER TABLE "qx_programacion_insumos" ADD PRIMARY KEY ("programacion_id","codigo_producto")
+
+
+
+ALTER TABLE "grupos_tipos_cargo" DROP COLUMN "cargo_agrupamiento_sistema";
+
+
+
+ALTER TABLE "grupos_tipos_cargo" ADD COLUMN "codigo_agrupamiento_id" integer;
+ALTER TABLE "grupos_tipos_cargo" ADD FOREIGN KEY ("codigo_agrupamiento_id") REFERENCES "public"."cuentas_codigos_agrupamiento"("codigo_agrupamiento_id")  ON UPDATE CASCADE ON DELETE RESTRICT;
+

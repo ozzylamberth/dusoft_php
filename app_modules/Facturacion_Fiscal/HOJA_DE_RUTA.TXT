@@ -1,0 +1,21 @@
+
+S (Tabla del sistema Implementada con anterioridad en otro modulos.)
+M (Tabla de Movimiento, cuando la instalacion es nueva debera estar vacia)
+T (Tabla maestra de tipos)
+
+
+M userpermisos_tipos_facturas
+M puntos_facturacion
+M hc_evoluciones
+M cuentas
+M ingresos
+M fac_tipos_facturas
+M envios
+M fac_facturas
+S empresas
+S planes
+S departamentos
+T servicios
+S cuentas_detalle
+
+

@@ -1,0 +1,21 @@
+
+S (Tabla del sistema Implementada con anterioridad en otro modulos.)
+M (Tabla de Movimiento, cuando la instalacion es nueva debera estar vacia)
+T (Tabla maestra de tipos)
+
+S hc_vias_administracion
+S hc_vias_administracion_tipos
+M inventarios_productos
+S inv_fabricantes
+M inv_grupos_inventarios
+M inv_clases_inventarios
+M inv_subclases_inventarios
+S inv_med_cod_anatofarmacologico
+S inv_med_cod_principios_activos
+S inv_med_cod_forma_farmacologica
+S inv_medicamentos_vias_administracion
+S inv_niveles_autorizacion_compras
+S inv_unidades_medida_medicamentos
+M medicamentos
+S unidades
+M userpermisos_inventario_cod_general

@@ -1,0 +1,196 @@
+<html>
+<head>
+<title> newsmenu </title>
+<style type="text/css">
+.cltopmenu {position:absolute; width:101px; height:150px; clip:rect(0px 101px 14px 0px); layer-background-color:#eeeeee; background-color:#eeeeee; z-index:31; visibility:hidden;}
+.cltopmenubottom {position:absolute; width:101px; height:3px; clip:rect(0px 101px 3px 0px); top:11; layer-background-color:#cecfce; background-color:#cecfce; z-index:2;}
+.cltopmenutext {position:absolute; width:91px; left:5px; top:15px; font-family:arial,helvetica,sans-serif; font-size:11px; background-color:#eeeeee; z-index:1;}
+</style>
+
+
+<script language="javascript" type="text/javascript">
+/**********************************************************************************
+newsmenu
+* copyright (c) 2001 thomas brattli
+* this script was released at dhtmlcentral.com
+*********************************************************************************/
+function lib_bwcheck(){ //browsercheck (needed)
+this.ver=navigator.appversion
+this.agent=navigator.useragent
+this.dom=document.getelementbyid?1:0
+this.opera5=(navigator.useragent.indexof("opera")>-1 && document.getelementbyid)?1:0
+this.ie5=(this.ver.indexof("msie 5")>-1 && this.dom && !this.opera5)?1:0;
+this.ie6=(this.ver.indexof("msie 6")>-1 && this.dom && !this.opera5)?1:0;
+this.ie4=(document.all && !this.dom && !this.opera5)?1:0;
+this.ie=this.ie4||this.ie5||this.ie6
+this.mac=this.agent.indexof("mac")>-1
+this.ns6=(this.dom && parseint(this.ver) >= 5) ?1:0;
+this.ns4=(document.layers && !this.dom)?1:0;
+this.bw=(this.ie6 || this.ie5 || this.ie4 || this.ns4 || this.ns6 || this.opera5)
+return this
+}
+var bw=lib_bwcheck()
+/********************************************************************************
+if you want to change the appearance of the text, background-colors, size or
+anything do that in the style tag above.
+
+this menu might not be as easy to adapt to your own site, but please
+play around with it before you mail me for help...
+****************************************************************************/
+
+/***************************************************************************
+variables to set.
+****************************************************************************/
+
+//there are 2 ways these menus can be placed
+// 0 = column
+// 1 = row
+nplace=0
+
+
+//how many menus do you have? (remember to copy and add divs in the body if you add menus)
+var nnumberofmenus=2
+
+var nmwidth=101 //the width on the menus (set the width in the stylesheet as well)
+var npxbetween=20 //pixels between the menus
+var nfromleft=10 //the first menus left position
+var nfromtop=85 //the top position of the menus
+var nbgcolor='#cecfce' //the bgcolor of the bottom mouseover div
+var nbgcolorchangeto='#6380bc' //the bgcolor to change to
+var nimageheight=11 //the position the mouseover line div will stop at when going up!
+
+/***************************************************************************
+you shouldn't have to change anything below this
+****************************************************************************/
+//object constructor
+function makenewsmenu(obj,nest){
+nest=(!nest) ? "":'document.'+nest+'.'
+this.css=bw.dom? document.getelementbyid(obj).style:bw.ie4?document.all[obj].style:bw.ns4?eval(nest+"document.layers." +obj):0;
+this.evnt=bw.dom? document.getelementbyid(obj):bw.ie4?document.all[obj]:bw.ns4?eval(nest+"document.layers." +obj):0;
+this.scrollheight=bw.ns4?this.css.document.height:this.evnt.offsetheight
+this.moveit=b_moveit;this.bgchange=b_bgchange;
+this.slideup=b_slideup; this.slidedown=b_slidedown;
+this.clipto=b_clipto;
+this.obj = obj + "object"; eval(this.obj + "=this")
+}
+//objects methods
+
+// a unit of measure that will be added when setting the position of a layer.
+var px = bw.ns4||window.opera?"":"px";
+
+function b_moveit(x,y){this.x=x; this.y=y; this.css.left=this.x+px; this.css.top=this.y+px;}
+function b_bgchange(color){this.css.backgroundcolor=color; this.css.bgcolor=color; this.css.background=color;}
+function b_clipto(t,r,b,l){
+if(bw.ns4){this.css.clip.top=t; this.css.clip.right=r; this.css.clip.bottom=b; this.css.clip.left=l
+}else this.css.clip="rect("+t+"px "+r+"px "+b+"px "+l+"px)";
+}
+function b_slideup(ystop,moveby,speed,fn,wh){
+if(!this.slideactive){
+if(this.y>ystop){
+this.moveit(this.x,this.y-5); eval(wh)
+settimeout(this.obj+".slideup("+ystop+","+moveby+","+speed+",'"+fn+"','"+wh+"')",speed)
+}else{
+this.slideactive=false; this.moveit(0,ystop); eval(fn)
+}
+}
+}
+function b_slidedown(ystop,moveby,speed,fn,wh){
+if(!this.slideactive){
+if(this.y<ystop){
+this.moveit(this.x,this.y+5); eval(wh)
+settimeout(this.obj+".slidedown("+ystop+","+moveby+","+speed+",'"+fn+"','"+wh+"')",speed)
+}else{
+this.slideactive=false; this.moveit(0,ystop); eval(fn)
+}
+}
+}
+//initiating the page, making cross-browser objects
+function newsmenuinit(){
+otopmenu=new array()
+zindex=10
+for(i=0;i<=nnumberofmenus;i++){
+otopmenu[i]=new array()
+otopmenu[i][0]=new makenewsmenu('divtopmenu'+i)
+otopmenu[i][1]=new makenewsmenu('divtopmenubottom'+i,'divtopmenu'+i)
+otopmenu[i][2]=new makenewsmenu('divtopmenutext'+i,'divtopmenu'+i)
+otopmenu[i][1].moveit(0,nimageheight)
+otopmenu[i][0].clipto(0,nmwidth,nimageheight+3,0)
+if(!nplace) otopmenu[i][0].moveit(i*nmwidth+nfromleft+(i*npxbetween),nfromtop)
+else{
+otopmenu[i][0].moveit(nfromleft,i*nimageheight+nfromtop+(i*npxbetween))
+otopmenu[i][0].css.zindex=zindex--
+}
+otopmenu[i][0].css.visibility="visible"
+}
+}
+//moves the menu
+function topmenu(num){
+if(otopmenu[num][1].y==nimageheight) otopmenu[num][1].slidedown(otopmenu[num][2].scrollheight+20,10,40,'otopmenu['+num+'][0].clipto(0,nmwidth,otopmenu['+num+'][1].y+3,0)','otopmenu['+num+'][0].clipto(0,nmwidth,otopmenu['+num+'][1].y+3,0)')
+else if(otopmenu[num][1].y==otopmenu[num][2].scrollheight+20) otopmenu[num][1].slideup(nimageheight,10,40,'otopmenu['+num+'][0].clipto(0,nmwidth,otopmenu['+num+'][1].y+3,0)','otopmenu['+num+'][0].clipto(0,nmwidth,otopmenu['+num+'][1].y+3,0)')
+}
+//changes background onmouseover
+function menuover(num){otopmenu[num][1].bgchange(nbgcolorchangeto)}
+function menuout(num){otopmenu[num][1].bgchange(nbgcolor)}
+
+//calls the init function onload if the browser is ok...
+if (bw.bw) onload = newsmenuinit;
+
+/***************
+multiple scripts
+if you have two or more scripts that use the onload event, probably only one will run (the last one).
+here is a solution for starting multiple scripts onload:
+1. delete or comment out all the onload assignments, onload=initscroll and things like that.
+2. put the onload assignments in the body tag like in this example, note that they must have braces ().
+example: <body onload="initscroll(); inittooltips(); initmenu();">
+**************/
+</script>
+
+</head>
+
+<body bgcolor="#ffffff">
+<!-- remember the "news" "key control" and "page contols" text are images, you probably want to change those
+with your own images. if your own images have different sizes please adjust the height and clips
+of the divs, and change the nimageheight variable in the script. good luck -->
+<div id="divtopmenu0" class="cltopmenu"><a href="#" onmouseover="menuover(0)" onmouseout="menuout(0)" onclick="topmenu(0); return false;" onfocus="if(this.blur)this.blur();"><img src="ejemplos/news.gif" width=101 height=11 alt="" border=0 align="top"></a>
+<div id="divtopmenutext0" class="cltopmenutext">
+added some link to me buttons and
+advertising info and a new script and a new tutorial.<br><br>
+remember to join the newsletter!
+</div>
+<div id="divtopmenubottom0" class="cltopmenubottom"></div>
+</div>
+
+<div id="divtopmenu1" class="cltopmenu"><a href="#" onmouseover="menuover(1)" onmouseout="menuout(1)" onclick="topmenu(1); return false;" onfocus="if(this.blur)this.blur();"><img src="ejemplos/keycontrol.gif" width=101 height=11 alt="" border=0 align="top"></a>
+<div id="divtopmenutext1" class="cltopmenutext">
+1-6=menu controls<br>
+m=menuchange<br>
+n=news<br>
+k=key controls<br>
+p=page control<br>
+a=scroll down<br>
+z=scroll up<br>
+s=scriptomania<br><br>
+</div>
+<div id="divtopmenubottom1" class="cltopmenubottom"></div>
+</div>
+<div id="divtopmenu2" class="cltopmenu"><a href="#" onmouseover="menuover(2)" onmouseout="menuout(2)" onclick="topmenu(2); return false;" onfocus="if(this.blur)this.blur();"><img src="ejemplos/pagecontrol.gif" width=101 height=11 alt="" border=0 align="top"></a>
+<div id="divtopmenutext2" class="cltopmenutext">
+text here.
+</div>
+<div id="divtopmenubottom2" class="cltopmenubottom"></div>
+</div>
+<!-- to add a new menu just copy these lines:
+<div id="divtopmenun" class="cltopmenu"><a href="#" onmouseover="menuover(n)" onmouseout="menuout(n)" onclick="topmenu(n); return false;" onfocus="if(this.blur)this.blur();">heading image goes here</a>
+<div id="divtopmenutextn" class="cltopmenutext">
+text here
+</div>
+<div id="divtopmenubottomn" class="cltopmenubottom"></div>
+</div>
+and change the letter n to a number higher then the last menu...
+(and remember to set the variable nnumberofmenus in the script to
+the same number of menus you have (remember it starts counting
+at 0) --><br><br>
+
+
+</body>
+</html>

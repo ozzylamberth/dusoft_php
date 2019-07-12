@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wc-entries
+   xmlns="svn:">
+<entry
+   committed-rev="6"
+   name=""
+   committed-date="2012-01-12T15:34:08.578843Z"
+   url="http://10.0.0.254/repositorio/ips/trunk/codigo%20fuente/sinergias_ips/app_modules/EE_AdministracionMedicamentos/classes"
+   last-author="andres.velez"
+   kind="dir"
+   uuid="de7826d0-36f2-11e1-8d81-3fd762807c8f"
+   revision="6"/>
+<entry
+   committed-rev="6"
+   name="SolicitudesAutomaticas.class.php"
+   text-time="2012-01-12T15:35:09.000000Z"
+   committed-date="2012-01-12T15:34:08.578843Z"
+   checksum="91c6c333eac6152312cf9d5f20cec700"
+   last-author="andres.velez"
+   kind="file"
+   prop-time="2012-01-12T15:35:09.000000Z"/>
+</wc-entries>

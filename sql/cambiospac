@@ -1,0 +1,4 @@
+
+
+INSERT INTO system_modulos_variables VALUES ('Pacientes', 'app', 'NombreComuna', 'LOCALIDAD');
+INSERT INTO system_modulos_variables VALUES ('Pacientes', 'app', 'BarrioObligatorio', '1');

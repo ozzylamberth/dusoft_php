@@ -1,0 +1,59 @@
+SELECT tablename 
+FROM pg_catalog.pg_tables
+WHERE schemaname=[schemaname]
+ORDER BY tablename
+
+--secuencias
+SELECT c.relname 
+FROM  pg_catalog.pg_class c, 
+      pg_catalog.pg_user u, 
+      pg_catalog.pg_namespace n
+WHERE	c.relowner=u.usesysid 
+AND   c.relnamespace=n.oid 
+AND   c.relkind = 'S' 
+AND   n.nspname=[schemaname]
+ORDER BY relname
+
+--funciones
+SELECT DISTINCT p.proname,
+			pg_catalog.oidvectortypes(p.proargtypes) AS arguments
+FROM	pg_catalog.pg_proc p
+			LEFT JOIN pg_catalog.pg_namespace n ON n.oid = p.pronamespace
+WHERE p.prorettype <> 'pg_catalog.cstring'::pg_catalog.regtype 
+AND 	p.proargtypes[0] <> 'pg_catalog.cstring'::pg_catalog.regtype 
+AND   NOT p.proisagg 
+AND   n.nspname = [schemaname]
+ORDER BY	p.proname
+
+GRANT privilegios_tablas
+ON TABLE "$Objeto[0]" TO GROUP groupname
+privilegios_tablas = { { SELECT | INSERT | UPDATE | DELETE | REFERENCES | TRIGGER } [,...] | ALL [ PRIVILEGES ] }
+
+GRANT privilegios_secuencias
+ON SEQUENCE "$Objeto[0]" TO GROUP groupname
+privilegios_secuencias = { { USAGE | SELECT | UPDATE } [,...] | ALL [ PRIVILEGES ] }
+
+GRANT privilegios_funciones
+ON FUNCTION "$Objeto[0]" TO GROUP groupname
+privilegios_funciones = EXECUTE | ALL [ PRIVILEGES ]
+
+GRANT privilegios_basedatos 
+ON DATABASE "database" TO GROUP groupname
+privilegios_basedatos = {CREATE | CONNECT | TEMPORARY | TEMP } [,...] | ALL [ PRIVILEGES]
+
+REVOKE { { SELECT | INSERT | UPDATE | DELETE | REFERENCES | TRIGGER }
+    [,...] | ALL [ PRIVILEGES ] }
+    ON [ TABLE ] tablename [, ...]
+    FROM GROUP groupname [, ...] [ CASCADE | RESTRICT ]
+
+REVOKE { { USAGE | SELECT | UPDATE } [,...] | ALL [ PRIVILEGES ] }
+    ON SEQUENCE sequencename [, ...]
+    FROM GROUP groupname [, ...] [ CASCADE | RESTRICT ]
+
+REVOKE { { CREATE | CONNECT | TEMPORARY | TEMP } [,...] | ALL [ PRIVILEGES ] }
+    ON DATABASE dbname [, ...]
+    FROM GROUP groupname [, ...] [ CASCADE | RESTRICT ]
+
+REVOKE { EXECUTE | ALL [ PRIVILEGES ] }
+    ON FUNCTION funcname ( [ [ argmode ] [ argname ] argtype [, ...] ] ) [, ...]
+    FROM GROUP groupname [, ...] [ CASCADE | RESTRICT ]

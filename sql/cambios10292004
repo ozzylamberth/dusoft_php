@@ -1,0 +1,39 @@
+CREATE TABLE banco_sangre_estados_bolsas(
+    estado character(1),
+    descripcion character varying(30)
+);
+ALTER TABLE ONLY banco_sangre_estados_bolsas ADD PRIMARY KEY (estado);
+
+INSERT INTO banco_sangre_estados_bolsas VALUES ('1', 'EN INVENTARIO');
+INSERT INTO banco_sangre_estados_bolsas VALUES ('2', 'TRANSFUNDIDA');
+INSERT INTO banco_sangre_estados_bolsas VALUES ('3', 'DESPACHO EXTERNO');
+INSERT INTO banco_sangre_estados_bolsas VALUES ('4', 'INCINERADA');
+INSERT INTO banco_sangre_estados_bolsas VALUES ('5', 'CRUZADA');
+ALTER TABLE banco_sangre_bolsas ALTER COLUMN estado SET NOT NULL;
+ALTER TABLE banco_sangre_bolsas ALTER COLUMN estado SET DEFAULT 01;
+ALTER TABLE banco_sangre_bolsas ADD COLUMN motivo_insercion character(1);
+
+ALTER TABLE triages DROP COLUMN diagnostico_id;
+
+
+CREATE TABLE triages_diagnosticos (
+    triage_id integer NOT NULL,
+    diagnostico_id character varying(6) NOT NULL
+);
+
+
+ALTER TABLE ONLY triages_diagnosticos
+    ADD CONSTRAINT triages_diagnosticos_pkey PRIMARY KEY (triage_id, diagnostico_id);
+
+
+ALTER TABLE ONLY triages_diagnosticos
+    ADD FOREIGN KEY (diagnostico_id) REFERENCES diagnosticos(diagnostico_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+ALTER TABLE signos_vitales_triages ADD COLUMN respuesta_motora_id  	character varying(2);
+ALTER TABLE signos_vitales_triages ADD COLUMN respuesta_verbal_id  	character varying(2);
+ALTER TABLE signos_vitales_triages ADD COLUMN apertura_ocular_id  	character varying(2);
+ALTER TABLE signos_vitales_triages ADD COLUMN tipo_glasgow 	character varying(2);
+
+COMMENT ON COLUMN signos_vitales_triages.tipo_glasgow IS '0 adulto 1 medico';
+

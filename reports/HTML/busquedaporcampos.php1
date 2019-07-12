@@ -1,0 +1,205 @@
+<?php
+	$_ROOT='../../';
+	$VISTA='HTML';
+	include $_ROOT.'includes/enviroment.inc.php';
+	$fileName = "themes/$VISTA/" . GetTheme() . "/module_theme.php";
+
+	IncludeFile($fileName);
+
+	$_REQUEST['Nombres']=strtoupper($_REQUEST['Nombres']);
+	$_REQUEST['Apellidos']=strtoupper($_REQUEST['Apellidos']);
+	print(ReturnHeader('DATOS AFILIADO'));
+	print(ReturnBody());
+	echo ThemeAbrirTabla('DATOS PACIENTE');
+	echo "<table border=\"0\" cellspacing=\"2\" cellpadding=\"2\" width=\"60%\" align=\"center\">";
+	echo "<form name=\"formabuscar\" action=\"\" method=\"post\">";
+	echo "				       <tr><td class=\"label\">TIPO DOCUMENTO: </td><td><select name=\"TipoDocumento\" class=\"select\">";
+	list($dbconn) = GetDBconn();
+	$query = "SELECT * FROM tipos_id_pacientes ORDER BY indice_de_orden";
+	$result = $dbconn->Execute($query);
+
+			if ($dbconn->ErrorNo() != 0) {
+					$this->error = "Error al Cargar el Modulo";
+					$this->mensajeDeError = "Error DB : " . $dbconn->ErrorMsg();
+					return false;
+			}
+			else{
+					if($result->EOF){
+							$this->error = "Error al Cargar el Modulo";
+							$this->mensajeDeError = "La tabla maestra 'tipo_id_pacientes' esta vacia ";
+							return false;
+					}
+							while (!$result->EOF) {
+									$tipo_id[$result->fields[0]]=$result->fields[1];
+									$result->MoveNext();
+							}
+			}
+
+	foreach($tipo_id as $value=>$titulo)
+	{
+			if($value==$_REQUEST['TipoDocumento'])
+			{  echo " <option value=\"$value\" selected>$titulo</option>";  }
+			else
+			{  echo " <option value=\"$value\">$titulo</option>";  }
+	}
+	echo "              </select></td></tr>";
+	echo "<tr>";
+	if($_REQUEST['Responsable']==-1)
+	{
+		echo "<td class=\"label_error\">";
+	}
+	else
+	{
+		echo "<td class=\"label\">";
+	}
+	echo "PLAN: </td><td><select name=\"Responsable\" class=\"select\">";
+	$query="SELECT plan_id,plan_descripcion,tercero_id,tipo_tercero_id FROM planes WHERE fecha_final >= now() and estado=1 and fecha_inicio <= now() and (sw_tipo_plan=3 or (sw_tipo_plan=0 and sw_afiliacion=1));";
+	$result = $dbconn->Execute($query);
+	if ($dbconn->ErrorNo() != 0) {
+			$this->error = "Error al Cargar el Modulo";
+			$this->mensajeDeError = "Error DB : " . $dbconn->ErrorMsg();
+			return false;
+	}
+
+	while (!$result->EOF) {
+					$responsables[]=$result->GetRowAssoc($ToUpper = false);
+					$result->MoveNext();
+	}
+	$result->Close();
+	list($dbconn) = GetDBconn();
+	echo " <option value=\"-1\">-------SELECCIONE-------</option>";
+			for($i=0; $i<sizeof($responsables); $i++)
+			{
+					if($responsables[$i][plan_id]==$_REQUEST['Responsable']){
+							echo " <option value=\"".$responsables[$i][plan_id]."\" selected>".$responsables[$i][plan_descripcion]."</option>";
+					}else{
+							echo " <option value=\"".$responsables[$i][plan_id]."\">".$responsables[$i][plan_descripcion]."</option>";
+					}
+			}
+
+	echo "              </select></td></tr>";
+	echo "<tr><td class=\"label\">DOCUMENTO: </td><td><input type=\"text\" class=\"input-text\" name=\"Documento\" maxlength=\"32\" value=\"".$_REQUEST['Documento']."\"></td></tr>";
+	echo "<tr><td class=\"label\">NOMBRES: </td><td><input type=\"text\" class=\"input-text\" name=\"Nombres\" maxlength=\"64\" value=\"".$_REQUEST['Nombres']."\"></td></tr>";
+	echo "<tr><td class=\"label\">APELLIDOS: </td><td><input type=\"text\" class=\"input-text\" name=\"Apellidos\" maxlength=\"64\" value=\"".$_REQUEST['Apellidos']."\"></td></tr>";
+	echo "<tr><td align=\"center\" colspan=\"2\"><br><input class=\"input-submit\" type=\"submit\" name=\"Buscar\" value=\"BUSCAR\"><br></td></form>";
+	echo "</tr>";
+	echo "			     </table>";
+
+		if((!empty($_REQUEST['Documento']) or !empty($_REQUEST['Nombres']) or !empty($_REQUEST['Apellidos'])) and ($_REQUEST['Responsable']!=-1))
+		{
+			if(!empty($_REQUEST['Documento']))
+			{
+				if (!IncludeFile("classes/BDAfiliados/BDAfiliados.class.php"))
+				{
+						$this->error = "Error";
+						$this->mensajeDeError = "No se pudo incluir : classes/notas_enfermeria/revision_sistemas.class.php";
+						return false;
+				}
+				if(!class_exists('BDAfiliados'))
+				{
+						$this->error="Error";
+						$this->mensajeDeError="no existe BDAfiliados";
+						return false;
+				}
+				$class= New BDAfiliados($_REQUEST['TipoDocumento'],$_REQUEST['Documento'],$_REQUEST['Responsable']);
+				if($class->GetDatosAfiliado()==false)
+				{
+						$this->error=$class->error;
+						$this->mensajeDeError=$class->mensajeDeError;
+						return false;
+				}
+
+				$x=$class->salida;
+				unset($class);
+				//print_r($x);
+				echo "			      <table width=\"100%\" border=\"0\" align=\"center\" class=\"modulo_table_list\" cellspacing=\"3\" cellpadding=\"3\">";
+				echo "				       <tr class=\"modulo_table_list_title\">";
+				echo "				          <td colspan=\"2\" align=\"center\">Tipo Documento</td>";
+				echo "				          <td colspan=\"2\" align=\"center\">Documento</td>";
+				echo "				          <td colspan=\"2\" align=\"center\">Nombre</td>";
+				echo "				       </tr>";
+				echo "				       <tr class=\"modulo_list_oscuro\">";
+				echo "				          <td colspan=\"2\" align=\"center\">".$x['campo_tipodocumento']."</td>";
+				echo "				          <td colspan=\"2\" align=\"center\">".$x['campo_documento']."</td>";
+				if(empty($x['campo_nombre_completo']))
+				{
+					echo "				          <td colspan=\"2\" align=\"center\">".$x['campo_Primer_nombre'].' '.$x['campo_Segundo_nombre'].' '.$x['campo_Primer_apellido'].' '.$x['campo_Segundo_apellido']."</td>";
+				}
+				else
+				{
+					echo "				          <td colspan=\"2\" align=\"center\">".$x['campo_nombre_completo']."</td>";
+				}
+				echo "				       </tr>";
+				echo "			     </table>";
+			}
+			else
+			{
+				if(!empty($_REQUEST['Nombres']) or !empty($_REQUEST['Apellidos']))
+				{
+					if (!IncludeFile("classes/BDAfiliados/BDAfiliados.class.php"))
+					{
+							$this->error = "Error";
+							$this->mensajeDeError = "No se pudo incluir : classes/BDAfiliados/BDAfiliados.class.php";
+							return false;
+					}
+					if(!class_exists('BDAfiliados'))
+					{
+							$this->error="Error";
+							$this->mensajeDeError="no existe BDAfiliados";
+							echo ThemeCerrarTabla();
+							print(ReturnFooter());
+							return false;
+					}
+					$class= New BDAfiliados('','',$_REQUEST['Responsable']);
+					$result=$class->BusquedaNombresPaciente($_REQUEST['Nombres'],$_REQUEST['Apellidos']);
+					if($result==false)
+					{
+							echo '<label class="label-error">'.$class->error.'</label><br>';
+							echo $class->mensajeDeError;
+							echo ThemeCerrarTabla();
+							print(ReturnFooter());
+							return true;
+					}
+					if(!$result->EOF)
+					{
+						echo "			      <table width=\"100%\" border=\"0\" align=\"center\" class=\"modulo_table_list\" cellspacing=\"3\" cellpadding=\"3\">";
+						echo "				       <tr class=\"modulo_table_list_title\">";
+						echo "				          <td colspan=\"2\" align=\"center\">Tipo Documento</td>";
+						echo "				          <td colspan=\"2\" align=\"center\">Documento</td>";
+						echo "				          <td colspan=\"2\" align=\"center\">Nombre</td>";
+						echo "				          <td colspan=\"2\" align=\"center\">Estado</td>";
+						echo "				       </tr>";
+						$spy=0;
+						while(!$result->EOF)
+						{
+							$x=$result->GetRowAssoc(false);
+							if($spy==0)
+							{
+								echo "				       <tr class=\"modulo_list_oscuro\">";
+								$spy=1;
+							}
+							else
+							{
+								echo "				       <tr class=\"modulo_list_claro\">";
+								$spy=0;
+							}
+							echo "				          <td colspan=\"2\" align=\"center\">".$x['tipodocumento']."</td>";
+							echo "				          <td colspan=\"2\" align=\"center\">".$x['documento']."</td>";
+							echo "				          <td colspan=\"2\" align=\"center\">".$x['nombre']."</td>";
+							echo "				          <td colspan=\"2\" align=\"center\">".$x['estado']."</td>";
+							echo "				       </tr>";
+							$result->MoveNext();
+						}
+						echo "				       </tr>";
+						echo "			     </table>";
+					}
+					$result->close();
+				}
+			}
+		}
+
+
+
+	echo ThemeCerrarTabla();
+	print(ReturnFooter());
+	?>

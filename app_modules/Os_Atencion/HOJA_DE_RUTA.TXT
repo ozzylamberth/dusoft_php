@@ -1,0 +1,50 @@
+
+S (Tabla del sistema Implementada con anterioridad en otro modulos.)
+M (Tabla de Movimiento, cuando la instalacion es nueva debera estar vacia)
+T (Tabla maestra de tipos)
+
+
+
+S terceros 
+S empresas
+S centros_utilidad
+S system_usuarios
+M os_ordenes_servicios
+T tipos_planes
+M os_internas
+S cups
+S servicios
+M os_maestro
+T tipos_afiliado
+T tipos_planes
+S cajas_usuarios
+S cajas
+T tipos_id_pacientes
+S bancos
+S tarjetas
+S profesionales
+M os_maestro_cargos
+M cuentas_detalle
+S cajas_rapidas
+S userpermisos_cajas_rapidas
+S planes
+S pacientes
+S cuentas
+M ingresos
+S profesionales_usuarios
+S  profesionales
+M hc_evoluciones
+S departamentos
+M os_cumplimientos
+M os_cumplimientos_detalle
+S userpermisos_os_atencion
+S profesionales_departamentos
+T tipos_profesionales
+hc_os_solicitudes
+historias_clinicas
+T tipos_os_listas_trabajo_detalle
+T tipos_os_listas_trabajo
+M os_imagenes_citas
+S departamentos_cargos_citas
+T os_imagenes_tipo_equipos
+

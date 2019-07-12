@@ -1,0 +1,62 @@
+<XMLDiagram version="1.0">
+<TDBADiagramController Locked="0">
+<Elements>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.centros_utilidad">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="20" top="20" width="200" height="209"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.empresas">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="30" top="30" width="200" height="489"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.centros_utilidad.$1">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="48" top="48" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="120" y="120"/>
+<Point x="130" y="274"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.inv_buzon_compras">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="50" top="50" width="200" height="153"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.inv_buzon_compras_log">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="60" top="60" width="200" height="111"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.system_usuarios">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="80" top="80" width="200" height="265"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.userpermisos_buzoncompras">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="100" top="100" width="200" height="111"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+</Elements>
+<Surface zoom="100" scrollx="0" scrolly="0"/>
+</TDBADiagramController>
+</XMLDiagram>

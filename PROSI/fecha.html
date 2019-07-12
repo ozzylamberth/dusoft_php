@@ -1,0 +1,40 @@
+<html>
+<head>
+<title>Eventos del Sitema del Sistema</title>
+<meta http-equiv="" content="text/html; charset=iso-8859-1">
+<meta http-equiv="" content="text/html; charset=iso-8859-1"><meta http-equiv="" content="text/html; charset=iso-8859-1">
+
+</head>
+<script language="JavaScript" src="js/overlib_mini.js"></script>
+<script language="JavaScript" src="js/calendar.js"></script>
+<script language="JavaScript" src="calendar3.js"></script>
+
+<form name="tstest">
+<table width="53%" border="0" cellspacing="0">
+<tr> 
+      <td bgcolor="#EEEEEE">Desde fecha</td>
+      <td><input name="desdefecha" type="text" class="textbox" id="desdefecha" maxlength="10">
+	  <a href="javascript:cal9.popup();"><img src="img/cal.gif" width="16" height="16" border="0" alt="Click Here to Pick up the date"></a></td>
+    </tr>
+    
+    <tr>
+      <td bgcolor="#EEEEEE">Hasta fecha</td>
+      <td><input name="hastafecha" type="text" class="textbox" id="hastafecha" maxlength="10">
+	  <a href="javascript:cal10.popup();"><img src="img/cal.gif" width="16" height="16" border="0" alt="Click Here to Pick up the date"></a></td>
+    </tr>
+    <script language="JavaScript">
+			<!-- // create calendar object(s) just after form tag closed
+				 // specify form element as the only parameter (document.forms['formname'].elements['inputname']);
+				 // note: you can have as many calendar objects as you need for your application
+				
+
+				var cal9 = new calendar3(document.forms['tstest'].elements['desdefecha']);
+				cal9.year_scroll = true;
+				cal9.time_comp = false;
+				var cal10 = new calendar3(document.forms['tstest'].elements['hastafecha']);
+				cal10.year_scroll = true;
+				cal10.time_comp = false;
+				
+			//-->
+			</script>
+			</table>

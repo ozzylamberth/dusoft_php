@@ -1,0 +1,4 @@
+ALTER TABLE ventas_ordenes_pedidos ADD COLUMN estado_pedido character(1) DEFAULT 0;
+
+COMMENT ON COLUMN "ventas_ordenes_pedidos"."estado_pedido"
+  IS 'Estado de la solicitud (pedido), 0 => Está Registrada, 1 => Está Separada, 2 => Está Auditada, 3 => Está En Despacho, este estado solo es tenido en cuenta si el campo "sw_despacho" es igual a "0", ya que esto significa que el pedido aún no ha sido despachado';

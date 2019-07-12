@@ -1,0 +1,18 @@
+ALTER TABLE "tipos_servicios_ambulatorios" DROP COLUMN "tipo_cargo_amb_id";
+DROP TABLE "tipos_cargos_ambulatorios";
+
+CREATE TABLE qx_cumplimientos_datos(qx_cumplimiento_id integer NOT NULL,
+                                     via_acceso character varying(4) NOT NULL,
+																		 tipo_cirugia character varying(2) NOT NULL,
+																		 ambito_cirugia character varying(2) NOT NULL);
+																		 
+ALTER TABLE ONLY qx_cumplimientos_datos ADD CONSTRAINT qx_cumplimientos_datos_pkey PRIMARY KEY (qx_cumplimiento_id);
+ALTER TABLE ONLY qx_cumplimientos_datos ADD CONSTRAINT "$2" FOREIGN KEY (tipo_cirugia) REFERENCES qx_tipos_cirugia(tipo_cirugia_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_cumplimientos_datos ADD CONSTRAINT "$3" FOREIGN KEY (ambito_cirugia) REFERENCES qx_ambitos_cirugias(ambito_cirugia_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_cumplimientos_datos ADD CONSTRAINT "$1" FOREIGN KEY (via_acceso) REFERENCES qx_vias_acceso(via_acceso) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+//cargar honorarios imagenes - responsable claudia -- ya esta en tulua en produccion.
+ALTER TABLE "os_cumplimientos_detalle" ADD COLUMN "usuario_id" integer
+ALTER TABLE "userpermisos_os_atencion" ADD COLUMN  "sw_honorario"  character(1);
+ALTER TABLE "userpermisos_os_atencion" ALTER COLUMN "sw_honorario" SET DEFAULT 0;

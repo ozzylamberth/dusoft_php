@@ -1,0 +1,81 @@
+<html>
+<script type="text/javascript">
+function disableCheck(field, causer) {
+if (causer.checked) {
+field.checked = false;
+field.disabled = true;
+}
+else {
+field.disabled = false;
+}
+}
+
+function disableOthers(field) {
+if(formulario.uno.checked){
+ formulario.dos.checked = true;
+ formulario.tres.checked = true;
+}
+else{
+formulario.dos.checked = false;
+formulario.tres.checked = false;	
+}
+}
+
+function disableUno() {
+field = formulario.uno
+
+if (formulario.dos.checked || formulario.tres.checked) {
+field.checked = false;
+field.disabled = true;
+}
+else {
+field.disabled = false;
+}
+}
+
+</script>
+<body>
+<form name="formulario">
+<input type="checkbox" name="uno" onClick="disableOthers(this)"/><br/>
+<input type="checkbox" name="dos" onClick="disableUno()"/><br/>
+<input type="checkbox" name="tres" onClick="disableUno()"/><br/>
+</form>
+</body>
+</html>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title></title>
+<script type="text/javascript"><!--
+// IE4+, Firefox, Netscape 6+, Opera 6+
+function disable(cbx) {
+  if(!cbx) return;
+  var frm = cbx.form;
+  for(var i=0;i<frm.elements.length;i++) {
+    if(frm.elements[i].type && (frm.elements[i] != cbx)) {
+      if(frm.elements[i].type.toLowerCase() == 'checkbox') {
+        frm.elements[i].disabled = cbx.checked;
+      }
+    }
+  }
+}
+// -->
+</script>
+</head>
+<body>
+
+<form name="form1" action="">
+
+<input type="checkbox" name="head" onclick="disable(this)">head<br><br>
+
+<input type="checkbox" name="headitem[]" value="ip">ip<br>
+<input type="checkbox" name="headitem[]" value="host">host<br>
+<input type="checkbox" name="headitem[]" value="name">name<br>
+<input type="checkbox" name="headitem[]" value="id">id
+
+<p><input type="submit" value="submit"></p>
+</form>
+
+</body>
+</html>

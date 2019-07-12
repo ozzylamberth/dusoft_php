@@ -1,0 +1,29 @@
+
+S (Tabla del sistema Implementada con anterioridad en otro modulos.)
+M (Tabla de Movimiento, cuando la instalacion es nueva debera estar vacia)
+T (Tabla maestra de tipos)
+
+S cups
+S departamentos
+S diagnosticos
+S pacientes
+M patologias_resultados_solicitudes
+M patologias_resultados_solicitudes_procedimientos
+M patologias_resultados_solicitudes_diagnosticos
+M patologias_solicitudes
+M patologias_solicitudes_confirmadas
+M patologias_solicitudes_detalle
+M patologias_solicitudes_detalle_informes
+M patologias_solicitudes_diagnosticos
+M patologias_tejidos_confirmados_procedimientos
+M patologias_tejidos_incinerados
+S patologias_tipos_cargos
+S patologias_tipos_plantillas
+S profesionales
+S profesionales_usuarios
+S servicios
+S tipos_cargos
+T tipos_id_pacientes
+T tipos_tejidos
+S userpermisos_auxiliares_patologias
+S userpermisos_profesionales_patologias

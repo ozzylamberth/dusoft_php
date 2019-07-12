@@ -1,0 +1,11 @@
+
+S (Tabla del sistema Implementada con anterioridad en otro modulos.)
+M (Tabla de Movimiento, cuando la instalacion es nueva debera estar vacia)
+T (Tabla maestra de tipos)
+
+
+
+M puntos_salidas_pacientes
+M userpermisos_salidas_pacientes
+S empresas
+S centros_utilidad

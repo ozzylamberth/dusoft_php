@@ -1,0 +1,19 @@
+<html>
+<head>
+<script language="javascript" src="checkdate.js"></script>
+<script language="javascript" src="setdatetime.js"></script>
+<script language="JavaScript" src="calendario.js"></script>
+</head>
+<body>
+<center>
+<form name=calform>
+<table cellpadding="4" cellspacing="0" border="0">
+  <tr>
+    <td><input type="text" name="datebox" size="15" onFocus="this.select();"  onBlur="IsValidDate(this,'DD/MM/YYYY')" onKeyUp="setDate(this,'DD/MM/YYYY','es')"></td>
+    <td><a href="javascript:show_Calendario('calform.datebox');"><img src="theme/HTML/default/calendario/calendario.png" border=0 alt="ver calendario"></a></td>
+  </tr>
+</table>
+</form>
+</center>
+</body>
+</html>

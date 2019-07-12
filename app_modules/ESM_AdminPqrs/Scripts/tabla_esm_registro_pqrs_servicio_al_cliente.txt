@@ -1,0 +1,56 @@
+DROP TABLE if exists esm_registro_pqrs_servicio_al_cliente;
+
+CREATE TABLE "public"."esm_registro_pqrs_servicio_al_cliente" (
+  "id" SERIAL, 
+  "codigo" VARCHAR(100), 
+  "areas_empresa_id" INTEGER, 
+  "categoria_id" INTEGER, 
+  "estado_codigo" VARCHAR(100), 
+  "prioridad" INTEGER, 
+  "usuario_id" INTEGER, 
+  "paciente_id" VARCHAR(32), 
+  "tipo_id_paciente" VARCHAR(3), 
+  "fecha_registro" TIMESTAMP WITHOUT TIME ZONE DEFAULT now(), 
+  "empresa_id" CHAR(2), 
+  "centro_utilidad" CHAR(2), 
+  "bodega" CHAR(2), 
+  "calificacion" CHAR(1), 
+  CONSTRAINT "esm_registro_pqrs_servicio_al_cliente_fk" FOREIGN KEY ("categoria_id")
+    REFERENCES "public"."categoria_casos_pqrs"("id")
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE, 
+  CONSTRAINT "esm_registro_pqrs_servicio_al_cliente_fk1" FOREIGN KEY ("empresa_id", "centro_utilidad")
+    REFERENCES "public"."centros_utilidad"("empresa_id", "centro_utilidad")
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE, 
+  CONSTRAINT "fkey01" FOREIGN KEY ("areas_empresa_id")
+    REFERENCES "public"."areas_empresa"("id")
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE, 
+  CONSTRAINT "fkey02" FOREIGN KEY ("estado_codigo")
+    REFERENCES "public"."estados_casos_pqrs"("codigo")
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE, 
+  CONSTRAINT "fkey03" FOREIGN KEY ("usuario_id")
+    REFERENCES "public"."system_usuarios"("usuario_id")
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE, 
+  CONSTRAINT "fkey04" FOREIGN KEY ("paciente_id", "tipo_id_paciente")
+    REFERENCES "public"."pacientes"("paciente_id", "tipo_id_paciente")
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE, 
+  CONSTRAINT "fkey05" FOREIGN KEY ("prioridad")
+    REFERENCES "public"."esm_prioridades_caso"("id")
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE
+) WITHOUT OIDS;
+
+COMMENT ON COLUMN "public"."esm_registro_pqrs_servicio_al_cliente"."prioridad"
+IS '1 alta, 2 media 3 baja';

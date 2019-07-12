@@ -1,0 +1,41 @@
+ALTER TABLE "qx_anestesiologo_programacion" DROP COLUMN "circulante_id";
+ALTER TABLE "qx_anestesiologo_programacion" ADD COLUMN "circulante_id" character varying(32);
+
+CREATE TABLE qx_consentimientos_confirmaciones (
+    programacion_id integer NOT NULL,
+    tipo_id_otroresponsable character varying(3),
+    otroresponsable_id character varying(32),
+    tipo_id_testigo1 character varying(3),
+    testigo1_id character varying(32),
+    tipo_id_testigo2 character varying(3),
+    testigo2_id character varying(32),
+    numero_radicacion integer,
+    observaciones text,
+    qx_consentimiento_id character varying(2) NOT NULL,
+    sw_consentimiento_recibido character(1) DEFAULT 1 NOT NULL,
+    usuario_id integer NOT NULL,
+    fecha_registro timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY qx_consentimientos_confirmaciones ADD CONSTRAINT qx_consentimientos_confirmaciones_pkey PRIMARY KEY (programacion_id, qx_consentimiento_id);
+ALTER TABLE ONLY qx_consentimientos_confirmaciones ADD CONSTRAINT "$1" FOREIGN KEY (programacion_id) REFERENCES qx_programaciones(programacion_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_consentimientos_confirmaciones ADD CONSTRAINT "$4" FOREIGN KEY (usuario_id) REFERENCES system_usuarios(usuario_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_consentimientos_confirmaciones ADD CONSTRAINT "$2" FOREIGN KEY (qx_consentimiento_id) REFERENCES qx_consentimientos_tipos(qx_consentimiento_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+CREATE TABLE qx_consentimientos_testigos (
+    programacion_id integer NOT NULL,
+    tipo_id_testigo character varying(3) NOT NULL,
+    testigo_id character varying(32) NOT NULL,
+    nombre character varying(40) NOT NULL,
+    tipo_parentesco_id character varying(2) NOT NULL,
+    qx_consentimiento_id character varying(2) NOT NULL
+);
+ALTER TABLE ONLY qx_consentimientos_testigos ADD CONSTRAINT qx_consentimientos_testigos_pkey PRIMARY KEY (programacion_id, tipo_id_testigo, testigo_id, qx_consentimiento_id);
+ALTER TABLE ONLY qx_consentimientos_testigos ADD CONSTRAINT "$1" FOREIGN KEY (tipo_parentesco_id) REFERENCES tipos_parentescos(tipo_parentesco_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY qx_consentimientos_testigos ADD CONSTRAINT "$2" FOREIGN KEY (programacion_id, qx_consentimiento_id) REFERENCES qx_consentimientos_confirmaciones(programacion_id, qx_consentimiento_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+CREATE TABLE qx_consentimientos_tipos (
+    qx_consentimiento_id character varying(2) NOT NULL,
+    descripcion character varying(40)
+);
+
+ALTER TABLE ONLY qx_consentimientos_tipos ADD CONSTRAINT qx_consentimientos_tipos_pkey PRIMARY KEY (qx_consentimiento_id);

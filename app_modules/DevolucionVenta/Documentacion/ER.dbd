@@ -1,0 +1,129 @@
+<XMLDiagram version="1.0">
+<TDBADiagramController Locked="0">
+<Elements>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.auditoria_anulacion_fac_facturas">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="20" top="590" width="200" height="139"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.bodegas_documentos">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="346" top="18" width="200" height="195"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.bodegas_documentos_d">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="234" top="269" width="200" height="251"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.bodegas_documentos_d.$1">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="64" top="64" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="330" y="390"/>
+<Point x="450" y="120"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.notas_contado_credito">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="682" top="10" width="200" height="209"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.notas_contado_credito_d">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="682" top="303" width="200" height="181"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.notas_contado_credito_d.notas_contado_credito_d_empresa_id_fkey">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="112" top="112" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="780" y="390"/>
+<Point x="780" y="110"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.notas_credito_anulacion_facturas">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="906" top="282" width="200" height="223"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.rc_devoluciones_ventas">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="458" top="289" width="200" height="209"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.rc_devoluciones_ventas.rc_devoluciones_ventas_bodegas_doc_id_fkey">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="160" top="160" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="560" y="390"/>
+<Point x="450" y="120"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.tmp_bodegas_documentos">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="1130" top="31" width="200" height="167"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.tmp_bodegas_documentos_d">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="1130" top="303" width="200" height="181"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramForeignKeyProperties" objectname="public.tmp_bodegas_documentos_d.$1">
+<TDiagramForeignKeyProperties>
+<Relation>
+<Geometry left="208" top="208" width="200" height="100"/>
+<Glyph>
+<Geometry>
+<Point x="1230" y="390"/>
+<Point x="1230" y="110"/>
+</Geometry>
+</Glyph>
+</Relation>
+</TDiagramForeignKeyProperties>
+</TDBADiagramObject>
+<TDBADiagramObject propertiesclass="TDiagramMetaTableProperties" objectname="public.userpermisos_devolucion_por_venta_farmacia">
+<TDiagramMetaTableProperties>
+<Glyph>
+<Geometry left="370" top="610" width="200" height="80"/>
+</Glyph>
+</TDiagramMetaTableProperties>
+</TDBADiagramObject>
+</Elements>
+<Surface zoom="28,2121212121212" scrollx="0" scrolly="0"/>
+</TDBADiagramController>
+</XMLDiagram>

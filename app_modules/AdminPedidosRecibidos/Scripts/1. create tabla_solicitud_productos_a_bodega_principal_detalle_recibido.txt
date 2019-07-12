@@ -1,0 +1,57 @@
+CREATE TABLE public.solicitud_productos_a_bodega_principal_detalle_recibido (
+  solicitud_prod_a_bod_ppal_det_rec_id		  	serial NOT NULL,
+  solicitud_prod_a_bod_ppal_det_des_id          integer NOT NULL,
+  cantidad_cajas          						integer NOT NULL,
+  cantidad_neveras          		    		integer NOT NULL,
+  temperatura_neveras                   		integer NOT NULL,
+  observacion			                   		text NULL,
+  usuario_id            			    		integer NOT NULL,
+  fecha_registro        			    		timestamp WITHOUT TIME ZONE DEFAULT now(),
+  
+  /* Keys */
+  CONSTRAINT solicitud_productos_a_bodega_principal_detalle_recibido_pkey
+    PRIMARY KEY (solicitud_prod_a_bod_ppal_det_rec_id),
+  /* Foreign keys */
+  CONSTRAINT solicitud_productos_a_bodega_principal_detalle_recibido_solicitud_prod_a_bod_ppal_id_fkey
+    FOREIGN KEY (solicitud_prod_a_bod_ppal_det_des_id)
+    REFERENCES public.solicitud_productos_a_bodega_principal_detalle_despacho(solicitud_prod_a_bod_ppal_det_des_id)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE, 
+  CONSTRAINT solicitud_productos_a_bodega_principal_detalle_recibido_usuario_id_fkey
+    FOREIGN KEY (usuario_id)
+    REFERENCES public.system_usuarios(usuario_id)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE
+) WITH (
+    OIDS = FALSE
+  );
+
+ALTER TABLE public.solicitud_productos_a_bodega_principal_detalle_recibido
+  OWNER TO "admin";
+
+COMMENT ON TABLE public.solicitud_productos_a_bodega_principal_detalle_recibido
+  IS 'Tabla que almacena la información detallada de lo que se recibe, en relación a lo que se despacha de un pedido';
+  
+COMMENT ON COLUMN public.solicitud_productos_a_bodega_principal_detalle_recibido.solicitud_prod_a_bod_ppal_det_rec_id
+  IS 'PK tabla, número único del detalle de lo recibido en la solicitud (pedido)';
+
+COMMENT ON COLUMN public.solicitud_productos_a_bodega_principal_detalle_recibido.solicitud_prod_a_bod_ppal_det_des_id
+  IS 'Id del detalle de despacho al que pertenece el detalle de recibido';
+
+COMMENT ON COLUMN public.solicitud_productos_a_bodega_principal_detalle_recibido.cantidad_cajas
+  IS 'Cantidad de cajas recibidas';
+
+COMMENT ON COLUMN public.solicitud_productos_a_bodega_principal_detalle_recibido.cantidad_neveras
+  IS 'Cantidad de neveras recibidas';
+
+COMMENT ON COLUMN public.solicitud_productos_a_bodega_principal_detalle_recibido.temperatura_neveras
+  IS 'Temperatura (en grados centigrados) de las neveras recibidas';
+
+COMMENT ON COLUMN public.solicitud_productos_a_bodega_principal_detalle_recibido.observacion
+  IS 'Obervación';
+  
+COMMENT ON COLUMN public.solicitud_productos_a_bodega_principal_detalle_recibido.usuario_id
+  IS 'Usuario que registra';
+
+COMMENT ON COLUMN public.solicitud_productos_a_bodega_principal_detalle_recibido.fecha_registro
+  IS 'Fecha de registro';

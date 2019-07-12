@@ -1,0 +1,26 @@
+-- Table: public.operarios_bodega
+
+-- DROP TABLE public.operarios_bodega;
+
+CREATE TABLE public.operarios_bodega (
+  operario_id  serial NOT NULL,
+  nombre   		character varying(60) NOT NULL,
+  /* Keys */
+  CONSTRAINT operarios_bodega_pkey
+    PRIMARY KEY (operario_id)
+  /* Foreign keys */
+) WITH (
+    OIDS = FALSE
+  );
+
+ALTER TABLE public.operarios_bodega
+  OWNER TO "admin";
+
+COMMENT ON TABLE public.operarios_bodega
+  IS 'Tabla que guarda los operarios de la bodega, esta es usada en la asignación de los responsables de los estados de los pedidos (solicitudes)';
+
+COMMENT ON COLUMN public.operarios_bodega.operario_id
+  IS 'PK tabla';
+
+COMMENT ON COLUMN public.operarios_bodega.nombre
+  IS 'Nombre del operario';

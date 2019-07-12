@@ -1,0 +1,4 @@
+Parametrizar...
+en BodegasEmpresa... un documento de Ingreso para la Devolucion.
+El id del documento (bodegas_doc_id), se usa en una variable de Modulo asì: Ingreso_devolucion_por_venta_farmacia_(empresa_id)
+Parametrizar: notas_contado_conceptos con la empresa_id

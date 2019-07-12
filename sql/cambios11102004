@@ -1,0 +1,46 @@
+CREATE TABLE puntos_impresion_hospitalaria (
+    punto_impresion_hospitalaria_id serial NOT NULL,
+    descripcion character varying(50) NOT NULL,
+    empresa_id character(2) NOT NULL
+);
+
+
+
+ALTER TABLE ONLY puntos_impresion_hospitalaria
+    ADD CONSTRAINT puntos_impresion_hospitalaria_pkey PRIMARY KEY (punto_impresion_hospitalaria_id);
+
+ALTER TABLE ONLY puntos_impresion_hospitalaria
+    ADD  FOREIGN KEY (empresa_id) REFERENCES empresas(empresa_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+CREATE TABLE puntos_impresion_hospitalaria_estaciones (
+    punto_impresion_hospitalaria_id integer NOT NULL,
+    estacion_id character varying(4) NOT NULL
+);
+
+
+ALTER TABLE ONLY puntos_impresion_hospitalaria_estaciones
+    ADD CONSTRAINT puntos_impresion_hospitalaria_estaciones_pkey PRIMARY KEY (punto_impresion_hospitalaria_id,estacion_id);
+
+ALTER TABLE ONLY puntos_impresion_hospitalaria_estaciones
+    ADD FOREIGN KEY (estacion_id) REFERENCES estaciones_enfermeria(estacion_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+ALTER TABLE ONLY puntos_impresion_hospitalaria_estaciones
+    ADD FOREIGN KEY (punto_impresion_hospitalaria_id) REFERENCES puntos_impresion_hospitalaria(punto_impresion_hospitalaria_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+
+DROP TABLE userpermisos_impresion_hospitalaria;
+
+CREATE TABLE userpermisos_impresion_hospitalaria (
+    punto_impresion_hospitalaria_id integer NOT NULL,
+    usuario_id integer NOT NULL
+);
+
+
+ALTER TABLE ONLY userpermisos_impresion_hospitalaria
+    ADD CONSTRAINT userpermisos_impresion_hospitalaria_pkey PRIMARY KEY (punto_impresion_hospitalaria_id,usuario_id);
+
+ALTER TABLE ONLY userpermisos_impresion_hospitalaria
+    ADD FOREIGN KEY (punto_impresion_hospitalaria_id) REFERENCES puntos_impresion_hospitalaria(punto_impresion_hospitalaria_id) ON UPDATE CASCADE ON DELETE RESTRICT;

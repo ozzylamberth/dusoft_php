@@ -1,0 +1,234 @@
+
+
+ALTER TABLE "pacientes_urgencias" ADD COLUMN "sw_estado" character(1);
+
+UPDATE "pacientes_urgencias" SET sw_estado=1;
+
+ALTER TABLE "pacientes_urgencias" ALTER COLUMN "sw_estado" SET DEFAULT 1;
+
+COMMENT ON COLUMN pacientes_urgencias.sw_estado IS '1 cuando se crea 0 cuando es atendido';
+
+
+
+--cambios kernel hc
+
+ALTER TABLE public.historias_clinicas_templates ADD COLUMN sw_obligatorio_cierre char(1);
+update historias_clinicas_templates set sw_obligatorio_cierre='0';
+ALTER TABLE public.historias_clinicas_templates ALTER COLUMN sw_obligatorio_cierre SET NOT NULL;
+ALTER TABLE public.historias_clinicas_templates ALTER COLUMN sw_obligatorio_cierre SET DEFAULT 0;
+
+
+CREATE TABLE historias_clinicas_tipos_cierres (
+    historia_clinica_tipo_cierre_id serial NOT NULL,
+    descripcion character varying(255) NOT NULL,
+    titulo_mostrar character varying(80) NOT NULL,
+    sw_pedir_submodulo_obligatorios character(1) DEFAULT '0'::bpchar NOT NULL
+);
+
+INSERT INTO historias_clinicas_tipos_cierres VALUES (1, 'CONTINUAR EN HOSPITALIZACION', 'Continuar en Hospitalización', '0');
+INSERT INTO historias_clinicas_tipos_cierres VALUES (2, 'CONTINUAR EN OBSERVACION', 'Continuar en Observación', '0');
+INSERT INTO historias_clinicas_tipos_cierres VALUES (3, 'OBSERVACION URGENCIAS', 'Observación de Urgencias', '0');
+INSERT INTO historias_clinicas_tipos_cierres VALUES (6, 'HOSPITALIZAR', 'Hospitalizar', '0');
+INSERT INTO historias_clinicas_tipos_cierres VALUES (7, 'REMITIR A CIRUGIA', 'Remitir a Cirugía', '0');
+INSERT INTO historias_clinicas_tipos_cierres VALUES (10, 'TRASLADO DE DEPARTAMENTO', 'Traslado de Departamento', '0');
+INSERT INTO historias_clinicas_tipos_cierres VALUES (4, 'DAR DE ALTA EN CONSULTA DE URGENCIAS', 'Dar de Alta de la Consulta de Urgencias', '1');
+INSERT INTO historias_clinicas_tipos_cierres VALUES (5, 'DAR DE ALTA OBSERVACION DE URGENCIAS', 'Dar de Alta Observacion de Urgencias', '1');
+INSERT INTO historias_clinicas_tipos_cierres VALUES (8, 'DEFUNCION DEL PACIENTE', 'Defuncion del Paciente', '1');
+INSERT INTO historias_clinicas_tipos_cierres VALUES (9, 'REMISION EXTERNA', 'Remitir a otra Institución', '1');
+
+
+ALTER TABLE ONLY historias_clinicas_tipos_cierres
+    ADD PRIMARY KEY (historia_clinica_tipo_cierre_id);
+
+
+CREATE TABLE historias_clinicas_tipos_cierres_submodulos (
+    historia_clinica_tipo_cierre_id integer NOT NULL,
+    submodulo character varying(64) NOT NULL,
+    indice_orden smallint DEFAULT 0 NOT NULL
+);
+
+
+INSERT INTO historias_clinicas_tipos_cierres_submodulos VALUES (4, 'Evolucion', 0);
+
+
+ALTER TABLE ONLY historias_clinicas_tipos_cierres_submodulos
+    ADD PRIMARY KEY (historia_clinica_tipo_cierre_id, submodulo);
+
+
+ALTER TABLE ONLY historias_clinicas_tipos_cierres_submodulos
+    ADD FOREIGN KEY (historia_clinica_tipo_cierre_id) REFERENCES historias_clinicas_tipos_cierres(historia_clinica_tipo_cierre_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE ONLY historias_clinicas_tipos_cierres_submodulos
+    ADD FOREIGN KEY (submodulo) REFERENCES system_hc_submodulos(submodulo) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+ALTER TABLE public.system_hc_submodulos ADD COLUMN sw_submodulo_sistema char(1);
+update system_hc_submodulos set sw_submodulo_sistema='0';
+ALTER TABLE public.system_hc_submodulos ALTER COLUMN sw_submodulo_sistema SET NOT NULL;
+ALTER TABLE public.system_hc_submodulos ALTER COLUMN sw_submodulo_sistema SET DEFAULT '0'::bpchar;
+
+
+CREATE TABLE historias_clinicas_cierres (
+    historia_clinica_tipo_cierre_id integer NOT NULL,
+    hc_modulo character varying(64) NOT NULL,
+    indice_orden smallint DEFAULT 0 NOT NULL
+);
+
+
+ALTER TABLE ONLY historias_clinicas_cierres
+    ADD PRIMARY KEY (historia_clinica_tipo_cierre_id, hc_modulo);
+
+
+ALTER TABLE ONLY historias_clinicas_cierres
+    ADD FOREIGN KEY (historia_clinica_tipo_cierre_id) REFERENCES historias_clinicas_tipos_cierres(historia_clinica_tipo_cierre_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+ALTER TABLE ONLY historias_clinicas_cierres
+    ADD FOREIGN KEY (hc_modulo) REFERENCES system_hc_modulos(hc_modulo) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE public.hc_evoluciones ADD COLUMN historia_clinica_tipo_cierre_id int4;
+
+--
+-- CREACION DE TABLA hc_tipo_remision
+-- VALIDO PARA EL MODULO DE REMISIONES
+-- TIZZIANO PEREA
+--
+
+
+CREATE TABLE hc_tipo_remision (
+    tipo_remision_id character varying(2) NOT NULL,
+    descripcion character varying(40) NOT NULL,
+    indice_orden smallint DEFAULT 0 NOT NULL
+);
+
+ALTER TABLE hc_tipo_remision
+    ADD PRIMARY KEY (tipo_remision_id);
+
+COMMENT ON TABLE hc_tipo_remision IS 'Tabla que contiene los tipos de remision';
+
+
+--
+-- CREACION DE TABLA hc_conducta_remision
+-- VALIDO PARA EL MODULO DE REMISIONES
+-- TIZZIANO PEREA
+--
+
+CREATE TABLE hc_conducta_remision (
+    ingreso integer NOT NULL,
+    evolucion_id integer NOT NULL,
+    descripcion_otro_motivo character varying(256),
+    observaciones text,
+    tipo_remision character varying(3) NOT NULL,
+    traslado_ambulancia character(1) DEFAULT 0 NOT NULL,
+    nivel_centro_remision character varying(1)
+);
+
+
+ALTER TABLE hc_conducta_remision
+    ADD PRIMARY KEY (ingreso, evolucion_id);
+
+ALTER TABLE hc_conducta_remision
+    ADD FOREIGN KEY (ingreso) REFERENCES ingresos(ingreso) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE hc_conducta_remision
+    ADD FOREIGN KEY (evolucion_id) REFERENCES hc_evoluciones(evolucion_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE ONLY hc_conducta_remision
+    ADD FOREIGN KEY (tipo_remision) REFERENCES hc_tipo_remision(tipo_remision_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE ONLY hc_conducta_remision
+    ADD FOREIGN KEY (nivel_centro_remision) REFERENCES niveles_atencion(nivel) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+COMMENT ON COLUMN hc_conducta_remision.descripcion_otro_motivo IS 'Insertar Motivo adicional';
+
+COMMENT ON COLUMN hc_conducta_remision.observaciones IS 'Observaciones medicas';
+
+COMMENT ON COLUMN hc_conducta_remision.tipo_remision IS 'Tipos de remisiones';
+
+COMMENT ON COLUMN hc_conducta_remision.traslado_ambulancia IS 'Si se debe realizar traslado en ambulacia';
+
+COMMENT ON COLUMN hc_conducta_remision.nivel_centro_remision IS 'Nivel del centro de atencion al que se remite el paciente';
+
+
+
+--
+-- CREACION DE TABLA hc_conducta_remision_centros
+-- VALIDO PARA EL MODULO DE REMISIONES
+-- TIZZIANO PEREA
+--
+
+CREATE TABLE hc_conducta_remision_centros (
+    ingreso integer NOT NULL,
+    evolucion_id integer NOT NULL,
+    centro_remision character varying(10)
+);
+
+
+ALTER TABLE hc_conducta_remision_centros
+    ADD PRIMARY KEY (ingreso, evolucion_id);
+
+ALTER TABLE hc_conducta_remision_centros
+    ADD FOREIGN KEY (ingreso, evolucion_id) REFERENCES hc_conducta_remision(ingreso, evolucion_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE hc_conducta_remision_centros
+    ADD FOREIGN KEY (centro_remision) REFERENCES centros_remision(centro_remision) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+COMMENT ON TABLE hc_conducta_remision_centros IS 'Se guardan los centros donde son remitidos los pacientes';
+
+--
+-- CREACION DE TABLA hc_motivos_remision
+-- VALIDO PARA EL MODULO DE REMISIONES
+-- TIZZIANO PEREA
+--
+
+CREATE TABLE hc_motivos_remision (
+    motivo_remision_id character varying(2) NOT NULL,
+    descripcion character varying(40) NOT NULL
+);
+
+ALTER TABLE hc_motivos_remision
+    ADD PRIMARY KEY (motivo_remision_id);
+
+
+--
+-- CREACION DE TABLA hc_conducta_remision_motivos
+-- VALIDO PARA EL MODULO DE REMISIONES
+-- TIZZIANO PEREA
+--
+
+CREATE TABLE hc_conducta_remision_motivos (
+    ingreso integer NOT NULL,
+    evolucion_id integer NOT NULL,
+    motivo_remision_id character varying(2) NOT NULL
+);
+
+
+ALTER TABLE hc_conducta_remision_motivos
+    ADD PRIMARY KEY (ingreso, evolucion_id, motivo_remision_id);
+
+ALTER TABLE hc_conducta_remision_motivos
+    ADD FOREIGN KEY (motivo_remision_id) REFERENCES hc_motivos_remision(motivo_remision_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE hc_conducta_remision_motivos
+    ADD FOREIGN KEY (ingreso, evolucion_id) REFERENCES hc_conducta_remision(ingreso, evolucion_id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+
+-- INSERT DE hc_tipo_remision
+INSERT INTO hc_tipo_remision VALUES ('0', 'AMBULATORIA', 0);
+INSERT INTO hc_tipo_remision VALUES ('1', 'TRASLADO URGENTE', 1);
+
+
+-- INSERT DE hc_motivos_remision
+
+
+INSERT INTO hc_motivos_remision VALUES ('1', 'Servicio no ofertado');
+INSERT INTO hc_motivos_remision VALUES ('2', 'Ausencia del Profesional');
+INSERT INTO hc_motivos_remision VALUES ('3', 'Falta de Insumos');
+INSERT INTO hc_motivos_remision VALUES ('4', 'Falta de Equipos');
+INSERT INTO hc_motivos_remision VALUES ('5', 'Falta de Camas');
+INSERT INTO hc_motivos_remision VALUES ('6', 'Cese de Actividades');
+INSERT INTO hc_motivos_remision VALUES ('7', 'Emergencia Sanitaria');
+
+
+

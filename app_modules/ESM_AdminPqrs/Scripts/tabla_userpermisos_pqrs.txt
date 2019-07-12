@@ -1,0 +1,33 @@
+CREATE TABLE "public"."userpermisos_pqrs" (
+  "tbl_pqrs_id" SERIAL, 
+  "usuario_id" INTEGER, 
+  "empresa_id" VARCHAR(2), 
+  "sw_mostrar_todos" CHAR(1) DEFAULT 0, 
+  CONSTRAINT "userpermisos_pqrs_pkey" PRIMARY KEY("tbl_pqrs_id"), 
+  CONSTRAINT "userpermisos_pqrs_empresa_id_fkey" FOREIGN KEY ("empresa_id")
+    REFERENCES "public"."empresas"("empresa_id")
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE
+    NOT DEFERRABLE, 
+  CONSTRAINT "userpermisos_pqrs_usuario_id_fkey" FOREIGN KEY ("usuario_id")
+    REFERENCES "public"."system_usuarios"("usuario_id")
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE
+    NOT DEFERRABLE
+) WITHOUT OIDS;
+
+COMMENT ON TABLE "public"."userpermisos_pqrs"
+IS 'Tabla de permisos para el modulo de pqrs';
+
+COMMENT ON COLUMN "public"."userpermisos_pqrs"."tbl_pqrs_id"
+IS 'PK tabla';
+
+COMMENT ON COLUMN "public"."userpermisos_pqrs"."usuario_id"
+IS 'Usuario Id';
+
+COMMENT ON COLUMN "public"."userpermisos_pqrs"."empresa_id"
+IS 'Empresa Id';
+
+COMMENT ON COLUMN "public"."userpermisos_pqrs"."sw_mostrar_todos"
+IS '1 muestra todos los casos pqrs
+0 solo muestra los casos pqrs que el usuario creo';

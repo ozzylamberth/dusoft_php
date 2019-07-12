@@ -1,0 +1,36 @@
+
+S (Tabla del sistema Implementada con anterioridad en otro modulos.)
+M (Tabla de Movimiento, cuando la instalacion es nueva debera estar vacia)
+T (Tabla maestra de tipos)
+
+M bodegas
+M bodegas_ubicaciones
+M bodegas_ubicaciones_n1
+M bodegas_ubicaciones_n2
+M bodegas_ubicaciones_n3
+M bodegas_ubicaciones_n4
+S centros_utilidad
+S departamentos
+S empresas
+M existencias_bodegas
+M inventarios
+M inventarios_productos
+M inv_grupos_inventarios
+M inv_clases_inventarios
+M inv_subclases_inventarios
+M inventario_medicamentos
+S inv_fabricantes
+S inv_grupos_contrataciones
+S inv_niveles_autorizacion_compras
+M medicamentos
+S usuarios_maestro_inventarios
+S unidades
+T tipo_almacenaje
+
+
+
+
+
+
+
+
