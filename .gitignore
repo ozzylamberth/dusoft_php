@@ -7,3 +7,4 @@ cache/FacturaVenta.pdf
 cache/InformeOrdenPedido.pdf
 tmp/inventarios/Rotacion.csv
 ws/ws.log
+.idea/
