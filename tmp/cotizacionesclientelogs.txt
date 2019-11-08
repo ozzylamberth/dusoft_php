@@ -1,0 +1,6 @@
+Total de productos con error: 2
+
+Codigo Producto 168F0172057 Cantidad  Error EL PRODUCTO NO SE ENCUENTRA ACTIVO, PRODUCTO 168F0172057 
+
+Codigo Producto  Cantidad  Error producto no encontrado, ya esta en temporal o la cantidad  es invalida
+

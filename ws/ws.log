@@ -1,0 +1,1 @@
+SELECT nombre_tercero FROM terceros WHERE tipo_id_tercero = 'NIT' AND tercero_id = '805020920';

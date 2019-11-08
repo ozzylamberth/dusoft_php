@@ -1,0 +1,5 @@
+Total de productos con error: 1
+
+
+ Codigo Producto 3161D001640001 precio pactado -100 Error producto no encontrado o el precio  es invalido; 
+
