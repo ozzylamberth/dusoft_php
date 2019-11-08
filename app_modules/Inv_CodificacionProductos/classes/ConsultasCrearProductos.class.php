@@ -507,6 +507,8 @@ class ConsultasCrearProductos extends ConexionBD {
         $sql .= "        '" . $Formulario_Productos['cantidad'] . "',";
         $sql .= "       cod_anatofarmacologico =";
         $sql .= "        '" . $Formulario_Productos['cod_anatofarmacologico'] . "',";
+		$sql .= "       cod_unspsc =";
+        $sql .= "        '" . $Formulario_Productos['cod_unspsc'] . "',";
         $sql .= "       mensaje_id =";
         $sql .= "        '" . $Formulario_Productos['mensaje_id'] . "',";
         $sql .= "       codigo_mindefensa =";
@@ -647,7 +649,8 @@ class ConsultasCrearProductos extends ConexionBD {
 			'tipo_pais_titular_reginvima_id' => $Formulario_Productos['tipo_pais_id'],
 			'descripcion_titular_reginvima' =>  $Formulario_Productos['descripcion_titular_reginvima'],
 			'titular_reginvima_id' => $Formulario_Productos['titular_reginvima_id'],
-			'estado_invima' => $Formulario_Productos['estado_invima']
+			'estado_invima' => $Formulario_Productos['estado_invima'],
+			'cod_unspsc' => $Formulario_Productos['cod_unspsc']
 			
 			
         );
@@ -718,7 +721,8 @@ class ConsultasCrearProductos extends ConexionBD {
         $sql .= "       sw_regulado, ";
         $sql .= "       rips_no_pos, ";
         $sql .= "       tipo_riesgo_id, ";
-		$sql .= "       estado_invima";
+		$sql .= "       estado_invima,";
+		$sql .= "       cod_unspsc";
         $sql .= "       ) ";
         $sql .= "VALUES ( ";
         $sql .= "        '" . $Formulario_Productos['grupo_id'] . "',";
@@ -760,7 +764,8 @@ class ConsultasCrearProductos extends ConexionBD {
         $sql .= "        '" . trim($Formulario_Productos['sw_regulado']) . "', ";
         $sql .= "        '" . trim($Formulario_Productos['rips_no_pos']) . "',";
         $sql .= "        '" . trim($Formulario_Productos['tipo_riesgo']) . "',";
-		$sql .= "        '" . trim($Formulario_Productos['estado_invima']) . "'";
+		$sql .= "        '" . trim($Formulario_Productos['estado_invima']) . "',";
+		$sql .= "        '" . trim($Formulario_Productos['cod_unspsc']) . "'";
         $sql .= "         ); ";
 
         //$this->debug=true;
@@ -886,7 +891,8 @@ class ConsultasCrearProductos extends ConexionBD {
 			'cod_forma_farmacologica' => trim($Formulario_Productos['unidad_id']),
 			'cod_adm_presenta' => $Formulario_Productos['cod_presenta'],
 			'dci_id' => $Formulario_Productos['dci'],
-			'estado_invima' => $Formulario_Productos['estado_invima']
+			'estado_invima' => $Formulario_Productos['estado_invima'],
+			'cod_unspsc' => $Formulario_Productos['cod_unspsc']
 			
 			
         );
@@ -1416,7 +1422,8 @@ class ConsultasCrearProductos extends ConexionBD {
                               prod.sw_regulado,
                               prod.rips_no_pos,
                               prod.tipo_riesgo_id,
-							  prod.estado_invima
+							  prod.estado_invima,
+							  prod.cod_unspsc
                     from 
                             inv_grupos_inventarios grp,
                             inv_clases_inventarios cla,
@@ -2006,6 +2013,30 @@ class ConsultasCrearProductos extends ConexionBD {
         return $documentos;
     }
 
+//GERMAN
+    function Listar_Codigos_Bienes_Servicios() {
+        $sql = "
+            select  
+            codigo,
+            descripcion
+            from
+            inv_codificacion_bienes_servicios
+			where estado = '1'
+            order by descripcion;";
+			
+        if (!$resultado = $this->ConexionBaseDatos($sql))
+            return false;
+        $documentos = Array();
+        while (!$resultado->EOF) {
+            $documentos[] = $resultado->GetRowAssoc($ToUpper = false);
+            $resultado->MoveNext();
+        }
+        $resultado->Close();
+		
+        return $documentos;
+    }
+//FIN
+
     function Listar_TratamientosProductos() {
         $sql = " SELECT
 			tratamiento_id,
@@ -2077,11 +2108,12 @@ class ConsultasCrearProductos extends ConexionBD {
     function Listar_Unidades_Medida() {
         $sql = "
             select
-            unidad_id as codigo,
-            descripcion,
-            abreviatura
-            from
-            unidades
+            u.unidad_id as codigo,
+            u.descripcion,
+            u.abreviatura
+            from unidades u
+			INNER JOIN inv_med_cod_forma_farmacologica f ON (u.unidad_id = f.cod_forma_farmacologica)
+			WHERE f.estado = '1'
             order by descripcion;";
         //$this->debug=true;
         if (!$resultado = $this->ConexionBaseDatos($sql))

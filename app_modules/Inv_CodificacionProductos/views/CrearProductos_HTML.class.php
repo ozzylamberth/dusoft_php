@@ -401,7 +401,13 @@ class CrearProductos_HTML {
           cadena.push("No ha Seleccionado un perfil Terapeutico\n");
           band=1;
           }
-          
+          //GERMAN
+          if(Formulario_Productos.cod_unspsc=="")
+          {
+          cadena.push("No ha Seleccionado un codigo unspsc\n");
+          band=1;
+          }
+          //FIN
           if(Formulario_Productos.mensaje_id=="")
           {
           cadena.push("No ha Asignado un Mensaje para el Producto\n");
@@ -647,7 +653,33 @@ class CrearProductos_HTML {
 		     
 		  }';		
 		$html .="</script>";
-		
+			
+		//GERMAN			
+		///FUNCION encargada de escribir en un input oculto el texto de un select
+		$html .="<script>";
+        $html .='function descripcionBienesServicios()
+          {
+			
+			    var lista = document.getElementById("cod_unspsc");
+ 
+				// Obtener el índice de la opción que se ha seleccionado
+				var indiceSeleccionado = lista.selectedIndex;
+				// Con el índice y el array "options", obtener la opción seleccionada
+				var opcionSeleccionada = lista.options[indiceSeleccionado];
+				 
+				// Obtener el valor y el texto de la opción seleccionada
+				var textoSeleccionado = opcionSeleccionada.text;
+				var valorSeleccionado = opcionSeleccionada.value;
+				 
+				//alert("Opción seleccionada: " + textoSeleccionado + "\n Valor de la opción: " + valorSeleccionado);
+						//	 alert(document.FormularioProducto.unidad_id.value);
+						
+				document.getElementById("codigoBienesDescripcion").value = textoSeleccionado;
+						
+		     
+		  }';		
+		$html .="</script>";
+		//FIN	
 		
 		/**
 		*+Descripcion Metodo encargado de escribir en un input oculto la descripcion

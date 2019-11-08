@@ -72,7 +72,13 @@ class SincronizacionDusoftFI {
         //$http = "http://10.0.2.204:8080/SinergiasFinanciero3-ejb/getGestionCuentasxPagarWS/getGestionCuentasxPagarWS?wsdl";
         $funcionWs = "crearCuentaxPagar";
         $url = ($prefijo_documento == "ICC") ? $this->http_cuentas_x_pagar_cosmitet  : $this->http_cuentas_x_pagar;
+
+        /*$f = fopen("test.txt","a");
+        fputs($f,'La url es: '. $url . "\r\n");
+        fclose($f);*/
+
         $clienteWs = new nusoap_client($url, true);
+        return array('resultado_ws' => '', 'mensaje_ws' => $url, 'resultado_bd' => '', 'mensaje_bd' => '');
 
         $error = "";
         $resultado = "";
@@ -89,11 +95,19 @@ class SincronizacionDusoftFI {
         $identificacion_tercero = $proveedor['tercero_id'];
 
         $cuenta_contable = $proveedor['cxp_proveedor'];
+        $codcentrocostoasiento = '0';
+        $codcentroutilidadasiento = '0';
+        $codlineacostoasiento = '0';
+     
         if ($prefijo_documento == "ICTC" || $prefijo_documento == "CCT"){
             
             $cuenta_contable = 21051015;
         } else if($prefijo_documento == "ICC") {
             $cuenta_contable = 22050501;
+            $codcentroutilidadasiento = '10';
+             $codcentrocostoasiento = '1401';
+             $codlineacostoasiento = '05';
+            
         }else if($prefijo_documento == "CDC") {
             $cuenta_contable = 22050501;
         }
@@ -180,15 +194,18 @@ class SincronizacionDusoftFI {
         $encabezado['numeroradicacion'] = $numero_radicacion;
         $encabezado['plazotercero'] = $plazo_tercero;
         $encabezado['usuariocreacion'] = $usuario_creacion;
+        $encabezado['codcentrocostoencabezado'] = $codcentrocostoasiento;
+        $encabezado['codcentroutilidadencabezado'] = $codcentroutilidadasiento;
+        $encabezado['codlineacostoencabezado'] = $codlineacostoasiento;
 
 
 // ========================= ESTRUCTURA ASIENTOS CONTABLES WS CxP ======================
         if ($medicamentos_gravados > 0) {
             $asientoscontables[] = array(
-                'codcentrocostoasiento' => '0',
-                'codcentroutilidadasiento' => '0',
+                'codcentrocostoasiento' => $codcentrocostoasiento,
+                'codcentroutilidadasiento' => $codcentroutilidadasiento,
                 'codcuentaasiento' => ($prefijo_documento == "ICC")? '14150501' : '14352005',
-                'codlineacostoasiento' => '0',
+                'codlineacostoasiento' => $codlineacostoasiento,
                 'identerceroasiento' => $identificacion_tercero,
                 'observacionasiento' => 'No Aplica Observacion Asiento',
                 'valorbaseasiento' => '0',
@@ -200,10 +217,10 @@ class SincronizacionDusoftFI {
 
         if ($medicamentos_no_gravados > 0) {
             $asientoscontables[] = array(
-                'codcentrocostoasiento' => '0',
-                'codcentroutilidadasiento' => '0',
+                'codcentrocostoasiento' => $codcentrocostoasiento,
+                'codcentroutilidadasiento' => $codcentroutilidadasiento,
                 'codcuentaasiento' => ($prefijo_documento == "ICC")? '14150501' : '14352010',
-                'codlineacostoasiento' => '0',
+                'codlineacostoasiento' => $codlineacostoasiento,
                 'identerceroasiento' => $identificacion_tercero,
                 'observacionasiento' => 'No Aplica Observacion Asiento',
                 'valorbaseasiento' => '0',
@@ -215,10 +232,10 @@ class SincronizacionDusoftFI {
 
         if ($insumos_gravados > 0) {
             $asientoscontables[] = array(
-                'codcentrocostoasiento' => '0',
-                'codcentroutilidadasiento' => '0',
+                'codcentrocostoasiento' => $codcentrocostoasiento,
+                'codcentroutilidadasiento' => $codcentroutilidadasiento,
                 'codcuentaasiento' =>  ($prefijo_documento == "ICC")? '14200501' : '14350505',
-                'codlineacostoasiento' => '0',
+                'codlineacostoasiento' => $codlineacostoasiento,
                 'identerceroasiento' => $identificacion_tercero,
                 'observacionasiento' => 'No Aplica Observacion Asiento',
                 'valorbaseasiento' => '0',
@@ -230,10 +247,10 @@ class SincronizacionDusoftFI {
 
         if ($insumos_no_gravados > 0) {
             $asientoscontables[] = array(
-                'codcentrocostoasiento' => '0',
-                'codcentroutilidadasiento' => '0',
+                'codcentrocostoasiento' => $codcentrocostoasiento,
+                'codcentroutilidadasiento' => $codcentroutilidadasiento,
                 'codcuentaasiento' =>  ($prefijo_documento == "ICC")? '14200501' : '14350510',
-                'codlineacostoasiento' => '0',
+                'codlineacostoasiento' => $codlineacostoasiento,
                 'identerceroasiento' => $identificacion_tercero,
                 'observacionasiento' => 'No Aplica Observacion Asiento',
                 'valorbaseasiento' => '0',
@@ -246,10 +263,10 @@ class SincronizacionDusoftFI {
         if ($iva > 0) {
 
             $asientoscontables[] = array(
-                'codcentrocostoasiento' => '0',
-                'codcentroutilidadasiento' => '0',
+                'codcentrocostoasiento' => $codcentrocostoasiento,
+                'codcentroutilidadasiento' => $codcentroutilidadasiento,
                 'codcuentaasiento' =>  ($prefijo_documento == "ICC")? '24081001' : '24080507',
-                'codlineacostoasiento' => '0',
+                'codlineacostoasiento' => $codlineacostoasiento,
                 'identerceroasiento' => $identificacion_tercero,
                 'observacionasiento' => 'No Aplica Observacion Asiento',
                 'valorbaseasiento' => $medicamentos_gravados + $insumos_gravados,
@@ -288,10 +305,10 @@ class SincronizacionDusoftFI {
                     }
 
                     $asientoscontables[] = array(
-                        'codcentrocostoasiento' => '0',
-                        'codcentroutilidadasiento' => '0',
+                        'codcentrocostoasiento' => $codcentrocostoasiento,
+                        'codcentroutilidadasiento' => $codcentroutilidadasiento,
                         'codcuentaasiento' => $codigo_cuenta_contable,
-                        'codlineacostoasiento' => '0',
+                        'codlineacostoasiento' => $codlineacostoasiento,
                         'identerceroasiento' => $identificacion_tercero,
                         'observacionasiento' => 'No Aplica Observacion Asiento',
                         'valorbaseasiento' => $subtotal,
@@ -313,32 +330,40 @@ class SincronizacionDusoftFI {
 
                     if ($factura['porc_ica'] == "3.30") {
                         $codigo_cuenta_contable =  ($prefijo_documento == "ICC")? '23658503' : '23681005';
+						$porc_ica  = $factura['porc_ica'];
                     }
                     if ($factura['porc_ica'] == "5.50") {
                         $codigo_cuenta_contable =  ($prefijo_documento == "ICC")? '23658504' : '23681015';
+						$porc_ica  = $factura['porc_ica'];
                     }
                     if ($factura['porc_ica'] == "6.60") {
                         $codigo_cuenta_contable = "23680505";
+						$porc_ica  = $factura['porc_ica'];
                     }
                     if ($factura['porc_ica'] == "7.70") {
                         $codigo_cuenta_contable =  ($prefijo_documento == "ICC")? '23658505' : '23681010';
+						$porc_ica  =  ($prefijo_documento == "ICC")? ($factura['porc_ica'] / 1000) : $factura['porc_ica'];
                     }
                     if ($factura['porc_ica'] == "11.00") {
                         $codigo_cuenta_contable = "23681020";
+						$porc_ica  = $factura['porc_ica'];
                     }
 
 
+					
+
+
                     $asientoscontables[] = array(
-                        'codcentrocostoasiento' => '0',
-                        'codcentroutilidadasiento' => '0',
+                        'codcentrocostoasiento' => $codcentrocostoasiento,
+                        'codcentroutilidadasiento' => $codcentroutilidadasiento,
                         'codcuentaasiento' => $codigo_cuenta_contable,
-                        'codlineacostoasiento' => '0',
+                        'codlineacostoasiento' => $codlineacostoasiento,
                         'identerceroasiento' => $identificacion_tercero,
                         'observacionasiento' => 'No Aplica Observacion Asiento',
                         'valorbaseasiento' => $subtotal,
                         'valorcreditoasiento' => $retencion_ica,
                         'valordebitoasiento' => '0',
-                        'valortasaasiento' => $factura['porc_ica']
+                        'valortasaasiento' => $porc_ica
                     );
                 }
             }
@@ -350,10 +375,10 @@ class SincronizacionDusoftFI {
                 $retencion_iva = $iva * ($factura['porc_rtiva'] / 100);
                 if ($retencion_iva > 0) {
                     $asientoscontables[] = array(
-                        'codcentrocostoasiento' => '0',
-                        'codcentroutilidadasiento' => '0',
+                        'codcentrocostoasiento' => $codcentrocostoasiento,
+                        'codcentroutilidadasiento' => $codcentroutilidadasiento,
                         'codcuentaasiento' =>  ($prefijo_documento == "ICC")? '23658001' : '23670520',
-                        'codlineacostoasiento' => '0',
+                        'codlineacostoasiento' => $codlineacostoasiento,
                         'identerceroasiento' => $identificacion_tercero,
                         'observacionasiento' => 'No Aplica Observacion Asiento',
                         'valorbaseasiento' => $medicamentos_gravados + $insumos_gravados,
@@ -380,13 +405,13 @@ class SincronizacionDusoftFI {
           ); */
 
         $parametros = array('encabezadofactura' => $encabezado, 'asientoscontables' => $asientoscontables);
+// return array('resultado_ws' => 0, 'mensaje_ws' => $encabezado, 'resultado_bd' => $asientoscontables, 'mensaje_bd' => $asientoscontables);
 
-
-        /*echo "<pre>";
-              var_dump($parametros);
-              echo "</pre>";
-
-              exit();*/
+//        echo "<pre>";
+//        print_r($parametros);
+//              echo "</pre>";
+//
+//              exit();
 
         if ($resultado_sincronizacion) {
 
@@ -2215,6 +2240,7 @@ class SincronizacionDusoftFI {
                 //$retencion_ica += $valor["valor_ica"];
                 $iva += $valor['valor_iva'];
                 $total += $valor['valor'];
+				//$total += ceil($valor['valor']);
             }
 
 
@@ -2264,11 +2290,10 @@ class SincronizacionDusoftFI {
                         'observacionasiento' => 'No Aplica Observacion Asiento - Medicamentos Gravados',
                         'valorbaseasiento' => '0',
                         'valorcreditoasiento' => '0',
-                        'valordebitoasiento' => (int)$medicamentos_gravados,
+                        'valordebitoasiento' => ceil($medicamentos_gravados),
                         'valortasaasiento' => '0'
                     );
                 }
-
 
                 if ($costo_medicamentos_gravados > 0) {
                     $asientoscontables[] = array(
@@ -2300,7 +2325,6 @@ class SincronizacionDusoftFI {
                     );
                 }
 
-
                 if ($medicamentos_no_gravados > 0) {
                     $asientoscontables[] = array(
                         'codcentrocostoasiento' => '1012',
@@ -2315,8 +2339,6 @@ class SincronizacionDusoftFI {
                         'valortasaasiento' => '0'
                     );
                 }
-
-
 
                 if ($costo_medicamentos_no_gravados > 0) {
                     $asientoscontables[] = array(
@@ -2348,7 +2370,6 @@ class SincronizacionDusoftFI {
                     );
                 }
 
-
                 if ($insumos_gravados > 0) {
                     $asientoscontables[] = array(
                         'codcentrocostoasiento' => '1012',
@@ -2363,8 +2384,6 @@ class SincronizacionDusoftFI {
                         'valortasaasiento' => '0'
                     );
                 }
-
-
 
                 if ($costo_insumos_gravados > 0) {
                     $asientoscontables[] = array(
@@ -2396,7 +2415,6 @@ class SincronizacionDusoftFI {
                     );
                 }
 
-
                 if ($insumos_no_gravados > 0) {
                     $asientoscontables[] = array(
                         'codcentrocostoasiento' => '1012',
@@ -2407,7 +2425,7 @@ class SincronizacionDusoftFI {
                         'observacionasiento' => 'No Aplica Observacion Asiento - Insumos NO gravados',
                         'valorbaseasiento' => '0',
                         'valorcreditoasiento' => '0',
-                        'valordebitoasiento' => floor($insumos_no_gravados),
+                        'valordebitoasiento' => ceil($insumos_no_gravados),
                         'valortasaasiento' => '0'
                     );
                 }
@@ -2454,7 +2472,7 @@ class SincronizacionDusoftFI {
                         'codlineacostoasiento' => '01',
                         'identerceroasiento' => $identificacion_tercero,
                         'observacionasiento' => 'No Aplica Observacion Asiento - IVA',
-                        'valorbaseasiento' => floor($medicamentos_gravados + $insumos_gravados),
+                        'valorbaseasiento' => ceil($medicamentos_gravados + $insumos_gravados),
                         'valorcreditoasiento' => '0',
                         'valordebitoasiento' => ceil($iva),
                         'valortasaasiento' => round($porc_iva),
@@ -2627,7 +2645,7 @@ class SincronizacionDusoftFI {
 ////          echo var_dump($parametros);
 //          print_r($parametros);
 //          echo "</pre>"; 
-        // return array('resultado_ws' => 0, 'mensaje_ws' => $encabezado, 'resultado_bd' => $asientoscontables, 'mensaje_bd' => $asientoscontables);
+     //    return array('resultado_ws' => 0, 'mensaje_ws' => $encabezado, 'resultado_bd' => $asientoscontables, 'mensaje_bd' => $asientoscontables);
 //       exit();
         if ($resultado_sincronizacion) {
 
@@ -3127,6 +3145,8 @@ class SincronizacionDusoftFI {
                 }
             }
 
+
+
             // Display the request and response
             //echo '<h2>Request</h2>';
             //echo '<pre>' . htmlspecialchars($clienteWs->request, ENT_QUOTES) . '</pre>';
@@ -3618,14 +3638,16 @@ class SincronizacionDusoftFI {
 						'codcuentaasiento' => $cuenta1121['cuenta'], //$detalle[$i]['cuenta_credito'],
 						'codlineacostoasiento' => $detalle1121[$i]['linea_costo'],
 						'identerceroasiento' => $encabezado['tercero_id'],
-						'observacionasiento' => 'SIN OBSERVACION PARA EL ASIENTO',
+						'observacionasiento' => 'SIN OBSERVACION PARA EL ASIENTO 1',
 						'valorbaseasiento' => '0',
 						'valorcreditoasiento' => (int) ($detalle1121[$i]['valor_abonado_rt']),
 						'valordebitoasiento' => '0',
 						'valortasaasiento' => '0'
 					);
 					$total_saldo += (int) ($detalle1121[$i]['valor_abonado_rt']);
-				}else{
+				}
+                                //se comenta para que no caiga al FI cuando el concepto es 06
+                                else{
 					$asiento[] = array('codcentrocostoasiento' => $detalle1121[$i]['centro_costo'],
 						'codcentroutilidadasiento' => $detalle1121[$i]['centro_utilidad'],
 						'codcuentaasiento' => $cuenta1121['cuenta'], //$detalle[$i]['cuenta_credito'],
@@ -3645,7 +3667,7 @@ class SincronizacionDusoftFI {
 
         for ($i = 0; $i < count($detalle); $i++) {
             if ($detalle[$i]['valor'] > 0) {
-				if($detalle[$i]['concepto_id'] != '006'){
+				if($detalle[$i]['concepto_id'] != '006' && $detalle[$i]['concepto_id'] != 'B2'){
 					if ($detalle[$i]['naturaleza'] == 'D') {
 						$asiento[] = array('codcentrocostoasiento' => $detalle[$i]['centro_costo'],
 							'codcentroutilidadasiento' => $detalle[$i]['centro_utilidad'],
@@ -3688,7 +3710,7 @@ class SincronizacionDusoftFI {
             'codcuentaasiento' => '28059510', //$cuentaTercero,
             'codlineacostoasiento' => $detalle[0]['linea_costo'],
             'identerceroasiento' => $encabezado['tercero_id'],
-            'observacionasiento' => 'SIN OBSERVACION PARA EL ASIENTO',
+            'observacionasiento' => 'SIN OBSERVACION PARA EL ASIENTO 2',
             'valorbaseasiento' => '0',
             'valorcreditoasiento' => '0', //(int)($encabezado['total_abono']),
             'valordebitoasiento' => $total_saldo,
@@ -3697,11 +3719,12 @@ class SincronizacionDusoftFI {
 
         $inputs = array('encabezadofactura' => $encabezado_rc,
             'asientoscontables' => $asiento);
+			
 /*echo "<pre>";
-print_r($inputs);*/
-/*return $inputs;*/
+print_r($inputs);
+return $inputs;*/
 
-        $resultado = $soapclient->call($function, $inputs);
+      $resultado = $soapclient->call($function, $inputs);
 
        return $resultado;
     }

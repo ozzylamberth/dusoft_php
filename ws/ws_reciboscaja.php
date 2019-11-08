@@ -214,7 +214,8 @@ function createInserts($datosGeneral, $datosReciboCaja, $datosConceptos, $datosC
             'estado' => (bool) '1');
     } else {
 
-        return array('descripcion' => "Se genero un error en los inserts..".pg_last_error($conexion). "=======t ipo de ago ". $datosGeneral['tipoFormaPago']. "  =======  ". print_r($datosReciboCaja, true),
+        return array('descripcion' => "Se genero un error en los inserts..".pg_last_error($conexion). "======= tipo de pago utilizado". $datosGeneral['tipoFormaPago']. "  =======  ". print_r($datosReciboCaja, true),
+		//return array('descripcion' => "Se genero un error en los inserts..". $sql. "  =======  ". print_r($datosReciboCaja, true),
             'estado' => (bool) '0');
     }
 }

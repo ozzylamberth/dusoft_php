@@ -710,9 +710,14 @@ function insertar_epsafiliados($eps_afiliacion_id, $afiliado_tipo_id, $afiliado_
 
     //require_once("conexionpg.php");
     global $conexionn;
+    
+//    "plan_atencion:: '372' 
+//tipo_afiliado_atencion::  '6' 
+//rango_afiliado_atencion::  'PUERTOS PAC'"
 
     $rango_afiliado_atencion = trim($rango_afiliado_atencion);
-
+    $rango_afiliado_atencion2 = trim($rango_afiliado_atencion);
+     $plan_atencion22=$plan_atencion;
     if ($plan_atencion == "'1'") {
         $plan_atencion = '8';
         $rango_afiliado_atencion = str_replace("  ", " ", str_replace("'", "", $rango_afiliado_atencion) . ' MAGISTERIO');
@@ -721,11 +726,11 @@ function insertar_epsafiliados($eps_afiliacion_id, $afiliado_tipo_id, $afiliado_
         $plan_atencion = '7';
         $rango_afiliado_atencion = str_replace("  ", " ", str_replace("'", "", $rango_afiliado_atencion) . ' MAGISTERIO');
     }
-    if ($plan_atencion == "'3'") {
+    if ($plan_atencion == "'372'" && $rango_afiliado_atencion == 'PUERTOS PAC') {
         $plan_atencion = '770';
         $rango_afiliado_atencion = rango_afiliado_atencion(str_replace("'", "", $rango_afiliado_atencion), "770");
     }
-    if ($plan_atencion == "'4'") {
+    if ($plan_atencion == "'372'" && $rango_afiliado_atencion != 'PUERTOS PAC') {
         $plan_atencion = '769';
         $rango_afiliado_atencion = rango_afiliado_atencion(str_replace("'", "", $rango_afiliado_atencion), "769");
     }
@@ -789,7 +794,7 @@ function insertar_epsafiliados($eps_afiliacion_id, $afiliado_tipo_id, $afiliado_
         registrar_log($query, '', '0');
         return true;
     } else {
-        registrar_log(pg_escape_string($query), pg_escape_string(pg_last_error($conexionn)), '1');
+        registrar_log("plan_atencion:: ".$plan_atencion22." tipo_afiliado_atencion::".$tipo_afiliado_atencion." rango_afiliado_atencion".$rango_afiliado_atencion, pg_escape_string(pg_last_error($conexionn)), '1');
         return "Error en el insert de los datos: " . $query;
     }
 }
@@ -799,6 +804,8 @@ function update_epsafiliados($eps_afiliacion_id, $afiliado_tipo_id, $afiliado_id
     global $conexionn;
 
     $rango_afiliado_atencion = trim($rango_afiliado_atencion);
+    $rango_afiliado_atencion2 = trim($rango_afiliado_atencion);
+     $plan_atencion22=$plan_atencion;
 
     if ($plan_atencion == "'1'") {
         $plan_atencion = '8';
@@ -816,6 +823,16 @@ function update_epsafiliados($eps_afiliacion_id, $afiliado_tipo_id, $afiliado_id
         $plan_atencion = '769';
         $rango_afiliado_atencion = rango_afiliado_atencion(str_replace("'", "", $rango_afiliado_atencion), "769");
     }
+    
+    if ($plan_atencion == "'372'" && $rango_afiliado_atencion == 'PUERTOS PAC') {
+        $plan_atencion = '770';
+        $rango_afiliado_atencion = rango_afiliado_atencion(str_replace("'", "", $rango_afiliado_atencion), "770");
+    }
+    if ($plan_atencion == "'372'" && $rango_afiliado_atencion != 'PUERTOS PAC') {
+        $plan_atencion = '769';
+        $rango_afiliado_atencion = rango_afiliado_atencion(str_replace("'", "", $rango_afiliado_atencion), "769");
+    }
+
 
     if ($eps_afiliacion_id == "" || $afiliado_tipo_id == "" || $afiliado_id == "" || $eps_tipo_afiliado_id == "") {
         return "Debe enviar todos los parametros que sean obligatorios";
@@ -858,7 +875,9 @@ function update_epsafiliados($eps_afiliacion_id, $afiliado_tipo_id, $afiliado_id
         registrar_log($query, '', '0');
         return true;
     } else {
-        registrar_log(pg_escape_string($query) . " plan_atencion: " . $plan_atencion, pg_escape_string(pg_last_error($conexionn)), '1');
+         registrar_log("plan_atencion:: ".$plan_atencion22." tipo_afiliado_atencion::".$tipo_afiliado_atencion." rango_afiliado_atencion".$rango_afiliado_atencion, pg_escape_string(pg_last_error($conexionn)), '1');
+       
+//        registrar_log(pg_escape_string($query) . " plan_atencion: " . $plan_atencion, pg_escape_string(pg_last_error($conexionn)), '1');
         return "Error en el insert de los datos: " . $query; //." fecha_afiliacion_eps_anterior:: ".$fecha_afiliacion_eps_anterior." fecha_vencimiento:: ".$fecha_vencimiento;
     }
 }

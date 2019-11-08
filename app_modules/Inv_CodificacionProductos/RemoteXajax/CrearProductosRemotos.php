@@ -748,8 +748,8 @@ function ModificarProductoInsumo($datos, $parametro) {
     $token_2_ws = $sql->Modificar_ProductoInsumo_WS($datos, "1");
     $token_3_ws = $sql->Modificar_ProductoInsumo_WS($datos, "2", $parametro);
     $token_4_ws = $sql->Modificar_ProductoInsumo_WS($datos, "3", $parametro); 
-    $token_6_ws = $sql->Modificar_ProductoInsumo_WS($datos, "5", $parametro); 
-    $token_7_ws = $sql->Modificar_ProductoInsumo_WS($datos, "6", $parametro); 
+	$token_6_ws = $sql->Modificar_ProductoInsumo_WS($datos, "5", $parametro); 
+	$token_7_ws = $sql->Modificar_ProductoInsumo_WS($datos, "6", $parametro); 
     $token_5_ws = $sql->Modificar_ProductoInsumo_WS($datos, "4");
 	
     
@@ -1232,7 +1232,8 @@ function ModProducto($CodigoProducto, $Sw_Medicamento) {
 
     $paises = $sql->Listar_Paises();
     $PerfilesTerapeuticos = $sql->Listar_Perfiles_Terapeuticos();
-    $TratamientosProductos = $sql->Listar_TratamientosProductos();
+	$codigoBienesServicios = $sql->Listar_Codigos_Bienes_Servicios();
+	$TratamientosProductos = $sql->Listar_TratamientosProductos();
     $Producto_Id = $sql->Consecutivo_Producto($CodigoGrupo, $CodigoClase, $CodSubClase);
     $UnidadesMedida = $sql->Listar_Unidades_Medida();
     $ViasDeAdministracion = $sql->Listar_Vias_De_Administracion();
@@ -1289,7 +1290,23 @@ function ModProducto($CodigoProducto, $Sw_Medicamento) {
         $SelectPerfilesTerapeuticos .='</SELECT>';
 		
 		$html .= "	<input type=\"hidden\" name=\"anatoFarmacologicoDescripcion\" id=\"anatoFarmacologicoDescripcion\" >";
+
+
+
+	
+	//GERMAN
+        $SelectCodigosBienesServicios = '<SELECT NAME="cod_unspsc" id="cod_unspsc" SIZE="1" class="select" style="width:100%;height:100%" >';
+        foreach ($codigoBienesServicios as $ky => $codigoBienesServicios) {
+            $SelectCodigosBienesServicios .= '<OPTION VALUE="' . $codigoBienesServicios['codigo'] . '"';
+            if ($codigoBienesServicios['codigo'] == $prod['cod_unspsc'])
+                $SelectCodigosBienesServicios .=" selected ";
+
+            $SelectCodigosBienesServicios .='>' . $codigoBienesServicios['descripcion'] . '-' . $codigoBienesServicios['codigo'] . '</OPTION>';
+        }
+        $SelectCodigosBienesServicios .='</SELECT>';
 		
+		$html .= "	<input type=\"hidden\" name=\"codigoBienesDescripcion\" id=\"codigoBienesDescripcion\" >";
+//FIN		
 		
 		
 		
@@ -1594,7 +1611,16 @@ function ModProducto($CodigoProducto, $Sw_Medicamento) {
         $html .= $SelectPerfilesTerapeuticos;
         $html .= "      </td>";
         $html .= "      </tr>";
-		 
+		 //GERMAN
+        $html .= "      <tr class=\"modulo_list_claro\">";
+        $html .= "      <td class=\"formulacion_table_list\" align=\"center\" width=\"10%\">";
+        $html .= "      Codigo UNSPSC :";
+        $html .= "      </td>";
+        $html .= "      <td align=\"left\" width=\"30%\">";
+        $html .= $SelectCodigosBienesServicios;
+        $html .= "      </td>";
+        $html .= "      </tr>";
+		 //FIN
         $html .= "      <tr class=\"modulo_list_claro\">";
         $html .= "      <td class=\"formulacion_table_list\" align=\"center\" width=\"10%\">";
         $html .= "      Codigo Mensaje :";
@@ -1833,6 +1859,7 @@ function ModProducto($CodigoProducto, $Sw_Medicamento) {
         $html .= "      <td class=\"label\" align=\"center\" colspan=\"2\">";
         $html .= '      <input type="hidden" name="token" value="0">'; //esto es para definir si es Update o Insert  
         $html .= '      <input type="hidden" name="sw_medicamento" value="' . $Sw_Medicamento . '">';
+		//descripcionBienesServicios(), agregar despues de  descripcionComercialFarmaco
         $html .= "      <input class=\"input-submit\" type=\"button\" value=\"Enviar\" name=\"boton\" onclick=\"mostrar_descripcion_titular(),descripcionTratamientoEspecial(),descripcionUnidadMedida(),descripcionAnatoFarmacologico(),descripcionComercialFarmaco(), setTimeout('Confirmar_1(xajax.getFormValues(\'FormularioProducto\'))', 1000)\">";
 																									//onclick=\"setTimeout('window.alert(\'Hello!\')', 2000)\" >"; //
 																								   //                      
@@ -2006,6 +2033,7 @@ function IngresoProducto($CodigoGrupo, $CodigoClase, $NombreClase, $NombreGrupo,
 
 
     $PerfilesTerapeuticos = $sql->Listar_Perfiles_Terapeuticos();
+	$codigoBienesServicios = $sql->Listar_Codigos_Bienes_Servicios();
     $TratamientosProductos = $sql->Listar_TratamientosProductos();
 
     $Producto_Id = $sql->Consecutivo_Producto($CodigoGrupo, $CodigoClase, $CodSubClase);
@@ -2051,6 +2079,21 @@ function IngresoProducto($CodigoGrupo, $CodigoClase, $NombreClase, $NombreGrupo,
             $SelectPerfilesTerapeuticos .='>' . $PerfilesTerapeuticos['descripcion'] . '-' . $PerfilesTerapeuticos['codigo'] . '</OPTION>';
         }
         $SelectPerfilesTerapeuticos .='</SELECT>';
+		
+		
+	//GERMAN
+        $SelectCodigosBienesServicios = '<SELECT NAME="cod_unspsc" id="cod_unspsc" SIZE="1" class="select" style="width:100%;height:100%" >';
+        foreach ($codigoBienesServicios as $ky => $codigoBienesServicios) {
+            $SelectCodigosBienesServicios .= '<OPTION VALUE="' . $codigoBienesServicios['codigo'] . '"';
+            if ($codigoBienesServicios['codigo'] == $prod['cod_unspsc'])
+                $SelectCodigosBienesServicios .=" selected ";
+
+            $SelectCodigosBienesServicios .='>' . $codigoBienesServicios['descripcion'] . '-' . $codigoBienesServicios['codigo'] . '</OPTION>';
+        }
+        $SelectCodigosBienesServicios .='</SELECT>';
+
+//FIN		
+	
 		 
 	$SelectUnidadesMedida = '<SELECT NAME="unidad_id" id="unidad_id" SIZE="1" class="select" style="width:40%;height:40%"   >';//onChange="descripcionUnidadMedida()"
         foreach ($UnidadesMedida as $ke => $Unidades) {
@@ -2321,8 +2364,17 @@ function IngresoProducto($CodigoGrupo, $CodigoClase, $NombreClase, $NombreGrupo,
     $html .= "      </td>";
     $html .= "      </tr>";
     
-	
-
+	//GERMAN
+	$html .= "      <tr class=\"modulo_list_claro\">";
+	$html .= "      <td class=\"formulacion_table_list\" align=\"center\" width=\"10%\">";
+	$html .= "      Codigo UNSPSC :";
+	$html .= "      </td>";
+	$html .= "      <td align=\"left\" width=\"30%\">";
+	$html .= $SelectCodigosBienesServicios;
+	$html .= "	<input type=\"hidden\" name=\"codigoBienesDescripcion\" id=\"codigoBienesDescripcion\" >";
+	$html .= "      </td>";
+	$html .= "      </tr>";
+	//FIN
 
     $html .= "      <tr class=\"modulo_list_claro\">";
     $html .= "      <td class=\"formulacion_table_list\" align=\"center\" width=\"10%\">";
@@ -2521,6 +2573,7 @@ function IngresoProducto($CodigoGrupo, $CodigoClase, $NombreClase, $NombreGrupo,
     $html .= "      <tr class=\"modulo_list_claro\">";
     $html .= "      <td class=\"label\" align=\"center\" colspan=\"2\">";
     $html .= '      <input type="hidden" name="token" maxlength="20" value="1">'; //esto es para definir si es Update o Insert  
+	//descripcionBienesServicios(), agregar despues de  descripcionAnatoFarmacologico
     $html .= "      <input class=\"input-submit\" type=\"button\" value=\"Enviar\" name=\"boton\" onclick=\"mostrar_descripcion_titular(),descripcionUnidadMedida(),descripcionTratamientoEspecial(),descripcionAnatoFarmacologico(),setTimeout('Confirmar_1(xajax.getFormValues(\'FormularioProducto\'))', 1000)\">";
     $html .= "      </td>";
     $html .= "      </tr>";

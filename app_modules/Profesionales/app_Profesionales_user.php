@@ -322,6 +322,7 @@ class app_Profesionales_user extends classModulo
 	function BuscarPacientes()
 	{
 		$Datos=$this->Buscar1($_REQUEST['TipoDocumento'],$_REQUEST['Documento'],strtoupper($_REQUEST['nombres']),$_REQUEST['TipoProfe']);
+		//print_r($_REQUEST,false);
 		if($Datos)
 		{
 			$this->ListarProfe($mensaje,$Datos);
@@ -348,7 +349,7 @@ class app_Profesionales_user extends classModulo
 			list($dbconn) = GetDBconn();
 			if(empty($_REQUEST['conteo']))
 			{
-				$query="select count(distinct c.nombre_tercero) from profesionales as a join tipo_sexo as f using(sexo_id) join terceros as c on (a.tercero_id=c.tercero_id and a.tipo_id_tercero=c.tipo_id_tercero) join profesionales_empresas as d on (a.tipo_id_tercero=d.tipo_id_tercero and a.tercero_id=d.tercero_id and empresa_id='".$_SESSION['ManProf']['empresa']."') join profesionales_especialidades as b on (a.tipo_id_tercero=b.tipo_id_tercero and a.tercero_id=b.tercero_id) where";
+				$query="select count(distinct c.nombre_tercero) from profesionales as a join tipo_sexo as f using(sexo_id) join terceros as c on (a.tercero_id=c.tercero_id and a.tipo_id_tercero=c.tipo_id_tercero) join profesionales_empresas as d on (a.tipo_id_tercero=d.tipo_id_tercero and a.tercero_id=d.tercero_id and d.empresa_id='".$_SESSION['ManProf']['empresa']."') join profesionales_especialidades as b on (a.tipo_id_tercero=b.tipo_id_tercero and a.tercero_id=b.tercero_id) where";
 			if(!empty($TipoId) and !empty($PacienteId))
 			{
 				$query.="(a.tercero_id='".$PacienteId."' and a.tipo_id_tercero='".$TipoId."') or ";
@@ -814,7 +815,7 @@ function InsertarEspecialidad()
 				return true;
 		}
 
-
+		
 	if(empty($_REQUEST['sub']) && ! empty($_SESSION['PROF']['SUB_ESPECIALIDAD']))
 	{
 
@@ -847,8 +848,39 @@ function InsertarEspecialidad()
 		$sub_especialidad=$_REQUEST['sub'];
 	}
 
+		//Revisemos profesional este creado.
+		$query = "SELECT COUNT(*) FROM profesionales
+							WHERE tipo_id_tercero='".$_SESSION['ManProf']['Profesional']['tipoid']."'
+							AND tercero_id='".$_SESSION['ManProf']['Profesional']['tercero']."'";
+		$result = $dbconn->Execute($query);
+		if ($dbconn->ErrorNo() != 0)
+		{
+			$this->error = "Error al buscar profesionales";
+			$this->mensajeDeError = "Ocurrió un error al intentar obtener un profesional.<br><br>".$dbconn->ErrorMsg()."<br><br>".$query;
+			$dbconn->RollbackTrans();
+			return false;
+		}
+
+		//si no entra aca es por q ya existe el profesional
+		if($result->fields[0] <= 0)
+		{
+			
+			$query = "insert into profesionales (tipo_id_tercero, tercero_id, nombre,tipo_profesional, estado,sexo_id) values
+			('".$_SESSION['ManProf']['Profesional']['tipoid']."','".$_SESSION['ManProf']['Profesional']['tercero']."', '".$_SESSION['ManProf']['Profesional']['nombrep']."',
+			'1','1','".$_SESSION['ManProf']['Profesional']['Sexo']."');";
+			$dbconn->Execute($query);
+			if ($dbconn->ErrorNo() != 0)
+				{
+						$this->error = "Error al Cargar el Modulo";
+						$this->mensajeDeError = "Error DB : " . $dbconn->ErrorMsg();
+						$dbconn->RollbackTrans();
+						return false;
+				}
+			$sub_especialidad=$result->fields[0];
+		}
 
 	$query = "insert into profesionales_especialidades (tipo_id_tercero, tercero_id, especialidad,sub_especialidad, universidad) values ('".$_SESSION['ManProf']['Profesional']['tipoid']."', '".$_SESSION['ManProf']['Profesional']['tercero']."', '".$_REQUEST['especialidad']."','$sub_especialidad', '".$_REQUEST['uni']."');";
+	
 	$dbconn->Execute($query);
 	if ($dbconn->ErrorNo() != 0)
 	{
@@ -1102,6 +1134,7 @@ function UsuariosProfesionales($nombre)
 }
 	function GuardarProfesional()
 	{
+		
 		list($dbconn) = GetDBconn();
     $profesionales_todo=$this->TodoProfesionales();
     
@@ -1159,7 +1192,7 @@ function UsuariosProfesionales($nombre)
 				$dbconn->RollbackTrans();
 				return false;
 			}
-			$query = "update profesionales set tipo_profesional='".$_REQUEST['TipoProf']."', tarjeta_profesional='".$_REQUEST['TarjProf']."', sexo_id='".$_REQUEST['Sexo']."', universidad='".$_REQUEST['universidad']."', observacion='".$_REQUEST['observacion']."', registro_salud_departamental='".$_REQUEST['registro_salud']."', sw_registro_defuncion='".$_REQUEST['defuncion']."', fecha_registro='".date("Y-m-d H:i:s")."', usuario_id=".$profesionales_todo[0]['usuario_id']."  where tipo_id_tercero='".$_SESSION['ManProf']['Profesional']['tipoid']."' and tercero_id='".$_SESSION['ManProf']['Profesional']['tercero']."';";
+			$query = "update profesionales set tipo_profesional='".$_REQUEST['TipoProf']."', tarjeta_profesional='".$_REQUEST['TarjProf']."', sexo_id='".$_REQUEST['Sexo']."', universidad='".$_REQUEST['universidad']."', observacion='".$_REQUEST['observacion']."', registro_salud_departamental='".$_REQUEST['registro_salud']."', sw_registro_defuncion='".$_REQUEST['defuncion']."', fecha_registro='".date("Y-m-d H:i:s")."', usuario_id= 0  where tipo_id_tercero='".$_SESSION['ManProf']['Profesional']['tipoid']."' and tercero_id='".$_SESSION['ManProf']['Profesional']['tercero']."';";
 		//print_r($query);
       $dbconn->Execute($query);
 			if ($dbconn->ErrorNo() != 0)
@@ -1217,7 +1250,8 @@ function UsuariosProfesionales($nombre)
 				$dbconn->RollbackTrans();
 				return false;
 			}
-			$query = "insert into profesionales (tipo_profesional, tarjeta_profesional, sexo_id, universidad, observacion, registro_salud_departamental, sw_registro_defuncion, fecha_registro, usuario_id, tipo_id_tercero, tercero_id) values ('".$_REQUEST['TipoProf']."', '".$_REQUEST['TarjProf']."', '".$_REQUEST['Sexo']."', '".$_REQUEST['universidad']."', '".$_REQUEST['observacion']."', '".$_REQUEST['registro_salud']."', '".$_REQUEST['defuncion']."', '".date("Y-m-d H:i:s")."', ".$usuarios_profesionales[0]['usuario_id'].", '".$_SESSION['ManProf']['Profesional']['tipoid']."', '".$_SESSION['ManProf']['Profesional']['tercero']."');";
+			$query = "insert into profesionales (tipo_profesional, tarjeta_profesional, sexo_id, universidad, observacion, registro_salud_departamental, sw_registro_defuncion, fecha_registro, usuario_id, tipo_id_tercero, tercero_id, nombre) values ('".$_REQUEST['TipoProf']."', '".$_REQUEST['TarjProf']."', '".$_REQUEST['Sexo']."', '".$_REQUEST['universidad']."', '".$_REQUEST['observacion']."', '".$_REQUEST['registro_salud']."', '".$_REQUEST['defuncion']."', '".date("Y-m-d H:i:s")."', 0, '".$_SESSION['ManProf']['Profesional']['tipoid']."', '".$_SESSION['ManProf']['Profesional']['tercero']."', '".$_SESSION['ManProf']['Profesional']['nombrep']."');";
+
 			$dbconn->Execute($query);
 			if ($dbconn->ErrorNo() != 0)
 			{
@@ -1263,31 +1297,32 @@ function UsuariosProfesionales($nombre)
 		}
           $target_path1 ="images/firmas_profesionales/";
 		$target_path = $target_path1.$_SESSION['ManProf']['Profesional']['tipoid']."*".$_SESSION['ManProf']['Profesional']['tercero'].".jpg";
-		//print_r($_FILES['datafile']['tmp_name'], $target_path);
+	//if(file_exists("images/firmas_profesionales/".$_SESSION['ManProf']['Profesional']['tipoid']."*".$_SESSION['ManProf']['Profesional']['tercero'].".jpg")){
+		if(!empty($_FILES['datafile']['tmp_name'])){
 		if(move_uploaded_file($_FILES['datafile']['tmp_name'], $target_path)) 
-    {
+		{
 			echo "The file ".basename($target_path)." has been uploaded";
-               $this->frmError["MensajeError"] = "DATOS GUARDADOS SATISFACTORIAMENTE !";
-       $query= " UPDATE profesionales 
-                 SET    firma='".$_SESSION['ManProf']['Profesional']['tipoid']."*".$_SESSION['ManProf']['Profesional']['tercero'].".jpg"."' 
-                WHERE  tipo_id_tercero='".$_SESSION['ManProf']['Profesional']['tipoid']."'
-                AND    tercero_id='".$_SESSION['ManProf']['Profesional']['tercero']."' ";
-       // print_r($query);
-       //'".$_REQUEST['TipoProf']."', '".$_REQUEST['TarjProf']."'
-       $dbconn->Execute($query);
-				if ($dbconn->ErrorNo() != 0)
-				{
-					$this->error = "Error al Cargar el Modulo";
-					$this->mensajeDeError = "Error DB : " . $dbconn->ErrorMsg();
-					$dbconn->RollbackTrans();
-					return false;
-				}
-        $dbconn->CommitTrans();
+		   $this->frmError["MensajeError"] = "DATOS GUARDADOS SATISFACTORIAMENTE !";
+			$query= " UPDATE profesionales 
+					 SET    firma='".$_SESSION['ManProf']['Profesional']['tipoid']."*".$_SESSION['ManProf']['Profesional']['tercero'].".jpg"."' 
+					WHERE  tipo_id_tercero='".$_SESSION['ManProf']['Profesional']['tipoid']."'
+					AND    tercero_id='".$_SESSION['ManProf']['Profesional']['tercero']."' ";
+		   $dbconn->Execute($query);
+			if ($dbconn->ErrorNo() != 0)
+			{
+				$this->error = "Error al Cargar el Modulo";
+				$this->mensajeDeError = "Error DB : " . $dbconn->ErrorMsg();
+				$dbconn->RollbackTrans();
+				return false;
+			}
+			$dbconn->CommitTrans();
 		} 
 		else{
 			$this->frmError["MensajeError"] = "No se pudo subir el archivo de la firma";
-			}
-		
+		}
+	}else{
+		$this->frmError["MensajeError"] = "DATOS GUARDADOS SATISFACTORIAMENTE !";
+	}
 		
 		$_SESSION['ManProf']['Profesional']['nombrep']=$_REQUEST['nombrep'];
 		$_SESSION['ManProf']['Profesional']['TipoProf']=$_REQUEST['TipoProf'];
@@ -1303,7 +1338,7 @@ function UsuariosProfesionales($nombre)
 	function Desicion()
 	{
 
-//print_r($_REQUEST);exit;
+//print_r($_REQUEST,false);
 
 		if(!empty($_REQUEST['VOLVER']))
 		{

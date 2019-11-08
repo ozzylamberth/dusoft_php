@@ -490,7 +490,15 @@ class app_Profesionales_userclasses_HTML extends app_Profesionales_user
 		}
 		$this->salida=ThemeAbrirTabla('PROFESIONAL - '.$_SESSION['ManProf']['Profesional']['nombrep']);
 		//$this->salida .='<br>';
-
+		//$ac=ModuloGetURL('app','Profesionales','user','frmAdicionarEspecialidad');
+		$this->salida .= '<script>
+							function crearEspecialidad(link){
+								  var select = document.getElementById("Sexo"),
+									value = select.value,
+									direccion = link+"&sexo="+value;
+									window.location.href =""+direccion;
+							}
+							</script>';
 		$this->salida .= '<table width="85%" align="center" class="modulo_table_title">';
 		$this->salida .= '<tr align="center" class="modulo_table_title">';
 		$this->salida .= '<td align="center">';
@@ -558,7 +566,7 @@ class app_Profesionales_userclasses_HTML extends app_Profesionales_user
 		$this->salida .= 'SEXO:';
 		$this->salida .= "</td>";
 		$this->salida .= '<td align="left">';
-		$this->salida .= '<select name="Sexo" class="select">';
+		$this->salida .= '<select name="Sexo" id="Sexo" class="select">';
 		$sexo=$this->Sexo();
 		if($sexo==false)
 		{
@@ -575,6 +583,8 @@ class app_Profesionales_userclasses_HTML extends app_Profesionales_user
 				$this->salida .= '<option value="'.$k.'">'.$v.'</option>';
 			}
 		}
+		
+		
 		$this->salida .= '</select>';
 		$this->salida .= "</td>";
 		$this->salida .= "</tr>";
@@ -583,7 +593,7 @@ class app_Profesionales_userclasses_HTML extends app_Profesionales_user
 		$this->salida .= 'TARJETA PROFESIONAL:';
 		$this->salida .= "</td>";
 		$this->salida .= '<td align="left">';
-		$this->salida .= '<input type="text" name="TarjProf" maxlength=20 size="60" value="'.$_SESSION['ManProf']['Profesional']['TarjProf'].'" class="input-text">';
+		$this->salida .= '<input type="text" name="TarjProf" id="TarjProf" maxlength=20 size="60" value="'.$_SESSION['ManProf']['Profesional']['TarjProf'].'" class="input-text">';
 		$this->salida .= "</td>";
 		$this->salida .= "</tr>";
 		$this->salida .= '<tr align="left" class="modulo_list_oscuro">';
@@ -677,17 +687,6 @@ class app_Profesionales_userclasses_HTML extends app_Profesionales_user
 		
 		//
 		$this->salida .= '<tr align="left" class="modulo_list_claro">';
-		/*$this->salida .= '<td align="left">';
-		$this->salida .= 'CIRCULANTE:';
-		$this->salida .= "</td>";*/
-		/*$this->salida .= '<td align="left">';
-		$this->salida .= '<input type="checkbox" value="1" name="circulante"';
-		if(1==$_SESSION['ManProf']['Profesional']['circulante'])
-		{
-			$this->salida .= 'checked';
-		}
-		$this->salida .= '>';
-		$this->salida .= "</td>";*/
 		$this->salida .= "</tr>";
 		$this->salida .= "</table>";
 		$this->salida .='<br>';
@@ -751,34 +750,10 @@ class app_Profesionales_userclasses_HTML extends app_Profesionales_user
 				}
 					$this->salida .= "</table>";
 			}
-		/*	if($spy==0)
-			{
-				$this->salida .= '<tr class="modulo_list_oscuro">';
-				$spy=1;
-			}
-			else
-			{
-				$this->salida .= '<tr class="modulo_list_claro">';
-				$spy=0;
-			}
-			$this->salida .= '<td align="center">';
-			$this->salida .= '<select name="especialidad" class="select">';
-			$this->salida .= '<option value="-1">--SELECCIONE--</option>';
-			foreach($tipo_especialidad as $k=>$v)
-			{
-				$this->salida .= '<option value="'.$k.'">'.$v.'</option>';
-			}
-			$this->salida .= '</select>';
-			$this->salida .= "</td>";
-			$this->salida .= '<td align="center">';
-			$this->salida .= '<input type="text" name="universidades" class="input-text">';
-			$this->salida .= "</td>";
-			$this->salida .= '<td align="center" colspan="2">';
-			$this->salida .= '<input type="submit" name="ADICIONAR" value="ADICIONAR" class="input-submit">';
-			$this->salida .= "</td>";
-			$this->salida .= "</tr>";*/
+
 			$ac=ModuloGetURL('app','Profesionales','user','frmAdicionarEspecialidad');
-			$this->salida .= "<br><div align=center><a href='$ac'><sub><img src=\"". GetThemePath() ."/images/especialidad.png\" border='0'>&nbsp;CREAR NUEVA ESPECIALIDAD</sub></a></div>";
+			//$ac.="&sexo=$a";
+			$this->salida .= "<br><div align=center><a href='#' onclick=\"crearEspecialidad('".$ac."');\"><sub><img src=\"". GetThemePath() ."/images/especialidad.png\" border='0'>&nbsp;CREAR NUEVA ESPECIALIDAD</sub></a></div>";
 			$this->salida .= '<br>';
 		}
 		$this->salida .= '<table align="center" width="40%" border="0">';
@@ -824,6 +799,10 @@ function frmAdicionarEspecialidad()
 
 
 		$accion=ModuloGetURL('app','Profesionales','user','InsertarEspecialidad');
+		if(empty($_SESSION['ManProf']['Profesional']['Sexo']))
+		{
+		$_SESSION['ManProf']['Profesional']['Sexo']=$_REQUEST['sexo'];
+		}
 		$this->salida .= '<form name="volver" method="post" action="'.$accion.'">';
 		$tipo_especialidad=$this->TipoEspecialidades();
 		$especialidades=$this->Especialidad();
@@ -833,9 +812,9 @@ function frmAdicionarEspecialidad()
 
 		$refresh=ModuloGetURL('app','Profesionales','user','frmAdicionarEspecialidad');
 		$cadena ="\n<script language='javascript'>\n";
-		$cadena .= "	function CargarPagina(href,valor) {\n";
+		$cadena .= "	function CargarPagina(href,valor,sexo_id) {\n";
 		$cadena .= "		var url=href;\n";
-		$cadena .= "		location.href=url+'&especialidad='+valor;\n";
+		$cadena .= "		location.href=url+'&especialidad='+valor+'&sexo='+sexo_id;\n";
 		$cadena .= "	}\n\n";
 		$cadena.="</script>\n";
 		$this->salida .=$cadena;
@@ -844,7 +823,7 @@ function frmAdicionarEspecialidad()
 		$this->salida .= "              <fieldset><legend class=\"field\">Creación de Especialidad</legend>";
 		$this->salida .= "              <table cellspacing=\"2\"  cellpadding=\"3\"border=\"0\" width=\"100%\" align=\"center\">";
 		$this->salida .= "				       <tr class=\"modulo_list_oscuro\"><td class=\"".$this->SetStyle("emp")."\" width=\"40%\" align=\"left\">ESPECIALIDAD: </td><td class=\"modulo_list_oscuro\" align=\"left\">";
-		$this->salida .= "<select name=especialidad class=select onchange=\"CargarPagina('$refresh',this.options[selectedIndex].value);\">";
+		$this->salida .= "<select name=especialidad class=select onchange=\"CargarPagina('$refresh',this.options[selectedIndex].value,'".$_REQUEST['sexo']."');\">";
 		$this->salida .= '<option value="-1">--SELECCIONE--</option>';
 		foreach($tipo_especialidad as $k=>$v)
 		{
@@ -906,8 +885,6 @@ function frmAdicionarEspecialidad()
     $this->salida .= "			         </table>";
 		$this->salida .= "		           </fieldset></td></tr></table>";
 		$this->salida .='<br>';
-
-
 
 	$this->salida .= '<br><table align="center" width="40%" border="0">';
 	$this->salida .= '<tr>';
